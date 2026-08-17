@@ -1,0 +1,122 @@
+{
+  "drunk_driving": {
+    "description": "Drunk Driving (first offence)",
+    "fine": 10000,
+    "imprisonment": "6 months",
+    "section": "185"
+  },
+  "drunk_driving_repeat": {
+    "description": "Drunk Driving (repeat offence)",
+    "fine": 15000,
+    "imprisonment": "2 years",
+    "section": "185"
+  },
+  "overspeeding_lmv": {
+    "description": "Over-speeding — LMV",
+    "fine": 1000,
+    "imprisonment": null,
+    "section": "112/183"
+  },
+  "overspeeding_mmv": {
+    "description": "Over-speeding — MMV/HMV",
+    "fine": 2000,
+    "imprisonment": null,
+    "section": "112/183"
+  },
+  "no_helmet": {
+    "description": "No Helmet (two-wheeler)",
+    "fine": 1000,
+    "imprisonment": null,
+    "section": "129"
+  },
+  "no_seatbelt": {
+    "description": "No Seat Belt",
+    "fine": 1000,
+    "imprisonment": null,
+    "section": "138(3)"
+  },
+  "signal_jump": {
+    "description": "Signal Jumping / Red Light",
+    "fine": 1000,
+    "imprisonment": null,
+    "section": "119"
+  },
+  "mobile_driving": {
+    "description": "Using Mobile While Driving",
+    "fine": 5000,
+    "imprisonment": null,
+    "section": "184"
+  },
+  "no_dl": {
+    "description": "Driving Without Licence",
+    "fine": 5000,
+    "imprisonment": null,
+    "section": "3/181"
+  },
+  "no_insurance": {
+    "description": "Driving Without Insurance",
+    "fine": 2000,
+    "imprisonment": "3 months",
+    "section": "196"
+  },
+  "no_rc": {
+    "description": "Driving Without Registration",
+    "fine": 5000,
+    "imprisonment": null,
+    "section": "39/192"
+  },
+  "overloading_passenger": {
+    "description": "Passenger Overloading",
+    "fine": 1000,
+    "imprisonment": null,
+    "section": "128"
+  },
+  "overloading_goods": {
+    "description": "Goods Overloading (per tonne)",
+    "fine": 2000,
+    "imprisonment": null,
+    "section": "194"
+  },
+  "dangerous_driving": {
+    "description": "Dangerous / Rash Driving",
+    "fine": 5000,
+    "imprisonment": "6 months",
+    "section": "184"
+  },
+  "no_permit": {
+    "description": "Driving Without Permit",
+    "fine": 10000,
+    "imprisonment": null,
+    "section": "66/192A"
+  },
+  "pollution_norms": {
+    "description": "Violation of Pollution Norms",
+    "fine": 10000,
+    "imprisonment": null,
+    "section": "190(2)"
+  },
+  "emergency_vehicle": {
+    "description": "Not Giving Way to Emergency",
+    "fine": 10000,
+    "imprisonment": null,
+    "section": "194E"
+  },
+  "wrong_side": {
+    "description": "Wrong Side / One-Way Violation",
+    "fine": 1000,
+    "imprisonment": null,
+    "section": "119"
+  },
+  "no_parking": {
+    "description": "No Parking Violation",
+    "fine": 500,
+    "imprisonment": null,
+    "section": "122"
+  },
+  "minor_driving": {
+    "description": "Minor Driving Vehicle",
+    "fine": 25000,
+    "imprisonment": null,
+    "section": "199A"
+  }
+}
