@@ -1,0 +1,409 @@
+{
+  "Andhra Pradesh": {
+    "surcharge": 0.0,
+    "notes": [
+      "Speed limit on NH: 100 km/h (cars), 80 km/h (trucks).",
+      "E-Challan system active in major cities.",
+      "Helmet mandatory for pillion riders."
+    ],
+    "helmet_law": "Mandatory for both rider and pillion",
+    "speed_city": 50,
+    "speed_highway": 100
+  },
+  "Arunachal Pradesh": {
+    "surcharge": 0.0,
+    "notes": [
+      "Inner Line Permit (ILP) required for non-residents.",
+      "Limited enforcement infrastructure; state police handles challans.",
+      "Roads may be closed during monsoons — check NHIDCL advisories."
+    ],
+    "helmet_law": "Mandatory for rider; advisory for pillion",
+    "speed_city": 40,
+    "speed_highway": 80
+  },
+  "Assam": {
+    "surcharge": 0.0,
+    "notes": [
+      "E-Challan operational in Guwahati and major towns.",
+      "Strict enforcement during festival seasons.",
+      "Pollution check mandatory — yellow sticker scheme active."
+    ],
+    "helmet_law": "Mandatory for both rider and pillion",
+    "speed_city": 50,
+    "speed_highway": 100
+  },
+  "Bihar": {
+    "surcharge": 0.0,
+    "notes": [
+      "E-Challan system introduced in Patna.",
+      "Overloading strictly enforced on NH 19 and NH 28.",
+      "Liquor prohibition — drunk driving treated as criminal offence."
+    ],
+    "helmet_law": "Mandatory for both rider and pillion",
+    "speed_city": 50,
+    "speed_highway": 100
+  },
+  "Chhattisgarh": {
+    "surcharge": 0.0,
+    "notes": [
+      "Traffic police uses CCTV cameras in Raipur.",
+      "Compounding fee accepted at Motor Vehicle offices.",
+      "Tribal area roads — follow local speed advisories."
+    ],
+    "helmet_law": "Mandatory for both rider and pillion",
+    "speed_city": 50,
+    "speed_highway": 100
+  },
+  "Goa": {
+    "surcharge": 0.1,
+    "notes": [
+      "Tourist-heavy state — increased checking during season (Oct–Mar).",
+      "Beach road speed limit: 40 km/h.",
+      "Drunk-driving checks frequent on NH 66 at night.",
+      "Additional 10% state surcharge on national fines."
+    ],
+    "helmet_law": "Mandatory for both rider and pillion",
+    "speed_city": 40,
+    "speed_highway": 80
+  },
+  "Gujarat": {
+    "surcharge": 0.0,
+    "notes": [
+      "Liquor prohibition state — drunk driving treated very strictly.",
+      "Ahmedabad, Surat, Vadodara use AI-based traffic surveillance.",
+      "E-Challan via iRAD system; payment via Gujarat One portal."
+    ],
+    "helmet_law": "Mandatory for both rider and pillion",
+    "speed_city": 50,
+    "speed_highway": 100
+  },
+  "Haryana": {
+    "surcharge": 0.0,
+    "notes": [
+      "Speed cameras active on Delhi-Ambala NH 44.",
+      "Tractor traffic regulated separately on state roads.",
+      "E-Challan via Sarathi portal."
+    ],
+    "helmet_law": "Mandatory for both rider and pillion",
+    "speed_city": 50,
+    "speed_highway": 100
+  },
+  "Himachal Pradesh": {
+    "surcharge": 0.0,
+    "notes": [
+      "Mountain road rules apply — horn usage compulsory on blind turns.",
+      "Speed limit on hill roads: 30 km/h.",
+      "Rohtang Pass and other eco-zones: vehicle permits required."
+    ],
+    "helmet_law": "Mandatory for both rider and pillion",
+    "speed_city": 30,
+    "speed_highway": 70
+  },
+  "Jharkhand": {
+    "surcharge": 0.0,
+    "notes": [
+      "E-Challan operational in Ranchi and Jamshedpur.",
+      "Mining vehicle overloading — separate enforcement by transport dept.",
+      "Road safety drives frequent on NH-33."
+    ],
+    "helmet_law": "Mandatory for both rider and pillion",
+    "speed_city": 50,
+    "speed_highway": 100
+  },
+  "Karnataka": {
+    "surcharge": 0.0,
+    "notes": [
+      "Bengaluru has extensive CCTV-based e-challan system.",
+      "Odd-even rules may apply in select zones during emergencies.",
+      "Pedestrian crossing violations fined under state rules.",
+      "Parivahan Sewa portal for challan payment."
+    ],
+    "helmet_law": "Mandatory for both rider and pillion",
+    "speed_city": 50,
+    "speed_highway": 100
+  },
+  "Kerala": {
+    "surcharge": 0.05,
+    "notes": [
+      "5% state surcharge applied on national base fines.",
+      "Motor Vehicle Department uses AI cameras in Thiruvananthapuram & Kochi.",
+      "School zone speed limit: 25 km/h strictly enforced.",
+      "e-Challan via Kerala Motor Vehicle Dept portal."
+    ],
+    "helmet_law": "Mandatory for both rider and pillion",
+    "speed_city": 50,
+    "speed_highway": 100
+  },
+  "Madhya Pradesh": {
+    "surcharge": 0.0,
+    "notes": [
+      "e-Challan operational across major cities.",
+      "Tiger reserve buffer zones — special vehicle regulations apply.",
+      "Night travel restrictions on certain forest highways."
+    ],
+    "helmet_law": "Mandatory for both rider and pillion",
+    "speed_city": 50,
+    "speed_highway": 100
+  },
+  "Maharashtra": {
+    "surcharge": 0.0,
+    "notes": [
+      "Mumbai has highest density of speed cameras in India.",
+      "Expressway speed limit: 120 km/h (cars), 80 km/h (buses).",
+      "Mumbai Traffic Police app for challans.",
+      "MahaTraffic portal for statewide e-challans."
+    ],
+    "helmet_law": "Mandatory for both rider and pillion",
+    "speed_city": 50,
+    "speed_highway": 120
+  },
+  "Manipur": {
+    "surcharge": 0.0,
+    "notes": [
+      "Traffic subject to bandh / blockade conditions — check NHIDCL.",
+      "ILP required for non-residents in some districts.",
+      "Speed limits strictly enforced on NH 2."
+    ],
+    "helmet_law": "Mandatory for both rider and pillion",
+    "speed_city": 40,
+    "speed_highway": 80
+  },
+  "Meghalaya": {
+    "surcharge": 0.0,
+    "notes": [
+      "Hill road speed limit: 30 km/h.",
+      "Shillong: One-way traffic system in central areas.",
+      "NGT orders restrict vehicle movement in eco-sensitive zones."
+    ],
+    "helmet_law": "Mandatory for rider; advisory for pillion",
+    "speed_city": 30,
+    "speed_highway": 70
+  },
+  "Mizoram": {
+    "surcharge": 0.0,
+    "notes": [
+      "Mountain terrain — special vehicle regulations.",
+      "Aizawl: strict parking regulations in town centre.",
+      "ILP required for non-residents."
+    ],
+    "helmet_law": "Mandatory for both rider and pillion",
+    "speed_city": 30,
+    "speed_highway": 60
+  },
+  "Nagaland": {
+    "surcharge": 0.0,
+    "notes": [
+      "ILP required for non-residents.",
+      "Road conditions vary — follow advisory speed limits.",
+      "Kohima: strict traffic rules during Hornbill Festival."
+    ],
+    "helmet_law": "Mandatory for rider",
+    "speed_city": 40,
+    "speed_highway": 70
+  },
+  "Odisha": {
+    "surcharge": 0.0,
+    "notes": [
+      "e-Challan active in Bhubaneswar and Cuttack.",
+      "Cyclone season road closures — monitor OSDMA updates.",
+      "NH 16 (Golden Quadrilateral) — speed camera active."
+    ],
+    "helmet_law": "Mandatory for both rider and pillion",
+    "speed_city": 50,
+    "speed_highway": 100
+  },
+  "Punjab": {
+    "surcharge": 0.0,
+    "notes": [
+      "Drone-based surveillance on NH 44.",
+      "Tractor / trolley regulated under separate state SOP.",
+      "Amritsar and Ludhiana have AI-based traffic management."
+    ],
+    "helmet_law": "Mandatory for both rider and pillion",
+    "speed_city": 50,
+    "speed_highway": 100
+  },
+  "Rajasthan": {
+    "surcharge": 0.0,
+    "notes": [
+      "Desert highway speed limit: 100 km/h (cars).",
+      "Camel cart and livestock on roads — extra caution advisory.",
+      "Jaipur: extensive CCTV challan system."
+    ],
+    "helmet_law": "Mandatory for both rider and pillion",
+    "speed_city": 50,
+    "speed_highway": 100
+  },
+  "Sikkim": {
+    "surcharge": 0.0,
+    "notes": [
+      "Commercial vehicles require special permit.",
+      "Eco-sensitive zone — plastics and certain fuels restricted.",
+      "Altitude roads: extra tyre traction rules apply."
+    ],
+    "helmet_law": "Mandatory for both rider and pillion",
+    "speed_city": 30,
+    "speed_highway": 60
+  },
+  "Tamil Nadu": {
+    "surcharge": 0.0,
+    "notes": [
+      "Chennai Unified Metropolitan Transport Authority manages city traffic.",
+      "e-Challan via TN Transport portal.",
+      "School zone: 25 km/h.",
+      "High-Court orders: strict helmet enforcement."
+    ],
+    "helmet_law": "Mandatory for both rider and pillion (High Court order)",
+    "speed_city": 50,
+    "speed_highway": 100
+  },
+  "Telangana": {
+    "surcharge": 0.0,
+    "notes": [
+      "Hyderabad has AI-based traffic surveillance (TGSRTC).",
+      "e-Challan via TS-iPASS / TGTRAFFIC portal.",
+      "No stopping on ORR (Outer Ring Road)."
+    ],
+    "helmet_law": "Mandatory for both rider and pillion",
+    "speed_city": 50,
+    "speed_highway": 100
+  },
+  "Tripura": {
+    "surcharge": 0.0,
+    "notes": [
+      "Agartala: manual challan system transitioning to e-challan.",
+      "Border area roads — follow BSF/security advisories.",
+      "Hill road rules apply on national highways."
+    ],
+    "helmet_law": "Mandatory for both rider and pillion",
+    "speed_city": 40,
+    "speed_highway": 80
+  },
+  "Uttar Pradesh": {
+    "surcharge": 0.0,
+    "notes": [
+      "UP100 police integrated with traffic enforcement.",
+      "Expressway speed limit: 120 km/h (cars).",
+      "e-Challan via UP Transport portal.",
+      "Kumbh Mela period — special traffic orders in Prayagraj."
+    ],
+    "helmet_law": "Mandatory for both rider and pillion",
+    "speed_city": 50,
+    "speed_highway": 120
+  },
+  "Uttarakhand": {
+    "surcharge": 0.0,
+    "notes": [
+      "Hill road advisory speed: 30 km/h.",
+      "Char Dham Yatra period — special traffic management.",
+      "Eco-sensitive zones: diesel vehicles restricted."
+    ],
+    "helmet_law": "Mandatory for both rider and pillion",
+    "speed_city": 30,
+    "speed_highway": 70
+  },
+  "West Bengal": {
+    "surcharge": 0.0,
+    "notes": [
+      "Kolkata: automated speed cameras on arterials.",
+      "e-Challan via WBtrans portal.",
+      "Night bus restrictions on select city roads."
+    ],
+    "helmet_law": "Mandatory for both rider and pillion",
+    "speed_city": 50,
+    "speed_highway": 100
+  },
+  "Andaman and Nicobar Islands": {
+    "surcharge": 0.0,
+    "notes": [
+      "Island terrain — vehicles imported with permits.",
+      "Speed limit on NH 4: 60 km/h.",
+      "Eco-sensitive zones: vehicle entry restricted."
+    ],
+    "helmet_law": "Mandatory for both rider and pillion",
+    "speed_city": 40,
+    "speed_highway": 60
+  },
+  "Chandigarh": {
+    "surcharge": 0.0,
+    "notes": [
+      "Planned city — strict lane discipline enforced.",
+      "No auto-rickshaws in Sector 1-17 (Phase I).",
+      "e-Challan via UT Traffic Police app."
+    ],
+    "helmet_law": "Mandatory for both rider and pillion",
+    "speed_city": 50,
+    "speed_highway": 80
+  },
+  "Dadra and Nagar Haveli and Daman and Diu": {
+    "surcharge": 0.0,
+    "notes": [
+      "UT administration — national rules apply directly.",
+      "Beach roads: 40 km/h speed limit.",
+      "Challan via local police station."
+    ],
+    "helmet_law": "Mandatory for both rider and pillion",
+    "speed_city": 40,
+    "speed_highway": 80
+  },
+  "Delhi": {
+    "surcharge": 0.0,
+    "notes": [
+      "Extensive ANPR camera network — automatic challans.",
+      "Odd-Even scheme may apply during high pollution (GRAP 4).",
+      "BS-IV and older diesel vehicles restricted during GRAP-3/4.",
+      "e-Challan via Parivahan Sewa or Delhi Traffic Police portal.",
+      "Night parking on arterials prohibited."
+    ],
+    "helmet_law": "Mandatory for both rider and pillion",
+    "speed_city": 50,
+    "speed_highway": 100
+  },
+  "Jammu and Kashmir": {
+    "surcharge": 0.0,
+    "notes": [
+      "UT since 2019 — J&K Motor Vehicles Act partially retained.",
+      "Tunnel traffic: single-lane rules, no overtaking.",
+      "NH 44 (Jammu-Srinagar): convoy system during snow season.",
+      "Security checkpoints — keep documents ready."
+    ],
+    "helmet_law": "Mandatory for both rider and pillion",
+    "speed_city": 40,
+    "speed_highway": 80
+  },
+  "Ladakh": {
+    "surcharge": 0.0,
+    "notes": [
+      "High-altitude roads — special permit for certain passes.",
+      "No overtaking on mountain passes.",
+      "BRO (Border Roads Organisation) manages most highways.",
+      "Night driving restricted on many passes."
+    ],
+    "helmet_law": "Mandatory for rider",
+    "speed_city": 30,
+    "speed_highway": 60
+  },
+  "Lakshadweep": {
+    "surcharge": 0.0,
+    "notes": [
+      "Island UT — very limited vehicle population.",
+      "No registered cars on most islands; two-wheelers predominant.",
+      "Administration-issued permits for vehicles."
+    ],
+    "helmet_law": "Mandatory for both rider and pillion",
+    "speed_city": 30,
+    "speed_highway": 40
+  },
+  "Puducherry": {
+    "surcharge": 0.05,
+    "notes": [
+      "5% surcharge on national fines (Puducherry Motor Vehicles Rules).",
+      "French colonial roads — some one-way systems in old town.",
+      "Auroville zone: pedestrian-priority roads.",
+      "e-Challan via Puducherry Transport Dept."
+    ],
+    "helmet_law": "Mandatory for both rider and pillion",
+    "speed_city": 40,
+    "speed_highway": 80
+  }
+}

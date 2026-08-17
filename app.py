@@ -513,6 +513,16 @@ with tab1:
 **🪖 Helmet Rule:** {STATE_DATA[selected_state]['helmet_law']}
         """)
 
+    # Vehicle-type multiplier reference
+    with st.expander("🚗 View Vehicle-Type Fine Multipliers"):
+        mult_rows = [
+            {"Vehicle Category": k, "Fine Multiplier": f"{v:.1f}x"}
+            for k, v in VEHICLE_TYPES.items()
+        ]
+        st.dataframe(mult_rows, use_container_width=True, hide_index=True)
+        st.caption("The base fine is multiplied by the vehicle factor. "
+                   "Lighter vehicles pay less (0.5x); heavy and commercial vehicles pay up to double (2.0x).")
+
     if st.button("⚡ Calculate Challan", type="primary", use_container_width=True):
         result = calculate_fine(selected_violation_key, vehicle_type, selected_state, is_repeat)
         viol_info = NATIONAL_FINES[selected_violation_key]
