@@ -32,7 +32,6 @@ Drive-Legal/
 │   └── test_app_core.py      # Unit and validation tests
 ├── requirements.txt          # Pinned runtime dependency
 ├── requirements-dev.txt      # Runtime plus pytest
-├── .github/workflows/ci.yml  # CI syntax, JSON, and test checks
 ├── LICENSE
 └── CONTRIBUTING.md
 ```
@@ -61,7 +60,7 @@ pytest -q
 python -m py_compile app.py app_core.py
 ```
 
-The CI workflow repeats Python compilation and JSON validation on Python 3.11 and 3.12 for pushes and pull requests targeting `main`.
+A CI workflow with these same checks is prepared as a maintainer-addable artifact alongside this contribution. It is not included in the submitted branch because the connected GitHub integration cannot push workflow files without the `workflows` permission; maintainers should add it under `.github/workflows/ci.yml` after review.
 
 ## Data and legal sources
 
