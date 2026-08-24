@@ -1,0 +1,9 @@
+{
+  "Two-Wheeler (≤ 50cc)": 0.5,
+  "Two-Wheeler (> 50cc)": 1.0,
+  "Three-Wheeler / Auto": 1.0,
+  "Light Motor Vehicle (Car)": 1.0,
+  "Medium Motor Vehicle": 1.5,
+  "Heavy Motor Vehicle": 2.0,
+  "Transport / Commercial": 2.0
+}

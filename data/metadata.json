@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "last_reviewed": "2026-08-24",
+  "sources": [
+    {
+      "id": "mva1988",
+      "title": "The Motor Vehicles Act, 1988",
+      "url": "https://www.indiacode.nic.in/bitstream/123456789/9460/1/a1988-59.pdf"
+    },
+    {
+      "id": "mva2019",
+      "title": "The Motor Vehicles (Amendment) Act, 2019",
+      "url": "https://www.indiacode.nic.in/repealedfileopen?rfilename=A2019-32.pdf"
+    }
+  ],
+  "disclaimer": "This application is an offline informational reference, not an official challan lookup or legal-advice service. Amounts may vary by effective notification, state compounding schedule, court order, and enforcement circumstances."
+}
