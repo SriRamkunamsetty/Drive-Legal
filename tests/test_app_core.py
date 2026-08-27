@@ -133,6 +133,17 @@ def test_quantity_validation_is_strict():
         calculate_fine("overloading_goods", "Heavy Motor Vehicle", "Delhi", quantity=-1)
 
 
+def test_non_finite_quantities_are_rejected():
+    for quantity in (float("nan"), float("inf"), float("-inf")):
+        with pytest.raises(CalculatorInputError, match="finite"):
+            calculate_fine("overloading_goods", "Heavy Motor Vehicle", "Delhi", quantity=quantity)
+
+
+def test_boolean_quantities_are_rejected():
+    with pytest.raises(CalculatorInputError, match="not Boolean"):
+        calculate_fine("overloading_passenger", "Transport / Commercial", "Delhi", quantity=True)
+
+
 def test_fixed_records_reject_repeat_toggle_when_not_applicable():
     with pytest.raises(CalculatorInputError, match="not available"):
         calculate_fine("no_helmet", "Two-Wheeler (> 50cc)", "Delhi", repeat=True)

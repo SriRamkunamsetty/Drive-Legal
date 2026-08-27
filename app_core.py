@@ -7,6 +7,7 @@ and calculator behavior so it can be tested without rendering a Streamlit page.
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 from typing import Any
 
@@ -128,10 +129,14 @@ def _validate_quantity(record: dict[str, Any], quantity: float | int | None) -> 
         return 0.0
     if quantity is None:
         raise CalculatorInputError(f"{record['description']} requires a quantity")
+    if isinstance(quantity, bool):
+        raise CalculatorInputError("Quantity must be numeric and not Boolean")
     try:
         numeric = float(quantity)
     except (TypeError, ValueError) as exc:
         raise CalculatorInputError("Quantity must be numeric") from exc
+    if not math.isfinite(numeric):
+        raise CalculatorInputError("Quantity must be finite")
     if numeric < 0:
         raise CalculatorInputError("Quantity cannot be negative")
     if basis == "per_excess_passenger" and not numeric.is_integer():
