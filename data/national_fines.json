@@ -1,0 +1,461 @@
+{
+  "drunk_driving": {
+    "description": "Drunk Driving",
+    "fine": 10000,
+    "imprisonment": "Up to 6 months (or fine, or both)",
+    "rule_section": "185",
+    "penalty_section": "185",
+    "allowed_vehicle_types": [
+      "Two-Wheeler (≤ 50cc)",
+      "Two-Wheeler (> 50cc)",
+      "Three-Wheeler / Auto",
+      "Light Motor Vehicle (Car)",
+      "Medium Motor Vehicle",
+      "Heavy Motor Vehicle",
+      "Transport / Commercial"
+    ],
+    "repeat_policy": "explicit",
+    "fine_basis": "fixed",
+    "apply_vehicle_multiplier": false,
+    "source_status": "act_reference",
+    "source_ids": [
+      "mva1988",
+      "mva2019"
+    ],
+    "repeat_fine": 15000,
+    "legal_note": "Repeat offence reference amount is ₹15,000; do not apply the generic repeat multiplier to this record."
+  },
+  "overspeeding_lmv": {
+    "description": "Over-speeding — LMV",
+    "fine": 1000,
+    "imprisonment": null,
+    "rule_section": "112",
+    "penalty_section": "183",
+    "allowed_vehicle_types": [
+      "Two-Wheeler (≤ 50cc)",
+      "Two-Wheeler (> 50cc)",
+      "Three-Wheeler / Auto",
+      "Light Motor Vehicle (Car)"
+    ],
+    "repeat_policy": "toggle",
+    "fine_basis": "fixed",
+    "apply_vehicle_multiplier": false,
+    "source_status": "act_reference",
+    "source_ids": [
+      "mva1988",
+      "mva2019"
+    ],
+    "legal_note": "Reference minimum for LMV; actual amount depends on the applicable notification and offence circumstances."
+  },
+  "overspeeding_mmv": {
+    "description": "Over-speeding — MMV/HMV",
+    "fine": 2000,
+    "imprisonment": null,
+    "rule_section": "112",
+    "penalty_section": "183",
+    "allowed_vehicle_types": [
+      "Medium Motor Vehicle",
+      "Heavy Motor Vehicle",
+      "Transport / Commercial"
+    ],
+    "repeat_policy": "toggle",
+    "fine_basis": "fixed",
+    "apply_vehicle_multiplier": false,
+    "source_status": "act_reference",
+    "source_ids": [
+      "mva1988",
+      "mva2019"
+    ],
+    "legal_note": "Reference minimum for medium/heavy vehicles; actual amount depends on the applicable notification and offence circumstances."
+  },
+  "no_helmet": {
+    "description": "No Helmet (two-wheeler)",
+    "fine": 1000,
+    "imprisonment": null,
+    "rule_section": "129",
+    "penalty_section": "194D",
+    "allowed_vehicle_types": [
+      "Two-Wheeler (≤ 50cc)",
+      "Two-Wheeler (> 50cc)"
+    ],
+    "repeat_policy": "not_applicable",
+    "fine_basis": "fixed",
+    "apply_vehicle_multiplier": false,
+    "source_status": "act_reference",
+    "source_ids": [
+      "mva1988",
+      "mva2019"
+    ],
+    "legal_note": "Section 194D also provides licence-disqualification consequences; this calculator displays the monetary fine only."
+  },
+  "no_seatbelt": {
+    "description": "No Seat Belt",
+    "fine": 1000,
+    "imprisonment": null,
+    "rule_section": "138(3)",
+    "penalty_section": "194B",
+    "allowed_vehicle_types": [
+      "Three-Wheeler / Auto",
+      "Light Motor Vehicle (Car)",
+      "Medium Motor Vehicle",
+      "Heavy Motor Vehicle",
+      "Transport / Commercial"
+    ],
+    "repeat_policy": "not_applicable",
+    "fine_basis": "fixed",
+    "apply_vehicle_multiplier": false,
+    "source_status": "act_reference",
+    "source_ids": [
+      "mva1988",
+      "mva2019"
+    ],
+    "legal_note": "Section 194B covers seat-belt and child-restraint requirements; ₹1,000 is the central-law reference amount and local enforcement practice may vary."
+  },
+  "signal_jump": {
+    "description": "Signal Jumping / Red Light",
+    "fine": 5000,
+    "imprisonment": "Up to 1 year (or fine, or both)",
+    "rule_section": "119",
+    "penalty_section": "184",
+    "allowed_vehicle_types": [
+      "Two-Wheeler (≤ 50cc)",
+      "Two-Wheeler (> 50cc)",
+      "Three-Wheeler / Auto",
+      "Light Motor Vehicle (Car)",
+      "Medium Motor Vehicle",
+      "Heavy Motor Vehicle",
+      "Transport / Commercial"
+    ],
+    "repeat_policy": "toggle",
+    "fine_basis": "fixed",
+    "apply_vehicle_multiplier": false,
+    "source_status": "act_reference",
+    "source_ids": [
+      "mva1988",
+      "mva2019"
+    ],
+    "legal_note": "The 2019 amendment expressly includes jumping a red light in Section 184. ₹5,000 is the stated maximum fine; local compounding practice may vary."
+  },
+  "mobile_driving": {
+    "description": "Using Handheld Mobile While Driving",
+    "fine": 5000,
+    "imprisonment": "Up to 1 year (or fine, or both)",
+    "rule_section": "184",
+    "penalty_section": "184",
+    "allowed_vehicle_types": [
+      "Two-Wheeler (≤ 50cc)",
+      "Two-Wheeler (> 50cc)",
+      "Three-Wheeler / Auto",
+      "Light Motor Vehicle (Car)",
+      "Medium Motor Vehicle",
+      "Heavy Motor Vehicle",
+      "Transport / Commercial"
+    ],
+    "repeat_policy": "toggle",
+    "fine_basis": "fixed",
+    "apply_vehicle_multiplier": false,
+    "source_status": "act_reference",
+    "source_ids": [
+      "mva1988",
+      "mva2019"
+    ],
+    "legal_note": "The 2019 amendment includes handheld communication-device use in the Section 184 explanation."
+  },
+  "no_dl": {
+    "description": "Driving Without Licence",
+    "fine": 5000,
+    "imprisonment": null,
+    "rule_section": "3/4",
+    "penalty_section": "181",
+    "allowed_vehicle_types": [
+      "Two-Wheeler (≤ 50cc)",
+      "Two-Wheeler (> 50cc)",
+      "Three-Wheeler / Auto",
+      "Light Motor Vehicle (Car)",
+      "Medium Motor Vehicle",
+      "Heavy Motor Vehicle",
+      "Transport / Commercial"
+    ],
+    "repeat_policy": "not_applicable",
+    "fine_basis": "fixed",
+    "apply_vehicle_multiplier": false,
+    "source_status": "act_reference",
+    "source_ids": [
+      "mva1988",
+      "mva2019"
+    ],
+    "legal_note": "Section 181 applies when a person drives in contravention of the licensing requirements in Sections 3 or 4; the displayed amount is a reference amount subject to applicable notifications."
+  },
+  "no_insurance": {
+    "description": "Driving Without Insurance",
+    "fine": 2000,
+    "imprisonment": "Up to 3 months (or fine, or both)",
+    "rule_section": "146",
+    "penalty_section": "196",
+    "allowed_vehicle_types": [
+      "Two-Wheeler (≤ 50cc)",
+      "Two-Wheeler (> 50cc)",
+      "Three-Wheeler / Auto",
+      "Light Motor Vehicle (Car)",
+      "Medium Motor Vehicle",
+      "Heavy Motor Vehicle",
+      "Transport / Commercial"
+    ],
+    "repeat_policy": "not_applicable",
+    "fine_basis": "fixed",
+    "apply_vehicle_multiplier": false,
+    "source_status": "act_reference",
+    "source_ids": [
+      "mva1988",
+      "mva2019"
+    ],
+    "legal_note": "Section 196 addresses driving without third-party insurance; the displayed amount is the first-offence reference amount and repeat consequences are not calculated here."
+  },
+  "no_rc": {
+    "description": "Driving Without Registration",
+    "fine": 5000,
+    "imprisonment": null,
+    "rule_section": "39",
+    "penalty_section": "192",
+    "allowed_vehicle_types": [
+      "Two-Wheeler (≤ 50cc)",
+      "Two-Wheeler (> 50cc)",
+      "Three-Wheeler / Auto",
+      "Light Motor Vehicle (Car)",
+      "Medium Motor Vehicle",
+      "Heavy Motor Vehicle",
+      "Transport / Commercial"
+    ],
+    "repeat_policy": "not_applicable",
+    "fine_basis": "fixed",
+    "apply_vehicle_multiplier": false,
+    "source_status": "act_reference",
+    "source_ids": [
+      "mva1988",
+      "mva2019"
+    ],
+    "legal_note": "Section 192 applies to use of an unregistered vehicle; the displayed amount is a reference amount subject to applicable notifications and vehicle circumstances."
+  },
+  "overloading_passenger": {
+    "description": "Passenger Overloading (per excess passenger)",
+    "fine": 200,
+    "imprisonment": null,
+    "rule_section": "113/ passenger-capacity conditions",
+    "penalty_section": "194A",
+    "allowed_vehicle_types": [
+      "Medium Motor Vehicle",
+      "Heavy Motor Vehicle",
+      "Transport / Commercial"
+    ],
+    "repeat_policy": "not_applicable",
+    "fine_basis": "per_excess_passenger",
+    "apply_vehicle_multiplier": false,
+    "source_status": "act_reference",
+    "source_ids": [
+      "mva1988",
+      "mva2019"
+    ],
+    "quantity_field": "excess_passengers",
+    "quantity_label": "Number of excess passengers",
+    "legal_note": "Section 194A states ₹200 per excess passenger for a transport vehicle; the vehicle must not move until passengers are off-loaded and alternative transport is arranged."
+  },
+  "overloading_goods": {
+    "description": "Goods Overloading (first offence + per excess tonne)",
+    "fine": 20000,
+    "imprisonment": null,
+    "rule_section": "113",
+    "penalty_section": "194",
+    "allowed_vehicle_types": [
+      "Medium Motor Vehicle",
+      "Heavy Motor Vehicle",
+      "Transport / Commercial"
+    ],
+    "repeat_policy": "not_applicable",
+    "fine_basis": "base_plus_excess_tonne",
+    "apply_vehicle_multiplier": false,
+    "source_status": "act_reference",
+    "source_ids": [
+      "mva1988",
+      "mva2019"
+    ],
+    "quantity_field": "excess_tonnes",
+    "quantity_label": "Excess tonnes",
+    "extra_unit_fine": 2000,
+    "legal_note": "Section 194 states ₹20,000 plus ₹2,000 per tonne of excess load; excess load must be removed before the vehicle moves."
+  },
+  "dangerous_driving": {
+    "description": "Dangerous / Rash Driving",
+    "fine": 5000,
+    "imprisonment": "Up to 1 year (or fine, or both)",
+    "rule_section": "184",
+    "penalty_section": "184",
+    "allowed_vehicle_types": [
+      "Two-Wheeler (≤ 50cc)",
+      "Two-Wheeler (> 50cc)",
+      "Three-Wheeler / Auto",
+      "Light Motor Vehicle (Car)",
+      "Medium Motor Vehicle",
+      "Heavy Motor Vehicle",
+      "Transport / Commercial"
+    ],
+    "repeat_policy": "toggle",
+    "fine_basis": "fixed",
+    "apply_vehicle_multiplier": false,
+    "source_status": "act_reference",
+    "source_ids": [
+      "mva1988",
+      "mva2019"
+    ],
+    "legal_note": "Section 184 covers dangerous driving; the displayed ₹5,000 amount and imprisonment description are central-law references, while circumstances and repeat treatment may vary."
+  },
+  "no_permit": {
+    "description": "Driving Without Permit",
+    "fine": 10000,
+    "imprisonment": null,
+    "rule_section": "66",
+    "penalty_section": "192A",
+    "allowed_vehicle_types": [
+      "Two-Wheeler (≤ 50cc)",
+      "Two-Wheeler (> 50cc)",
+      "Three-Wheeler / Auto",
+      "Light Motor Vehicle (Car)",
+      "Medium Motor Vehicle",
+      "Heavy Motor Vehicle",
+      "Transport / Commercial"
+    ],
+    "repeat_policy": "not_applicable",
+    "fine_basis": "fixed",
+    "apply_vehicle_multiplier": false,
+    "source_status": "act_reference",
+    "source_ids": [
+      "mva1988",
+      "mva2019"
+    ],
+    "legal_note": "Section 192A addresses use of a transport vehicle without the required permit; the displayed amount is a reference amount subject to applicable notifications."
+  },
+  "pollution_norms": {
+    "description": "Violation of Pollution Norms",
+    "fine": 10000,
+    "imprisonment": "Up to 3 months (or fine, or both)",
+    "rule_section": "190(2)",
+    "penalty_section": "190(2)",
+    "allowed_vehicle_types": [
+      "Two-Wheeler (≤ 50cc)",
+      "Two-Wheeler (> 50cc)",
+      "Three-Wheeler / Auto",
+      "Light Motor Vehicle (Car)",
+      "Medium Motor Vehicle",
+      "Heavy Motor Vehicle",
+      "Transport / Commercial"
+    ],
+    "repeat_policy": "not_applicable",
+    "fine_basis": "fixed",
+    "apply_vehicle_multiplier": false,
+    "source_status": "act_reference",
+    "source_ids": [
+      "mva1988",
+      "mva2019"
+    ],
+    "legal_note": "Section 190(2) addresses use of a vehicle violating prescribed safety, pollution, or noise standards; the displayed amount is a central-law reference."
+  },
+  "emergency_vehicle": {
+    "description": "Not Giving Way to Emergency Vehicle",
+    "fine": 10000,
+    "imprisonment": "Up to 6 months (or fine, or both)",
+    "rule_section": "134/traffic duty",
+    "penalty_section": "194E",
+    "allowed_vehicle_types": [
+      "Two-Wheeler (≤ 50cc)",
+      "Two-Wheeler (> 50cc)",
+      "Three-Wheeler / Auto",
+      "Light Motor Vehicle (Car)",
+      "Medium Motor Vehicle",
+      "Heavy Motor Vehicle",
+      "Transport / Commercial"
+    ],
+    "repeat_policy": "not_applicable",
+    "fine_basis": "fixed",
+    "apply_vehicle_multiplier": false,
+    "source_status": "act_reference",
+    "source_ids": [
+      "mva1988",
+      "mva2019"
+    ],
+    "legal_note": "Section 194E covers failure to give way to an emergency vehicle; the displayed ₹10,000 amount is a central-law reference and the provision also permits imprisonment or both."
+  },
+  "wrong_side": {
+    "description": "Wrong Side / One-Way Violation",
+    "fine": 1000,
+    "imprisonment": null,
+    "rule_section": "118/119",
+    "penalty_section": "177",
+    "allowed_vehicle_types": [
+      "Two-Wheeler (≤ 50cc)",
+      "Two-Wheeler (> 50cc)",
+      "Three-Wheeler / Auto",
+      "Light Motor Vehicle (Car)",
+      "Medium Motor Vehicle",
+      "Heavy Motor Vehicle",
+      "Transport / Commercial"
+    ],
+    "repeat_policy": "toggle",
+    "fine_basis": "fixed",
+    "apply_vehicle_multiplier": false,
+    "source_status": "reference_only",
+    "source_ids": [
+      "mva1988",
+      "mva2019"
+    ],
+    "legal_note": "Reference amount only; state-specific compounding notifications may prescribe a different amount."
+  },
+  "no_parking": {
+    "description": "No Parking Violation",
+    "fine": 500,
+    "imprisonment": null,
+    "rule_section": "122",
+    "penalty_section": "177/201",
+    "allowed_vehicle_types": [
+      "Two-Wheeler (≤ 50cc)",
+      "Two-Wheeler (> 50cc)",
+      "Three-Wheeler / Auto",
+      "Light Motor Vehicle (Car)",
+      "Medium Motor Vehicle",
+      "Heavy Motor Vehicle",
+      "Transport / Commercial"
+    ],
+    "repeat_policy": "toggle",
+    "fine_basis": "fixed",
+    "apply_vehicle_multiplier": false,
+    "source_status": "reference_only",
+    "source_ids": [
+      "mva1988",
+      "mva2019"
+    ],
+    "legal_note": "Reference amount only; no universal all-India amount is asserted here because local compounding schedules vary."
+  },
+  "minor_driving": {
+    "description": "Minor Driving Vehicle",
+    "fine": 25000,
+    "imprisonment": "Up to 3 years",
+    "rule_section": "4/5",
+    "penalty_section": "199A",
+    "allowed_vehicle_types": [
+      "Two-Wheeler (≤ 50cc)",
+      "Two-Wheeler (> 50cc)",
+      "Three-Wheeler / Auto",
+      "Light Motor Vehicle (Car)",
+      "Medium Motor Vehicle",
+      "Heavy Motor Vehicle",
+      "Transport / Commercial"
+    ],
+    "repeat_policy": "not_applicable",
+    "fine_basis": "fixed",
+    "apply_vehicle_multiplier": false,
+    "source_status": "act_reference",
+    "source_ids": [
+      "mva1988",
+      "mva2019"
+    ],
+    "legal_note": "Section 199A also provides twelve-month registration cancellation and licence/learner-licence ineligibility until age 25."
+  }
+}
