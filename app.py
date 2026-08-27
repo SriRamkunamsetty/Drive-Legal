@@ -17,6 +17,7 @@ from app_core import (
     CalculatorInputError,
     calculate_fine,
     get_allowed_vehicle_types,
+    get_source_details,
     get_violation_options,
 )
 
@@ -137,6 +138,10 @@ with tab1:
                 st.caption(result["legal_note"])
             if result["source_status"] != "act_reference":
                 st.warning("This amount is a reference value and must be checked against the latest state notification or official challan portal.")
+            with st.expander("🔎 Bundled source references"):
+                st.caption(f"Source status: `{result['source_status']}`")
+                for source in result["sources"]:
+                    st.markdown(f"- [{source['title']}]({source['url']}) (`{source['id']}`)")
             st.markdown("#### 📌 State-specific reference notes")
             for note in state_info["notes"]:
                 st.markdown(f'<div class="state-note">• {note}</div>', unsafe_allow_html=True)
@@ -206,6 +211,12 @@ with tab3:
             st.markdown(f"**Helmet law:** {info['helmet_law']}")
             for note in info["notes"]:
                 st.markdown(f'<div class="state-note">• {note}</div>', unsafe_allow_html=True)
+            st.caption(f"Source status: `{info['source_status']}`")
+            if info["source_ids"]:
+                with st.expander("🔎 Bundled source references"):
+                    st.caption("These bundled sources support the general legal context; state-specific values still require the latest local notification.")
+                    for source in get_source_details(info["source_ids"]):
+                        st.markdown(f"- [{source['title']}]({source['url']}) (`{source['id']}`)")
             st.caption(info["legal_note"])
 
 with tab4:

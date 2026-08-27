@@ -18,6 +18,7 @@ from app_core import (
     DataValidationError,
     calculate_fine,
     get_allowed_vehicle_types,
+    get_source_details,
     get_violation_options,
     validate_data,
 )
@@ -59,6 +60,24 @@ def test_all_state_records_have_expected_shape():
         assert 0 < info["speed_city"] < info["speed_highway"] < 300
         assert info["notes"]
         assert info["source_status"] == "reference_only"
+
+
+def test_source_ids_resolve_to_display_ready_metadata():
+    sources = get_source_details(["mva1988", "mva2019"])
+    assert [source["id"] for source in sources] == ["mva1988", "mva2019"]
+    assert all(source["title"] and source["url"].startswith("https://") for source in sources)
+
+
+def test_unknown_source_ids_are_rejected():
+    with pytest.raises(DataValidationError, match="Unknown source IDs"):
+        get_source_details(["not-in-metadata"])
+
+
+def test_calculation_result_includes_resolved_sources():
+    result = calculate_fine("signal_jump", "Light Motor Vehicle (Car)", "Delhi")
+    assert result["source_ids"] == ["mva1988", "mva2019"]
+    assert [source["id"] for source in result["sources"]] == result["source_ids"]
+    assert all(source["url"].startswith("https://") for source in result["sources"])
 
 
 def test_red_light_uses_rule_section_119_and_penalty_section_184():
@@ -147,3 +166,9 @@ def test_violation_labels_are_unique_and_round_trip():
 def test_validation_rejects_invalid_metadata_and_state_count():
     with pytest.raises(DataValidationError):
         validate_data(NATIONAL_FINES, VEHICLE_TYPES, {"Delhi": STATE_DATA["Delhi"]}, METADATA)
+
+
+def test_validation_rejects_incomplete_source_metadata():
+    metadata = {**METADATA, "sources": [{"id": "mva1988", "title": "Missing URL"}]}
+    with pytest.raises(DataValidationError, match="metadata source field missing: url"):
+        validate_data(NATIONAL_FINES, VEHICLE_TYPES, STATE_DATA, metadata)
