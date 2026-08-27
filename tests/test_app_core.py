@@ -48,6 +48,7 @@ def test_every_fine_record_has_required_schema():
         assert record["allowed_vehicle_types"]
         assert set(record["allowed_vehicle_types"]).issubset(VEHICLE_TYPES)
         assert record["source_ids"]
+        assert record["legal_note"]
         assert record["fine_basis"] in {"fixed", "per_excess_passenger", "base_plus_excess_tonne"}
 
 
@@ -64,10 +65,15 @@ def test_red_light_uses_rule_section_119_and_penalty_section_184():
     record = NATIONAL_FINES["signal_jump"]
     assert record["rule_section"] == "119"
     assert record["penalty_section"] == "184"
+    assert record["imprisonment"] == "Up to 1 year (or fine, or both)"
     result = calculate_fine("signal_jump", "Light Motor Vehicle (Car)", "Delhi")
     assert result["rule_section"] == "119"
     assert result["penalty_section"] == "184"
     assert result["total"] == 5000
+
+
+def test_all_national_records_have_record_level_legal_notes():
+    assert all(record["legal_note"].strip() for record in NATIONAL_FINES.values())
 
 
 def test_overloading_goods_is_quantity_based_and_not_multiplied_by_vehicle_type():

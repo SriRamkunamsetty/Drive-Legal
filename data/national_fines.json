@@ -108,12 +108,13 @@
     "source_ids": [
       "mva1988",
       "mva2019"
-    ]
+    ],
+    "legal_note": "Section 194B covers seat-belt and child-restraint requirements; ₹1,000 is the central-law reference amount and local enforcement practice may vary."
   },
   "signal_jump": {
     "description": "Signal Jumping / Red Light",
     "fine": 5000,
-    "imprisonment": "6 months to 1 year (or fine, or both)",
+    "imprisonment": "Up to 1 year (or fine, or both)",
     "rule_section": "119",
     "penalty_section": "184",
     "allowed_vehicle_types": [
@@ -138,7 +139,7 @@
   "mobile_driving": {
     "description": "Using Handheld Mobile While Driving",
     "fine": 5000,
-    "imprisonment": "6 months to 1 year (or fine, or both)",
+    "imprisonment": "Up to 1 year (or fine, or both)",
     "rule_section": "184",
     "penalty_section": "184",
     "allowed_vehicle_types": [
@@ -182,7 +183,8 @@
     "source_ids": [
       "mva1988",
       "mva2019"
-    ]
+    ],
+    "legal_note": "Section 181 applies when a person drives in contravention of the licensing requirements in Sections 3 or 4; the displayed amount is a reference amount subject to applicable notifications."
   },
   "no_insurance": {
     "description": "Driving Without Insurance",
@@ -206,7 +208,8 @@
     "source_ids": [
       "mva1988",
       "mva2019"
-    ]
+    ],
+    "legal_note": "Section 196 addresses driving without third-party insurance; the displayed amount is the first-offence reference amount and repeat consequences are not calculated here."
   },
   "no_rc": {
     "description": "Driving Without Registration",
@@ -230,7 +233,8 @@
     "source_ids": [
       "mva1988",
       "mva2019"
-    ]
+    ],
+    "legal_note": "Section 192 applies to use of an unregistered vehicle; the displayed amount is a reference amount subject to applicable notifications and vehicle circumstances."
   },
   "overloading_passenger": {
     "description": "Passenger Overloading (per excess passenger)",
@@ -282,7 +286,7 @@
   "dangerous_driving": {
     "description": "Dangerous / Rash Driving",
     "fine": 5000,
-    "imprisonment": "6 months to 1 year (or fine, or both)",
+    "imprisonment": "Up to 1 year (or fine, or both)",
     "rule_section": "184",
     "penalty_section": "184",
     "allowed_vehicle_types": [
@@ -301,7 +305,8 @@
     "source_ids": [
       "mva1988",
       "mva2019"
-    ]
+    ],
+    "legal_note": "Section 184 covers dangerous driving; the displayed ₹5,000 amount and imprisonment description are central-law references, while circumstances and repeat treatment may vary."
   },
   "no_permit": {
     "description": "Driving Without Permit",
@@ -325,7 +330,8 @@
     "source_ids": [
       "mva1988",
       "mva2019"
-    ]
+    ],
+    "legal_note": "Section 192A addresses use of a transport vehicle without the required permit; the displayed amount is a reference amount subject to applicable notifications."
   },
   "pollution_norms": {
     "description": "Violation of Pollution Norms",
@@ -349,7 +355,8 @@
     "source_ids": [
       "mva1988",
       "mva2019"
-    ]
+    ],
+    "legal_note": "Section 190(2) addresses use of a vehicle violating prescribed safety, pollution, or noise standards; the displayed amount is a central-law reference."
   },
   "emergency_vehicle": {
     "description": "Not Giving Way to Emergency Vehicle",
@@ -373,7 +380,8 @@
     "source_ids": [
       "mva1988",
       "mva2019"
-    ]
+    ],
+    "legal_note": "Section 194E covers failure to give way to an emergency vehicle; the displayed ₹10,000 amount is a central-law reference and the provision also permits imprisonment or both."
   },
   "wrong_side": {
     "description": "Wrong Side / One-Way Violation",
