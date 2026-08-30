@@ -54,7 +54,8 @@ def validate_data(
     }
     allowed_repeat_policies = {"toggle", "explicit", "not_applicable"}
     allowed_fine_bases = {"fixed", "per_excess_passenger", "base_plus_excess_tonne"}
-    source_ids = {item.get("id") for item in metadata.get("sources", []) if isinstance(item, dict)}
+    sources = metadata.get("sources", [])
+    source_ids = {item.get("id") for item in sources if isinstance(item, dict)}
 
     _require(isinstance(national_fines, dict) and national_fines, "national_fines must be a non-empty object")
     _require(isinstance(vehicle_types, dict) and vehicle_types, "vehicle_types must be a non-empty object")
@@ -62,6 +63,10 @@ def validate_data(
     _require(metadata.get("schema_version") == 2, "metadata schema_version must be 2")
     _require(bool(metadata.get("last_reviewed")), "metadata must include last_reviewed")
     _require(bool(source_ids), "metadata must contain at least one source")
+    for source in sources:
+        _require(isinstance(source, dict), "each metadata source must be an object")
+        for field in ("id", "title", "url"):
+            _require(isinstance(source.get(field), str) and source[field].strip(), f"metadata source field missing: {field}")
 
     for vehicle, multiplier in vehicle_types.items():
         _require(isinstance(vehicle, str) and vehicle.strip(), "vehicle type names must be non-empty strings")
@@ -110,6 +115,22 @@ def load_data() -> tuple[dict[str, Any], dict[str, float], dict[str, Any], dict[
 
 NATIONAL_FINES, VEHICLE_TYPES, STATE_DATA, METADATA = load_data()
 ALL_STATES = sorted(STATE_DATA)
+
+
+def get_source_details(source_ids: list[str]) -> list[dict[str, str]]:
+    """Resolve bundled source IDs into safe, display-ready metadata."""
+    source_by_id = {source["id"]: source for source in METADATA["sources"]}
+    unknown = [source_id for source_id in source_ids if source_id not in source_by_id]
+    if unknown:
+        raise DataValidationError(f"Unknown source IDs: {sorted(set(unknown))}")
+    return [
+        {
+            "id": source_by_id[source_id]["id"],
+            "title": source_by_id[source_id]["title"],
+            "url": source_by_id[source_id]["url"],
+        }
+        for source_id in source_ids
+    ]
 
 
 def get_violation_options() -> dict[str, str]:
@@ -212,5 +233,7 @@ def calculate_fine(
         "explicit_repeat_fine": applied_repeat_fine,
         "legal_note": record.get("legal_note"),
         "source_status": record["source_status"],
+        "source_ids": list(record["source_ids"]),
+        "sources": get_source_details(record["source_ids"]),
         "fine_basis": record["fine_basis"],
     }
