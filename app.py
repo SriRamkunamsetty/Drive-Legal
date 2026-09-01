@@ -95,12 +95,10 @@ with tab1:
         quantity = st.number_input(violation["quantity_label"], min_value=0.0, value=0.0, step=0.1)
 
     repeat = False
-    if violation["repeat_policy"] == "toggle":
-        repeat = st.checkbox("Repeat offence (reference amount doubled)")
-    elif violation["repeat_policy"] == "explicit":
+    if violation["repeat_policy"] == "explicit":
         repeat = st.checkbox(f"Use repeat-offence reference amount (₹{violation['repeat_fine']:,})")
     else:
-        st.caption("A repeat toggle is not applied to this offence because its statutory record is fixed or quantity-based.")
+        st.caption("A repeat calculation is not available for this offence because its bundled repeat treatment is not verified.")
 
     with st.expander("🚗 Vehicle-type reference"):
         st.dataframe(
@@ -121,7 +119,7 @@ with tab1:
             r1, r2, r3, r4 = st.columns(4)
             r1.metric("Reference Fine", f"₹{result['base_fine']:,.2f}")
             r2.metric("Vehicle Adjustment", f"₹{result['vehicle_adjustment']:,.2f}")
-            r3.metric("State Surcharge", f"₹{result['state_surcharge']:,.2f}")
+            r3.metric("Applied State Surcharge", f"₹{result['state_surcharge']:,.2f}")
             r4.metric("Repeat Penalty", f"₹{result['repeat_penalty']:,.2f}")
             st.markdown(
                 f"""
@@ -139,6 +137,11 @@ with tab1:
                 st.caption(result["legal_note"])
             if result["source_status"] != "act_reference":
                 st.warning("This amount is a reference value and must be checked against the latest state notification or official challan portal.")
+            if result["state_surcharge_rate"] and not result["state_surcharge_applied"]:
+                st.info(
+                    f"This location has a {result['state_surcharge_rate'] * 100:.0f}% reference surcharge, "
+                    "but it is not included because no offence record explicitly opts into that unverified adjustment."
+                )
             with st.expander("🔎 Bundled source references"):
                 st.caption(f"Source status: `{result['source_status']}`")
                 for source in result["sources"]:
