@@ -125,19 +125,25 @@ def test_explicit_drunk_driving_repeat_rate_is_not_doubled_again():
     assert result["explicit_repeat_fine"] == 15000
 
 
-def test_generic_repeat_policy_doubles_reference_amount():
-    first = calculate_fine("signal_jump", "Light Motor Vehicle (Car)", "Goa", repeat=False)
-    repeat = calculate_fine("signal_jump", "Light Motor Vehicle (Car)", "Goa", repeat=True)
-    assert first["total"] == 5500
-    assert repeat["repeat_penalty"] == 5000
-    assert repeat["total"] == 10500
+def test_unverified_repeat_policy_is_not_calculated():
+    result = calculate_fine("signal_jump", "Light Motor Vehicle (Car)", "Goa", repeat=False)
+    assert result["total"] == 5000
+    assert result["repeat_penalty"] == 0
+    with pytest.raises(CalculatorInputError, match="not available"):
+        calculate_fine("signal_jump", "Light Motor Vehicle (Car)", "Goa", repeat=True)
+
+
+def test_current_records_do_not_use_unsupported_generic_repeat_policy():
+    assert all(record["repeat_policy"] != "toggle" for record in NATIONAL_FINES.values())
 
 
 def test_state_surcharge_is_rounded_to_two_decimal_places():
     result = calculate_fine("no_parking", "Two-Wheeler (≤ 50cc)", "Kerala")
     assert result["base_fine"] == 500
-    assert result["state_surcharge"] == 25
-    assert result["total"] == 525
+    assert result["state_surcharge_rate"] == 0.05
+    assert result["state_surcharge"] == 0
+    assert result["state_surcharge_applied"] is False
+    assert result["total"] == 500
     assert isinstance(result["total"], float)
     assert round(result["total"], 2) == result["total"]
 
@@ -170,7 +176,7 @@ def test_boolean_quantities_are_rejected():
         calculate_fine("overloading_passenger", "Transport / Commercial", "Delhi", quantity=True)
 
 
-def test_fixed_records_reject_repeat_toggle_when_not_applicable():
+def test_fixed_records_reject_repeat_when_not_applicable():
     with pytest.raises(CalculatorInputError, match="not available"):
         calculate_fine("no_helmet", "Two-Wheeler (> 50cc)", "Delhi", repeat=True)
 
