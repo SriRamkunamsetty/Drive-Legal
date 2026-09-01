@@ -37,7 +37,7 @@
       "Three-Wheeler / Auto",
       "Light Motor Vehicle (Car)"
     ],
-    "repeat_policy": "toggle",
+    "repeat_policy": "reference_only",
     "fine_basis": "fixed",
     "apply_vehicle_multiplier": false,
     "source_status": "act_reference",
@@ -58,7 +58,7 @@
       "Heavy Motor Vehicle",
       "Transport / Commercial"
     ],
-    "repeat_policy": "toggle",
+    "repeat_policy": "reference_only",
     "fine_basis": "fixed",
     "apply_vehicle_multiplier": false,
     "source_status": "act_reference",
@@ -126,7 +126,7 @@
       "Heavy Motor Vehicle",
       "Transport / Commercial"
     ],
-    "repeat_policy": "toggle",
+    "repeat_policy": "reference_only",
     "fine_basis": "fixed",
     "apply_vehicle_multiplier": false,
     "source_status": "act_reference",
@@ -151,7 +151,7 @@
       "Heavy Motor Vehicle",
       "Transport / Commercial"
     ],
-    "repeat_policy": "toggle",
+    "repeat_policy": "reference_only",
     "fine_basis": "fixed",
     "apply_vehicle_multiplier": false,
     "source_status": "act_reference",
@@ -298,7 +298,7 @@
       "Heavy Motor Vehicle",
       "Transport / Commercial"
     ],
-    "repeat_policy": "toggle",
+    "repeat_policy": "reference_only",
     "fine_basis": "fixed",
     "apply_vehicle_multiplier": false,
     "source_status": "act_reference",
@@ -398,7 +398,7 @@
       "Heavy Motor Vehicle",
       "Transport / Commercial"
     ],
-    "repeat_policy": "toggle",
+    "repeat_policy": "reference_only",
     "fine_basis": "fixed",
     "apply_vehicle_multiplier": false,
     "source_status": "reference_only",
@@ -423,7 +423,7 @@
       "Heavy Motor Vehicle",
       "Transport / Commercial"
     ],
-    "repeat_policy": "toggle",
+    "repeat_policy": "reference_only",
     "fine_basis": "fixed",
     "apply_vehicle_multiplier": false,
     "source_status": "reference_only",
