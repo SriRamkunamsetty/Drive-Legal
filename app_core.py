@@ -10,10 +10,57 @@ import json
 import math
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 
 ROOT = Path(__file__).resolve().parent
 DATA_DIR = ROOT / "data"
+
+EXPECTED_STATES = frozenset(
+    {
+        "Andhra Pradesh",
+        "Arunachal Pradesh",
+        "Assam",
+        "Bihar",
+        "Chhattisgarh",
+        "Goa",
+        "Gujarat",
+        "Haryana",
+        "Himachal Pradesh",
+        "Jharkhand",
+        "Karnataka",
+        "Kerala",
+        "Madhya Pradesh",
+        "Maharashtra",
+        "Manipur",
+        "Meghalaya",
+        "Mizoram",
+        "Nagaland",
+        "Odisha",
+        "Punjab",
+        "Rajasthan",
+        "Sikkim",
+        "Tamil Nadu",
+        "Telangana",
+        "Tripura",
+        "Uttar Pradesh",
+        "Uttarakhand",
+        "West Bengal",
+    }
+)
+EXPECTED_UNION_TERRITORIES = frozenset(
+    {
+        "Andaman and Nicobar Islands",
+        "Chandigarh",
+        "Dadra and Nagar Haveli and Daman and Diu",
+        "Delhi",
+        "Jammu and Kashmir",
+        "Ladakh",
+        "Lakshadweep",
+        "Puducherry",
+    }
+)
+EXPECTED_LOCATIONS = EXPECTED_STATES | EXPECTED_UNION_TERRITORIES
 
 
 class DataValidationError(ValueError):
@@ -50,55 +97,143 @@ def validate_data(
     required_fine_fields = {
         "description", "fine", "imprisonment", "rule_section", "penalty_section",
         "allowed_vehicle_types", "repeat_policy", "fine_basis", "apply_vehicle_multiplier",
-        "source_status", "source_ids",
+        "source_status", "source_ids", "legal_note",
     }
     allowed_repeat_policies = {"toggle", "explicit", "not_applicable"}
     allowed_fine_bases = {"fixed", "per_excess_passenger", "base_plus_excess_tonne"}
+    _require(isinstance(metadata, dict), "metadata must be an object")
     sources = metadata.get("sources", [])
-    source_ids = {item.get("id") for item in sources if isinstance(item, dict)}
 
     _require(isinstance(national_fines, dict) and national_fines, "national_fines must be a non-empty object")
     _require(isinstance(vehicle_types, dict) and vehicle_types, "vehicle_types must be a non-empty object")
-    _require(isinstance(state_data, dict) and len(state_data) == 36, "state_data must contain 28 states and 8 Union Territories")
+    _require(
+        isinstance(state_data, dict) and set(state_data) == EXPECTED_LOCATIONS,
+        "state_data must contain the expected 28 states and 8 Union Territories",
+    )
     _require(metadata.get("schema_version") == 2, "metadata schema_version must be 2")
-    _require(bool(metadata.get("last_reviewed")), "metadata must include last_reviewed")
-    _require(bool(source_ids), "metadata must contain at least one source")
+    _require(isinstance(metadata.get("last_reviewed"), str) and metadata["last_reviewed"].strip(), "metadata must include last_reviewed")
+    _require(isinstance(metadata.get("disclaimer"), str) and metadata["disclaimer"].strip(), "metadata must include disclaimer")
+    _require(isinstance(sources, list) and sources, "metadata must contain at least one source")
+    source_ids = set()
     for source in sources:
         _require(isinstance(source, dict), "each metadata source must be an object")
         for field in ("id", "title", "url"):
             _require(isinstance(source.get(field), str) and source[field].strip(), f"metadata source field missing: {field}")
+        _require(source["id"] not in source_ids, f"duplicate metadata source ID: {source['id']}")
+        _require(urlparse(source["url"]).scheme == "https" and urlparse(source["url"]).netloc, f"metadata source URL must use HTTPS: {source['id']}")
+        source_ids.add(source["id"])
 
     for vehicle, multiplier in vehicle_types.items():
         _require(isinstance(vehicle, str) and vehicle.strip(), "vehicle type names must be non-empty strings")
-        _require(isinstance(multiplier, (int, float)) and 0 < multiplier <= 2, f"invalid multiplier for {vehicle}")
+        _require(
+            isinstance(multiplier, (int, float)) and not isinstance(multiplier, bool) and math.isfinite(multiplier) and 0 < multiplier <= 2,
+            f"invalid multiplier for {vehicle}",
+        )
 
     for key, record in national_fines.items():
         _require(isinstance(record, dict), f"fine record {key} must be an object")
         missing = required_fine_fields - record.keys()
         _require(not missing, f"fine record {key} is missing fields: {sorted(missing)}")
         _require(isinstance(record["description"], str) and record["description"].strip(), f"fine description missing for {key}")
-        _require(isinstance(record["fine"], (int, float)) and record["fine"] >= 0, f"invalid fine for {key}")
+        _require(
+            isinstance(record["fine"], (int, float)) and not isinstance(record["fine"], bool)
+            and math.isfinite(record["fine"]) and record["fine"] >= 0,
+            f"invalid fine for {key}",
+        )
         _require(record["repeat_policy"] in allowed_repeat_policies, f"invalid repeat policy for {key}")
         _require(record["fine_basis"] in allowed_fine_bases, f"invalid fine basis for {key}")
-        _require(isinstance(record["allowed_vehicle_types"], list) and record["allowed_vehicle_types"], f"vehicle applicability missing for {key}")
+        _require(isinstance(record["imprisonment"], (str, type(None))), f"invalid imprisonment value for {key}")
+        _require(isinstance(record["rule_section"], str) and record["rule_section"].strip(), f"rule section missing for {key}")
+        _require(isinstance(record["penalty_section"], str) and record["penalty_section"].strip(), f"penalty section missing for {key}")
+        _require(isinstance(record["apply_vehicle_multiplier"], bool), f"vehicle multiplier flag must be Boolean for {key}")
+        _require(record["source_status"] in {"act_reference", "reference_only"}, f"invalid source status for {key}")
+        _require(isinstance(record["legal_note"], str) and record["legal_note"].strip(), f"legal note missing for {key}")
+        _require(
+            isinstance(record["allowed_vehicle_types"], list)
+            and record["allowed_vehicle_types"]
+            and len(record["allowed_vehicle_types"]) == len(set(record["allowed_vehicle_types"]))
+            and all(isinstance(vehicle, str) and vehicle.strip() for vehicle in record["allowed_vehicle_types"]),
+            f"vehicle applicability is invalid for {key}",
+        )
         _require(set(record["allowed_vehicle_types"]).issubset(vehicle_types), f"unknown vehicle type in {key}")
-        _require(isinstance(record["source_ids"], list) and set(record["source_ids"]).issubset(source_ids), f"invalid source IDs for {key}")
+        _require(
+            isinstance(record["source_ids"], list)
+            and record["source_ids"]
+            and len(record["source_ids"]) == len(set(record["source_ids"]))
+            and all(isinstance(source_id, str) and source_id.strip() for source_id in record["source_ids"])
+            and set(record["source_ids"]).issubset(source_ids),
+            f"invalid source IDs for {key}",
+        )
         if record["repeat_policy"] == "explicit":
-            _require("repeat_fine" in record and record["repeat_fine"] >= 0, f"explicit repeat fine missing for {key}")
+            _require(
+                "repeat_fine" in record
+                and isinstance(record["repeat_fine"], (int, float))
+                and not isinstance(record["repeat_fine"], bool)
+                and math.isfinite(record["repeat_fine"])
+                and record["repeat_fine"] >= 0,
+                f"explicit repeat fine missing for {key}",
+            )
         if record["fine_basis"] == "per_excess_passenger":
-            _require(record.get("quantity_field") == "excess_passengers", f"passenger quantity field missing for {key}")
+            _require(
+                record.get("quantity_field") == "excess_passengers"
+                and isinstance(record.get("quantity_label"), str)
+                and record["quantity_label"].strip(),
+                f"passenger quantity field is incomplete for {key}",
+            )
         if record["fine_basis"] == "base_plus_excess_tonne":
-            _require(record.get("quantity_field") == "excess_tonnes", f"tonnage quantity field missing for {key}")
-            _require(record.get("extra_unit_fine", 0) > 0, f"extra-tonne fine missing for {key}")
+            _require(
+                record.get("quantity_field") == "excess_tonnes"
+                and isinstance(record.get("quantity_label"), str)
+                and record["quantity_label"].strip(),
+                f"tonnage quantity field is incomplete for {key}",
+            )
+            _require(
+                isinstance(record.get("extra_unit_fine"), (int, float))
+                and not isinstance(record["extra_unit_fine"], bool)
+                and math.isfinite(record["extra_unit_fine"])
+                and record["extra_unit_fine"] > 0,
+                f"extra-tonne fine missing for {key}",
+            )
 
     required_state_fields = {"surcharge", "notes", "helmet_law", "speed_city", "speed_highway", "source_status", "source_ids", "legal_note"}
     for state, record in state_data.items():
+        _require(isinstance(record, dict), f"state record {state} must be an object")
         missing = required_state_fields - record.keys()
         _require(not missing, f"state record {state} is missing fields: {sorted(missing)}")
-        _require(0 <= record["surcharge"] < 1, f"invalid surcharge for {state}")
-        _require(0 < record["speed_city"] < record["speed_highway"] < 300, f"invalid speed limits for {state}")
-        _require(isinstance(record["notes"], list) and record["notes"], f"notes missing for {state}")
-        _require(set(record["source_ids"]).issubset(source_ids), f"invalid source IDs for {state}")
+        _require(
+            isinstance(record["surcharge"], (int, float))
+            and not isinstance(record["surcharge"], bool)
+            and math.isfinite(record["surcharge"])
+            and 0 <= record["surcharge"] < 1,
+            f"invalid surcharge for {state}",
+        )
+        _require(
+            isinstance(record["speed_city"], (int, float))
+            and not isinstance(record["speed_city"], bool)
+            and math.isfinite(record["speed_city"])
+            and isinstance(record["speed_highway"], (int, float))
+            and not isinstance(record["speed_highway"], bool)
+            and math.isfinite(record["speed_highway"])
+            and 0 < record["speed_city"] < record["speed_highway"] < 300,
+            f"invalid speed limits for {state}",
+        )
+        _require(
+            isinstance(record["notes"], list)
+            and record["notes"]
+            and all(isinstance(note, str) and note.strip() for note in record["notes"]),
+            f"notes missing for {state}",
+        )
+        _require(isinstance(record["helmet_law"], str) and record["helmet_law"].strip(), f"helmet law missing for {state}")
+        _require(record["source_status"] in {"act_reference", "reference_only"}, f"invalid source status for {state}")
+        _require(isinstance(record["legal_note"], str) and record["legal_note"].strip(), f"legal note missing for {state}")
+        _require(
+            isinstance(record["source_ids"], list)
+            and record["source_ids"]
+            and len(record["source_ids"]) == len(set(record["source_ids"]))
+            and all(isinstance(source_id, str) and source_id.strip() for source_id in record["source_ids"])
+            and set(record["source_ids"]).issubset(source_ids),
+            f"invalid source IDs for {state}",
+        )
 
     descriptions = [record["description"] for record in national_fines.values()]
     _require(len(descriptions) == len(set(descriptions)), "violation descriptions must be unique for the selector")
@@ -147,6 +282,8 @@ def get_allowed_vehicle_types(violation_key: str) -> list[str]:
 def _validate_quantity(record: dict[str, Any], quantity: float | int | None) -> float:
     basis = record["fine_basis"]
     if basis == "fixed":
+        if quantity is not None:
+            raise CalculatorInputError(f"{record['description']} does not accept a quantity")
         return 0.0
     if quantity is None:
         raise CalculatorInputError(f"{record['description']} requires a quantity")
@@ -182,6 +319,8 @@ def calculate_fine(
     record explicitly opts in. Current legal records use vehicle type to filter
     applicability, not to invent a different statutory fine.
     """
+    if not isinstance(repeat, bool):
+        raise CalculatorInputError("Repeat must be Boolean")
     if violation_key not in NATIONAL_FINES:
         raise CalculatorInputError(f"Unknown violation: {violation_key}")
     if vehicle_key not in VEHICLE_TYPES:
