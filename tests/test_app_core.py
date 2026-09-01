@@ -183,3 +183,44 @@ def test_validation_rejects_incomplete_source_metadata():
     metadata = {**METADATA, "sources": [{"id": "mva1988", "title": "Missing URL"}]}
     with pytest.raises(DataValidationError, match="metadata source field missing: url"):
         validate_data(NATIONAL_FINES, VEHICLE_TYPES, STATE_DATA, metadata)
+
+
+def test_validation_rejects_missing_legal_notes():
+    fines = {**NATIONAL_FINES, "bad": {**NATIONAL_FINES["no_parking"]}}
+    del fines["bad"]["legal_note"]
+    with pytest.raises(DataValidationError, match="missing fields"):
+        validate_data(fines, VEHICLE_TYPES, STATE_DATA, METADATA)
+
+
+def test_validation_rejects_non_finite_fines_and_boolean_multipliers():
+    fines = {**NATIONAL_FINES, "bad": {**NATIONAL_FINES["no_parking"], "fine": float("inf")}}
+    with pytest.raises(DataValidationError, match="invalid fine"):
+        validate_data(fines, VEHICLE_TYPES, STATE_DATA, METADATA)
+
+    vehicles = {**VEHICLE_TYPES, "Bad vehicle": True}
+    with pytest.raises(DataValidationError, match="invalid multiplier"):
+        validate_data(NATIONAL_FINES, vehicles, STATE_DATA, METADATA)
+
+
+def test_validation_rejects_empty_sources_and_unexpected_locations():
+    fines = {**NATIONAL_FINES, "bad": {**NATIONAL_FINES["no_parking"], "source_ids": []}}
+    with pytest.raises(DataValidationError, match="invalid source IDs"):
+        validate_data(fines, VEHICLE_TYPES, STATE_DATA, METADATA)
+
+    states = {**STATE_DATA}
+    states["Not a location"] = states.pop("Delhi")
+    with pytest.raises(DataValidationError, match="expected 28 states"):
+        validate_data(NATIONAL_FINES, VEHICLE_TYPES, states, METADATA)
+
+
+def test_validation_rejects_malformed_state_record():
+    states = {**STATE_DATA, "Delhi": None}
+    with pytest.raises(DataValidationError, match="state record Delhi must be an object"):
+        validate_data(NATIONAL_FINES, VEHICLE_TYPES, states, METADATA)
+
+
+def test_calculator_rejects_non_boolean_repeat_and_fixed_quantities():
+    with pytest.raises(CalculatorInputError, match="Repeat must be Boolean"):
+        calculate_fine("signal_jump", "Light Motor Vehicle (Car)", "Delhi", repeat="false")
+    with pytest.raises(CalculatorInputError, match="does not accept a quantity"):
+        calculate_fine("no_parking", "Light Motor Vehicle (Car)", "Delhi", quantity=float("nan"))
