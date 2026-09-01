@@ -87,6 +87,20 @@ def _require(condition: bool, message: str) -> None:
         raise DataValidationError(message)
 
 
+def _validate_legal_sections(legal_sections: Any) -> None:
+    _require(isinstance(legal_sections, list) and legal_sections, "legal_sections must be a non-empty array")
+    sections = []
+    for index, record in enumerate(legal_sections):
+        _require(isinstance(record, dict), f"legal section {index} must be an object")
+        for field in ("section", "title", "description"):
+            _require(
+                isinstance(record.get(field), str) and record[field].strip(),
+                f"legal section {index} is missing {field}",
+            )
+        sections.append(record["section"])
+    _require(len(sections) == len(set(sections)), "legal section identifiers must be unique")
+
+
 def validate_data(
     national_fines: dict[str, dict[str, Any]],
     vehicle_types: dict[str, float],
@@ -249,6 +263,8 @@ def load_data() -> tuple[dict[str, Any], dict[str, float], dict[str, Any], dict[
 
 
 NATIONAL_FINES, VEHICLE_TYPES, STATE_DATA, METADATA = load_data()
+LEGAL_SECTIONS = _read_json("legal_sections.json")
+_validate_legal_sections(LEGAL_SECTIONS)
 ALL_STATES = sorted(STATE_DATA)
 
 

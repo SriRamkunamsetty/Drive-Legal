@@ -7,6 +7,7 @@ The `data/` directory is the runtime source of truth for the application. Every 
 | `national_fines.json` | National reference records, with rule section, penalty section, fine basis, valid vehicle categories, repeat policy, and source identifiers |
 | `vehicle_types.json` | Vehicle labels and reference multipliers |
 | `state_data.json` | State/UT speed, surcharge, helmet, and enforcement reference information |
+| `legal_sections.json` | Bundled traffic-law catalogue rendered by the Traffic Laws tab |
 | `metadata.json` | Schema version, review date, legal-source URLs, and product disclaimer |
 
 ## Schema policy
