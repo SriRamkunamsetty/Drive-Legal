@@ -16,7 +16,9 @@ A fine record distinguishes the **rule section** from the **penalty section**. F
 
 A record may be `fixed`, `per_excess_passenger`, or `base_plus_excess_tonne`. Quantity-based records require an explicit quantity in the calculator. Vehicle categories are used to prevent invalid combinations; the application does not multiply a statutory amount by an arbitrary vehicle factor unless a record explicitly opts in.
 
-The `source_status` value is `act_reference` when the record is directly grounded in the central Act text and `reference_only` when the amount or state rule requires verification against a later state notification, compounding schedule, or local order. State-level records are currently marked `reference_only` pending row-level notification citations.
+The `source_status` value is `act_reference` when the record is directly grounded in the central Act text and `reference_only` when the amount or state rule requires verification against a later state notification, compounding schedule, or local order. State-level records are currently marked `reference_only` pending row-level notification citations. Reference-only state surcharges are displayed as context but are not added to a calculation unless an offence record explicitly opts in with supporting evidence.
+
+Repeat treatment is `explicit` only when the record contains a specific repeat amount. Records marked `reference_only` do not offer a repeat calculation; the application does not invent a generic doubled amount.
 
 ## Updating data
 
