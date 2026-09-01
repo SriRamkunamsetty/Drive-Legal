@@ -10,6 +10,7 @@ import streamlit as st
 
 from app_core import (
     ALL_STATES,
+    LEGAL_SECTIONS,
     METADATA,
     NATIONAL_FINES,
     STATE_DATA,
@@ -164,23 +165,9 @@ with tab1:
 with tab2:
     st.markdown("## 📋 Traffic Laws — India")
     st.warning("Sections are shown separately as the rule/duty section and the penalty section. Amounts are informational references, not official challan determinations.")
-    laws = [
-        ("112", "Speed limits", "Central Government prescribes speed limits; state governments may prescribe lower limits."),
-        ("119", "Traffic signs and signals", "Drivers must obey traffic signs, signals, and road markings."),
-        ("128 / 194C", "Motorcycle safety and passenger limits", "Safety provisions and the penalty for contravening motorcycle passenger-safety rules."),
-        ("129 / 194D", "Protective headgear", "Motorcycle riders and pillion riders must follow protective-headgear rules; the penalty section also provides licence consequences."),
-        ("138(3) / 194B", "Seat belts", "The duty and the amended penalty provision for seat belts are displayed together."),
-        ("183", "Excessive speed", "Reference ranges vary by vehicle class and offence circumstances."),
-        ("184", "Dangerous driving and red-light jumping", "The 2019 amendment's explanation includes jumping a red light and handheld communication-device use."),
-        ("185", "Drunk driving", "The amended record distinguishes first- and repeat-offence reference amounts and possible imprisonment."),
-        ("194", "Exceeding permissible weight", "₹20,000 plus ₹2,000 per tonne of excess load, with removal of excess load before movement."),
-        ("194A", "Excess passengers in transport vehicles", "₹200 per excess passenger, with off-loading and alternative transport requirements."),
-        ("194E", "Emergency vehicles", "Up to six months' imprisonment, ₹10,000 fine, or both."),
-        ("199A", "Offences by juveniles", "Guardian/owner liability, up to three years' imprisonment, ₹25,000 fine, registration cancellation, and licence restrictions as applicable."),
-    ]
-    for section, title, description in laws:
-        with st.expander(f"**Section {section}** — {title}"):
-            st.write(description)
+    for law in LEGAL_SECTIONS:
+        with st.expander(f"**Section {law['section']}** — {law['title']}"):
+            st.write(law["description"])
 
     st.markdown("### 🌐 National speed-limit reference")
     st.dataframe(
