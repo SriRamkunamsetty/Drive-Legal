@@ -10,6 +10,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app_core import (
     ALL_STATES,
+    LEGAL_SECTIONS,
     METADATA,
     NATIONAL_FINES,
     STATE_DATA,
@@ -93,6 +94,12 @@ def test_red_light_uses_rule_section_119_and_penalty_section_184():
 
 def test_all_national_records_have_record_level_legal_notes():
     assert all(record["legal_note"].strip() for record in NATIONAL_FINES.values())
+
+
+def test_legal_catalogue_is_loaded_from_bundled_data():
+    assert len(LEGAL_SECTIONS) == 12
+    assert len({record["section"] for record in LEGAL_SECTIONS}) == len(LEGAL_SECTIONS)
+    assert all(record["title"] and record["description"] for record in LEGAL_SECTIONS)
 
 
 def test_overloading_goods_is_quantity_based_and_not_multiplied_by_vehicle_type():
