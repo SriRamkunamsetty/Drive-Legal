@@ -97,8 +97,10 @@ with tab1:
     repeat = False
     if violation["repeat_policy"] == "explicit":
         repeat = st.checkbox(f"Use repeat-offence reference amount (₹{violation['repeat_fine']:,})")
-    else:
+    elif violation["repeat_policy"] == "reference_only":
         st.caption("A repeat calculation is not available for this offence because its bundled repeat treatment is not verified.")
+    else:
+        st.caption("A repeat calculation does not apply to this offence under its statutory record.")
 
     with st.expander("🚗 Vehicle-type reference"):
         st.dataframe(
