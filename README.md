@@ -60,7 +60,7 @@ pytest -q
 python -m py_compile app.py app_core.py
 ```
 
-A CI workflow with these same checks is prepared as a maintainer-addable artifact alongside this contribution. It is not included in the submitted branch because the connected GitHub integration cannot push workflow files without the `workflows` permission; maintainers should add it under `.github/workflows/ci.yml` after review.
+Continuous integration runs the complete check suite automatically on every pull request and push to `main` across Python 3.11, 3.12, and 3.13 via `.github/workflows/ci.yml`.
 
 ## Data and legal sources
 
