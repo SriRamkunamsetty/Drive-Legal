@@ -211,7 +211,11 @@ def validate_data(
                 f"extra-tonne fine missing for {key}",
             )
 
-    required_state_fields = {"surcharge", "notes", "helmet_law", "speed_city", "speed_highway", "source_status", "source_ids", "legal_note"}
+    required_state_fields = {
+        "surcharge", "notes", "helmet_law", "speed_city", "speed_highway",
+        "source_status", "source_ids", "legal_note", "notification_id",
+        "effective_date", "jurisdiction", "compounding_schedule",
+    }
     for state, record in state_data.items():
         _require(isinstance(record, dict), f"state record {state} must be an object")
         missing = required_state_fields - record.keys()
@@ -240,7 +244,7 @@ def validate_data(
             f"notes missing for {state}",
         )
         _require(isinstance(record["helmet_law"], str) and record["helmet_law"].strip(), f"helmet law missing for {state}")
-        _require(record["source_status"] in {"act_reference", "reference_only"}, f"invalid source status for {state}")
+        _require(record["source_status"] in {"act_reference", "reference_only", "state_notification"}, f"invalid source status for {state}")
         _require(isinstance(record["legal_note"], str) and record["legal_note"].strip(), f"legal note missing for {state}")
         _require(
             isinstance(record["source_ids"], list)
@@ -250,6 +254,29 @@ def validate_data(
             and set(record["source_ids"]).issubset(source_ids),
             f"invalid source IDs for {state}",
         )
+        if record.get("notification_id") is not None:
+            _require(isinstance(record["notification_id"], str) and record["notification_id"].strip(), f"notification_id must be a non-empty string for {state}")
+        if record.get("effective_date") is not None:
+            _require(
+                isinstance(record["effective_date"], str)
+                and len(record["effective_date"]) == 10
+                and record["effective_date"][:4].isdigit()
+                and record["effective_date"][4] == "-"
+                and record["effective_date"][5:7].isdigit()
+                and record["effective_date"][7] == "-"
+                and record["effective_date"][8:].isdigit(),
+                f"effective_date must be in YYYY-MM-DD format for {state}",
+            )
+        if record.get("jurisdiction") is not None:
+            _require(isinstance(record["jurisdiction"], str) and record["jurisdiction"].strip(), f"jurisdiction must be a non-empty string for {state}")
+        if record.get("compounding_schedule") is not None:
+            _require(isinstance(record["compounding_schedule"], dict) and record["compounding_schedule"], f"compounding_schedule must be a non-empty dict for {state}")
+            for v_key, amount in record["compounding_schedule"].items():
+                _require(v_key in national_fines, f"unknown violation {v_key} in compounding_schedule for {state}")
+                _require(
+                    isinstance(amount, (int, float)) and not isinstance(amount, bool) and math.isfinite(amount) and amount > 0,
+                    f"invalid compounding amount for {v_key} in {state}",
+                )
 
     descriptions = [record["description"] for record in national_fines.values()]
     _require(len(descriptions) == len(set(descriptions)), "violation descriptions must be unique for the selector")
@@ -295,6 +322,35 @@ def get_allowed_vehicle_types(violation_key: str) -> list[str]:
         return NATIONAL_FINES[violation_key]["allowed_vehicle_types"]
     except KeyError as exc:
         raise CalculatorInputError(f"Unknown violation: {violation_key}") from exc
+
+
+def get_state_compounding_info(state: str, violation_key: str | None = None) -> dict[str, Any] | None:
+    """Retrieve verified state compounding schedule and provenance if available."""
+    if state not in STATE_DATA:
+        raise CalculatorInputError(f"Unknown state or Union Territory: {state}")
+    record = STATE_DATA[state]
+    schedule = record.get("compounding_schedule")
+    if not schedule:
+        return None
+    if violation_key is not None:
+        if violation_key not in NATIONAL_FINES:
+            raise CalculatorInputError(f"Unknown violation: {violation_key}")
+        if violation_key not in schedule:
+            return None
+        return {
+            "state": state,
+            "jurisdiction": record.get("jurisdiction"),
+            "notification_id": record.get("notification_id"),
+            "effective_date": record.get("effective_date"),
+            "compounding_fee": schedule[violation_key],
+        }
+    return {
+        "state": state,
+        "jurisdiction": record.get("jurisdiction"),
+        "notification_id": record.get("notification_id"),
+        "effective_date": record.get("effective_date"),
+        "schedule": dict(schedule),
+    }
 
 
 def _validate_quantity(record: dict[str, Any], quantity: float | int | None) -> float:
@@ -373,6 +429,8 @@ def calculate_fine(
     state_surcharge = adjusted * state_surcharge_rate if record.get("apply_state_surcharge", False) else 0.0
     total = round(adjusted + state_surcharge + repeat_penalty, 2)
 
+    compounding_info = get_state_compounding_info(state, violation_key)
+
     return {
         "base_fine": round(reference_fine, 2),
         "vehicle_adjustment": round(adjusted - reference_fine, 2),
@@ -394,4 +452,8 @@ def calculate_fine(
         "source_ids": list(record["source_ids"]),
         "sources": get_source_details(record["source_ids"]),
         "fine_basis": record["fine_basis"],
+        "compounding_fee": compounding_info["compounding_fee"] if compounding_info else None,
+        "compounding_notification_id": compounding_info["notification_id"] if compounding_info else None,
+        "compounding_effective_date": compounding_info["effective_date"] if compounding_info else None,
+        "compounding_jurisdiction": compounding_info["jurisdiction"] if compounding_info else None,
     }

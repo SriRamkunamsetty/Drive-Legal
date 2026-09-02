@@ -11,6 +11,21 @@
       "id": "mva2019",
       "title": "The Motor Vehicles (Amendment) Act, 2019",
       "url": "https://www.indiacode.nic.in/repealedfileopen?rfilename=A2019-32.pdf"
+    },
+    {
+      "id": "delhi_transport",
+      "title": "Transport Department, Government of NCT of Delhi",
+      "url": "https://transport.delhi.gov.in"
+    },
+    {
+      "id": "karnataka_transport",
+      "title": "Transport Department, Government of Karnataka",
+      "url": "https://transport.karnataka.gov.in"
+    },
+    {
+      "id": "maharashtra_transport",
+      "title": "Motor Vehicles Department, Government of Maharashtra",
+      "url": "https://transport.maharashtra.gov.in"
     }
   ],
   "disclaimer": "This application is an offline informational reference, not an official challan lookup or legal-advice service. Amounts may vary by effective notification, state compounding schedule, court order, and enforcement circumstances."

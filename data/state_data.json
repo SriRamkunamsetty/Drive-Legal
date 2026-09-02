@@ -14,7 +14,11 @@
       "mva1988",
       "mva2019"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
+    "notification_id": null,
+    "effective_date": null,
+    "jurisdiction": null,
+    "compounding_schedule": null
   },
   "Arunachal Pradesh": {
     "surcharge": 0.0,
@@ -31,7 +35,11 @@
       "mva1988",
       "mva2019"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
+    "notification_id": null,
+    "effective_date": null,
+    "jurisdiction": null,
+    "compounding_schedule": null
   },
   "Assam": {
     "surcharge": 0.0,
@@ -48,7 +56,11 @@
       "mva1988",
       "mva2019"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
+    "notification_id": null,
+    "effective_date": null,
+    "jurisdiction": null,
+    "compounding_schedule": null
   },
   "Bihar": {
     "surcharge": 0.0,
@@ -65,7 +77,11 @@
       "mva1988",
       "mva2019"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
+    "notification_id": null,
+    "effective_date": null,
+    "jurisdiction": null,
+    "compounding_schedule": null
   },
   "Chhattisgarh": {
     "surcharge": 0.0,
@@ -82,7 +98,11 @@
       "mva1988",
       "mva2019"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
+    "notification_id": null,
+    "effective_date": null,
+    "jurisdiction": null,
+    "compounding_schedule": null
   },
   "Goa": {
     "surcharge": 0.1,
@@ -100,7 +120,11 @@
       "mva1988",
       "mva2019"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
+    "notification_id": null,
+    "effective_date": null,
+    "jurisdiction": null,
+    "compounding_schedule": null
   },
   "Gujarat": {
     "surcharge": 0.0,
@@ -117,7 +141,11 @@
       "mva1988",
       "mva2019"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
+    "notification_id": null,
+    "effective_date": null,
+    "jurisdiction": null,
+    "compounding_schedule": null
   },
   "Haryana": {
     "surcharge": 0.0,
@@ -134,7 +162,11 @@
       "mva1988",
       "mva2019"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
+    "notification_id": null,
+    "effective_date": null,
+    "jurisdiction": null,
+    "compounding_schedule": null
   },
   "Himachal Pradesh": {
     "surcharge": 0.0,
@@ -151,7 +183,11 @@
       "mva1988",
       "mva2019"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
+    "notification_id": null,
+    "effective_date": null,
+    "jurisdiction": null,
+    "compounding_schedule": null
   },
   "Jharkhand": {
     "surcharge": 0.0,
@@ -168,7 +204,11 @@
       "mva1988",
       "mva2019"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
+    "notification_id": null,
+    "effective_date": null,
+    "jurisdiction": null,
+    "compounding_schedule": null
   },
   "Karnataka": {
     "surcharge": 0.0,
@@ -181,12 +221,24 @@
     "helmet_law": "Mandatory for both rider and pillion",
     "speed_city": 50,
     "speed_highway": 100,
-    "source_status": "reference_only",
+    "source_status": "state_notification",
     "source_ids": [
       "mva1988",
-      "mva2019"
+      "mva2019",
+      "karnataka_transport"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "Compounding schedule notified by Government of Karnataka under Section 200 of the Motor Vehicles Act.",
+    "notification_id": "TD 132 TMR 2019",
+    "effective_date": "2019-09-21",
+    "jurisdiction": "State of Karnataka",
+    "compounding_schedule": {
+      "no_helmet": 500,
+      "no_seatbelt": 500,
+      "overspeeding_lmv": 1000,
+      "no_parking": 500,
+      "no_insurance": 1000,
+      "no_dl": 1000
+    }
   },
   "Kerala": {
     "surcharge": 0.05,
@@ -204,7 +256,11 @@
       "mva1988",
       "mva2019"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
+    "notification_id": null,
+    "effective_date": null,
+    "jurisdiction": null,
+    "compounding_schedule": null
   },
   "Madhya Pradesh": {
     "surcharge": 0.0,
@@ -221,7 +277,11 @@
       "mva1988",
       "mva2019"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
+    "notification_id": null,
+    "effective_date": null,
+    "jurisdiction": null,
+    "compounding_schedule": null
   },
   "Maharashtra": {
     "surcharge": 0.0,
@@ -234,12 +294,23 @@
     "helmet_law": "Mandatory for both rider and pillion",
     "speed_city": 50,
     "speed_highway": 120,
-    "source_status": "reference_only",
+    "source_status": "state_notification",
     "source_ids": [
       "mva1988",
-      "mva2019"
+      "mva2019",
+      "maharashtra_transport"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "Revised compounding schedule notified by Home Department (Transport), Government of Maharashtra under Section 200 of the Motor Vehicles Act.",
+    "notification_id": "MVR 0919/C.R. 152/TRA-2",
+    "effective_date": "2021-12-01",
+    "jurisdiction": "State of Maharashtra",
+    "compounding_schedule": {
+      "no_helmet": 500,
+      "no_seatbelt": 200,
+      "overspeeding_lmv": 1000,
+      "no_parking": 500,
+      "no_insurance": 2000
+    }
   },
   "Manipur": {
     "surcharge": 0.0,
@@ -256,7 +327,11 @@
       "mva1988",
       "mva2019"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
+    "notification_id": null,
+    "effective_date": null,
+    "jurisdiction": null,
+    "compounding_schedule": null
   },
   "Meghalaya": {
     "surcharge": 0.0,
@@ -273,7 +348,11 @@
       "mva1988",
       "mva2019"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
+    "notification_id": null,
+    "effective_date": null,
+    "jurisdiction": null,
+    "compounding_schedule": null
   },
   "Mizoram": {
     "surcharge": 0.0,
@@ -290,7 +369,11 @@
       "mva1988",
       "mva2019"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
+    "notification_id": null,
+    "effective_date": null,
+    "jurisdiction": null,
+    "compounding_schedule": null
   },
   "Nagaland": {
     "surcharge": 0.0,
@@ -307,7 +390,11 @@
       "mva1988",
       "mva2019"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
+    "notification_id": null,
+    "effective_date": null,
+    "jurisdiction": null,
+    "compounding_schedule": null
   },
   "Odisha": {
     "surcharge": 0.0,
@@ -324,7 +411,11 @@
       "mva1988",
       "mva2019"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
+    "notification_id": null,
+    "effective_date": null,
+    "jurisdiction": null,
+    "compounding_schedule": null
   },
   "Punjab": {
     "surcharge": 0.0,
@@ -341,7 +432,11 @@
       "mva1988",
       "mva2019"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
+    "notification_id": null,
+    "effective_date": null,
+    "jurisdiction": null,
+    "compounding_schedule": null
   },
   "Rajasthan": {
     "surcharge": 0.0,
@@ -358,7 +453,11 @@
       "mva1988",
       "mva2019"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
+    "notification_id": null,
+    "effective_date": null,
+    "jurisdiction": null,
+    "compounding_schedule": null
   },
   "Sikkim": {
     "surcharge": 0.0,
@@ -375,7 +474,11 @@
       "mva1988",
       "mva2019"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
+    "notification_id": null,
+    "effective_date": null,
+    "jurisdiction": null,
+    "compounding_schedule": null
   },
   "Tamil Nadu": {
     "surcharge": 0.0,
@@ -393,7 +496,11 @@
       "mva1988",
       "mva2019"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
+    "notification_id": null,
+    "effective_date": null,
+    "jurisdiction": null,
+    "compounding_schedule": null
   },
   "Telangana": {
     "surcharge": 0.0,
@@ -410,7 +517,11 @@
       "mva1988",
       "mva2019"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
+    "notification_id": null,
+    "effective_date": null,
+    "jurisdiction": null,
+    "compounding_schedule": null
   },
   "Tripura": {
     "surcharge": 0.0,
@@ -427,7 +538,11 @@
       "mva1988",
       "mva2019"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
+    "notification_id": null,
+    "effective_date": null,
+    "jurisdiction": null,
+    "compounding_schedule": null
   },
   "Uttar Pradesh": {
     "surcharge": 0.0,
@@ -445,7 +560,11 @@
       "mva1988",
       "mva2019"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
+    "notification_id": null,
+    "effective_date": null,
+    "jurisdiction": null,
+    "compounding_schedule": null
   },
   "Uttarakhand": {
     "surcharge": 0.0,
@@ -462,7 +581,11 @@
       "mva1988",
       "mva2019"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
+    "notification_id": null,
+    "effective_date": null,
+    "jurisdiction": null,
+    "compounding_schedule": null
   },
   "West Bengal": {
     "surcharge": 0.0,
@@ -479,7 +602,11 @@
       "mva1988",
       "mva2019"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
+    "notification_id": null,
+    "effective_date": null,
+    "jurisdiction": null,
+    "compounding_schedule": null
   },
   "Andaman and Nicobar Islands": {
     "surcharge": 0.0,
@@ -496,7 +623,11 @@
       "mva1988",
       "mva2019"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
+    "notification_id": null,
+    "effective_date": null,
+    "jurisdiction": null,
+    "compounding_schedule": null
   },
   "Chandigarh": {
     "surcharge": 0.0,
@@ -513,7 +644,11 @@
       "mva1988",
       "mva2019"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
+    "notification_id": null,
+    "effective_date": null,
+    "jurisdiction": null,
+    "compounding_schedule": null
   },
   "Dadra and Nagar Haveli and Daman and Diu": {
     "surcharge": 0.0,
@@ -530,7 +665,11 @@
       "mva1988",
       "mva2019"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
+    "notification_id": null,
+    "effective_date": null,
+    "jurisdiction": null,
+    "compounding_schedule": null
   },
   "Delhi": {
     "surcharge": 0.0,
@@ -544,12 +683,24 @@
     "helmet_law": "Mandatory for both rider and pillion",
     "speed_city": 50,
     "speed_highway": 100,
-    "source_status": "reference_only",
+    "source_status": "state_notification",
     "source_ids": [
       "mva1988",
-      "mva2019"
+      "mva2019",
+      "delhi_transport"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "Compounding fees notified by Transport Department, GNCTD under Section 200 of the Motor Vehicles Act.",
+    "notification_id": "F.19(148)/Tpt/Ops/2019/379",
+    "effective_date": "2020-03-13",
+    "jurisdiction": "National Capital Territory of Delhi",
+    "compounding_schedule": {
+      "no_helmet": 1000,
+      "no_seatbelt": 1000,
+      "overspeeding_lmv": 1000,
+      "no_parking": 500,
+      "no_insurance": 2000,
+      "no_dl": 5000
+    }
   },
   "Jammu and Kashmir": {
     "surcharge": 0.0,
@@ -567,7 +718,11 @@
       "mva1988",
       "mva2019"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
+    "notification_id": null,
+    "effective_date": null,
+    "jurisdiction": null,
+    "compounding_schedule": null
   },
   "Ladakh": {
     "surcharge": 0.0,
@@ -585,7 +740,11 @@
       "mva1988",
       "mva2019"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
+    "notification_id": null,
+    "effective_date": null,
+    "jurisdiction": null,
+    "compounding_schedule": null
   },
   "Lakshadweep": {
     "surcharge": 0.0,
@@ -602,7 +761,11 @@
       "mva1988",
       "mva2019"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
+    "notification_id": null,
+    "effective_date": null,
+    "jurisdiction": null,
+    "compounding_schedule": null
   },
   "Puducherry": {
     "surcharge": 0.05,
@@ -620,6 +783,10 @@
       "mva1988",
       "mva2019"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance."
+    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
+    "notification_id": null,
+    "effective_date": null,
+    "jurisdiction": null,
+    "compounding_schedule": null
   }
 }

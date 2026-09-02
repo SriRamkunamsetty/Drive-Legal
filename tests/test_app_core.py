@@ -20,6 +20,7 @@ from app_core import (
     calculate_fine,
     get_allowed_vehicle_types,
     get_source_details,
+    get_state_compounding_info,
     get_violation_options,
     validate_data,
 )
@@ -60,7 +61,13 @@ def test_all_state_records_have_expected_shape():
         assert 0 <= info["surcharge"] < 1
         assert 0 < info["speed_city"] < info["speed_highway"] < 300
         assert info["notes"]
-        assert info["source_status"] == "reference_only"
+        assert info["source_status"] in {"reference_only", "state_notification"}
+        if info["source_status"] == "state_notification":
+            assert info["notification_id"]
+            assert info["effective_date"]
+            assert info["jurisdiction"]
+            assert isinstance(info["compounding_schedule"], dict)
+            assert len(info["compounding_schedule"]) > 0
 
 
 def test_source_ids_resolve_to_display_ready_metadata():
@@ -237,3 +244,46 @@ def test_calculator_rejects_non_boolean_repeat_and_fixed_quantities():
         calculate_fine("signal_jump", "Light Motor Vehicle (Car)", "Delhi", repeat="false")
     with pytest.raises(CalculatorInputError, match="does not accept a quantity"):
         calculate_fine("no_parking", "Light Motor Vehicle (Car)", "Delhi", quantity=float("nan"))
+
+
+def test_state_compounding_info_resolution():
+    delhi_info = get_state_compounding_info("Delhi", "no_helmet")
+    assert delhi_info is not None
+    assert delhi_info["notification_id"] == "F.19(148)/Tpt/Ops/2019/379"
+    assert delhi_info["effective_date"] == "2020-03-13"
+    assert delhi_info["compounding_fee"] == 1000
+
+    karnataka_helmet = get_state_compounding_info("Karnataka", "no_helmet")
+    assert karnataka_helmet["compounding_fee"] == 500
+
+    unverified = get_state_compounding_info("Goa", "no_helmet")
+    assert unverified is None
+
+    full_delhi = get_state_compounding_info("Delhi")
+    assert "no_helmet" in full_delhi["schedule"]
+    assert full_delhi["jurisdiction"] == "National Capital Territory of Delhi"
+
+
+def test_calculate_fine_includes_compounding_details():
+    delhi_res = calculate_fine("no_helmet", "Two-Wheeler (> 50cc)", "Delhi")
+    assert delhi_res["compounding_fee"] == 1000
+    assert delhi_res["compounding_notification_id"] == "F.19(148)/Tpt/Ops/2019/379"
+    assert delhi_res["compounding_effective_date"] == "2020-03-13"
+
+    goa_res = calculate_fine("no_helmet", "Two-Wheeler (> 50cc)", "Goa")
+    assert goa_res["compounding_fee"] is None
+    assert goa_res["compounding_notification_id"] is None
+
+
+def test_compounding_validation_rejects_invalid_values():
+    bad_states = {**STATE_DATA, "Delhi": {**STATE_DATA["Delhi"], "effective_date": "invalid-date"}}
+    with pytest.raises(DataValidationError, match="effective_date must be in YYYY-MM-DD format"):
+        validate_data(NATIONAL_FINES, VEHICLE_TYPES, bad_states, METADATA)
+
+    bad_schedule = {**STATE_DATA, "Delhi": {**STATE_DATA["Delhi"], "compounding_schedule": {"unknown_violation": 1000}}}
+    with pytest.raises(DataValidationError, match="unknown violation"):
+        validate_data(NATIONAL_FINES, VEHICLE_TYPES, bad_schedule, METADATA)
+
+    neg_schedule = {**STATE_DATA, "Delhi": {**STATE_DATA["Delhi"], "compounding_schedule": {"no_helmet": -500}}}
+    with pytest.raises(DataValidationError, match="invalid compounding amount"):
+        validate_data(NATIONAL_FINES, VEHICLE_TYPES, neg_schedule, METADATA)
