@@ -113,7 +113,7 @@ def validate_data(
         "allowed_vehicle_types", "repeat_policy", "fine_basis", "apply_vehicle_multiplier",
         "source_status", "source_ids", "legal_note",
     }
-    allowed_repeat_policies = {"toggle", "explicit", "not_applicable"}
+    allowed_repeat_policies = {"explicit", "not_applicable", "reference_only"}
     allowed_fine_bases = {"fixed", "per_excess_passenger", "base_plus_excess_tonne"}
     _require(isinstance(metadata, dict), "metadata must be an object")
     sources = metadata.get("sources", [])
@@ -160,6 +160,8 @@ def validate_data(
         _require(isinstance(record["rule_section"], str) and record["rule_section"].strip(), f"rule section missing for {key}")
         _require(isinstance(record["penalty_section"], str) and record["penalty_section"].strip(), f"penalty section missing for {key}")
         _require(isinstance(record["apply_vehicle_multiplier"], bool), f"vehicle multiplier flag must be Boolean for {key}")
+        if "apply_state_surcharge" in record:
+            _require(isinstance(record["apply_state_surcharge"], bool), f"state surcharge flag must be Boolean for {key}")
         _require(record["source_status"] in {"act_reference", "reference_only"}, f"invalid source status for {key}")
         _require(isinstance(record["legal_note"], str) and record["legal_note"].strip(), f"legal note missing for {key}")
         _require(
@@ -348,7 +350,7 @@ def calculate_fine(
     allowed = record["allowed_vehicle_types"]
     if vehicle_key not in allowed:
         raise CalculatorInputError(f"{record['description']} is not applicable to {vehicle_key}")
-    if record["repeat_policy"] == "not_applicable" and repeat:
+    if record["repeat_policy"] in {"not_applicable", "reference_only"} and repeat:
         raise CalculatorInputError(f"Repeat-offence calculation is not available for {record['description']}")
 
     numeric_quantity = _validate_quantity(record, quantity)
@@ -367,9 +369,8 @@ def calculate_fine(
 
     multiplier = VEHICLE_TYPES[vehicle_key] if record["apply_vehicle_multiplier"] else 1.0
     adjusted = reference_fine * multiplier
-    if repeat and record["repeat_policy"] == "toggle":
-        repeat_penalty = adjusted
-    state_surcharge = adjusted * STATE_DATA[state]["surcharge"]
+    state_surcharge_rate = STATE_DATA[state]["surcharge"]
+    state_surcharge = adjusted * state_surcharge_rate if record.get("apply_state_surcharge", False) else 0.0
     total = round(adjusted + state_surcharge + repeat_penalty, 2)
 
     return {
@@ -378,6 +379,8 @@ def calculate_fine(
         "vehicle_multiplier": multiplier,
         "vehicle_multiplier_applied": record["apply_vehicle_multiplier"],
         "state_surcharge": round(state_surcharge, 2),
+        "state_surcharge_rate": state_surcharge_rate,
+        "state_surcharge_applied": bool(record.get("apply_state_surcharge", False)),
         "repeat_penalty": round(repeat_penalty, 2),
         "total": total,
         "rule_section": record["rule_section"],
