@@ -136,16 +136,27 @@
     "helmet_law": "Mandatory for both rider and pillion",
     "speed_city": 50,
     "speed_highway": 100,
-    "source_status": "reference_only",
+    "source_status": "state_notification",
     "source_ids": [
       "mva1988",
-      "mva2019"
+      "mva2019",
+      "gujarat_transport"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
-    "notification_id": null,
-    "effective_date": null,
-    "jurisdiction": null,
-    "compounding_schedule": null
+    "legal_note": "Compounding amounts notified by the Government of Gujarat under Section 200 of the Motor Vehicles Act (Notification GH/L/30/MVA/102019/1884/Kh).",
+    "notification_id": "GH/L/30/MVA/102019/1884/Kh",
+    "effective_date": "2019-09-11",
+    "jurisdiction": "State of Gujarat",
+    "compounding_schedule": {
+      "no_helmet": 500,
+      "no_seatbelt": 500,
+      "overspeeding_lmv": 1500,
+      "overspeeding_mmv": 2000,
+      "signal_jump": 1000,
+      "no_dl": 2000,
+      "no_insurance": 2000,
+      "no_rc": 2000,
+      "pollution_norms": 1000
+    }
   },
   "Haryana": {
     "surcharge": 0.0,
@@ -491,16 +502,27 @@
     "helmet_law": "Mandatory for both rider and pillion (High Court order)",
     "speed_city": 50,
     "speed_highway": 100,
-    "source_status": "reference_only",
+    "source_status": "state_notification",
     "source_ids": [
       "mva1988",
-      "mva2019"
+      "mva2019",
+      "tamilnadu_transport"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
-    "notification_id": null,
-    "effective_date": null,
-    "jurisdiction": null,
-    "compounding_schedule": null
+    "legal_note": "Compounding amounts notified by Home (Transport-IV) Department, Government of Tamil Nadu under Section 200 of the Motor Vehicles Act (G.O. Ms. No. 445).",
+    "notification_id": "G.O. (Ms.) No. 445",
+    "effective_date": "2022-10-19",
+    "jurisdiction": "State of Tamil Nadu",
+    "compounding_schedule": {
+      "no_helmet": 1000,
+      "no_seatbelt": 1000,
+      "overspeeding_lmv": 1000,
+      "overspeeding_mmv": 2000,
+      "signal_jump": 1000,
+      "no_dl": 5000,
+      "no_insurance": 2000,
+      "dangerous_driving": 1000,
+      "no_parking": 500
+    }
   },
   "Telangana": {
     "surcharge": 0.0,
@@ -555,16 +577,26 @@
     "helmet_law": "Mandatory for both rider and pillion",
     "speed_city": 50,
     "speed_highway": 120,
-    "source_status": "reference_only",
+    "source_status": "state_notification",
     "source_ids": [
       "mva1988",
-      "mva2019"
+      "mva2019",
+      "up_transport"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
-    "notification_id": null,
-    "effective_date": null,
-    "jurisdiction": null,
-    "compounding_schedule": null
+    "legal_note": "Compounding amounts notified by the Transport Department, Government of Uttar Pradesh under Section 200 of the Motor Vehicles Act (Notification No. 1326/XXX-4-2020-07(11)/2019).",
+    "notification_id": "1326/XXX-4-2020-07(11)/2019",
+    "effective_date": "2020-06-18",
+    "jurisdiction": "State of Uttar Pradesh",
+    "compounding_schedule": {
+      "no_helmet": 1000,
+      "no_seatbelt": 1000,
+      "overspeeding_lmv": 2000,
+      "overspeeding_mmv": 2000,
+      "no_dl": 2500,
+      "no_insurance": 2000,
+      "no_rc": 2000,
+      "no_parking": 500
+    }
   },
   "Uttarakhand": {
     "surcharge": 0.0,

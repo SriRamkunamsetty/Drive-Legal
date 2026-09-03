@@ -16,9 +16,11 @@ A fine record distinguishes the **rule section** from the **penalty section**. F
 
 A record may be `fixed`, `per_excess_passenger`, or `base_plus_excess_tonne`. Quantity-based records require an explicit quantity in the calculator. Vehicle categories are used to prevent invalid combinations; the application does not multiply a statutory amount by an arbitrary vehicle factor unless a record explicitly opts in.
 
-The `source_status` value is `act_reference` when the record is directly grounded in the central Act text, `state_notification` when grounded in an official state gazette notification under Section 200 of the Act, and `reference_only` when the amount or state rule requires additional notification verification. Verified state records include `notification_id`, `effective_date`, `jurisdiction`, and a `compounding_schedule` dictionary detailing compoundable offence amounts under Section 200 of the Motor Vehicles Act. Unsupported state values remain visibly `reference_only`. Reference-only state surcharges are displayed as context but are not added to a calculation unless an offence record explicitly opts in with supporting evidence.
+The `source_status` value is `act_reference` when the record is directly grounded in the central Act text, `state_notification` when grounded in an official state gazette notification under Section 200 of the Act, and `reference_only` when the amount or state rule requires additional notification verification. Verified state records include `notification_id`, `effective_date`, `jurisdiction`, and a `compounding_schedule` dictionary detailing compoundable offence amounts under Section 200 of the Motor Vehicles Act (currently provided for Delhi, Karnataka, Maharashtra, Gujarat, Tamil Nadu, and Uttar Pradesh). Unsupported state values remain visibly `reference_only`. Reference-only state surcharges are displayed as context but are not added to a calculation unless an offence record explicitly opts in with supporting evidence.
 
 Repeat treatment is `explicit` only when the record contains a specific repeat amount. Records marked `reference_only` do not offer a repeat calculation; the application does not invent a generic doubled amount.
+
+The traffic-law catalogue (`legal_sections.json`) maintains parity with the national fine records, ensuring every statutory penalty section referenced in the calculator has a corresponding educational entry explaining duties, scope, and penalties.
 
 ## Updating data
 
@@ -29,6 +31,7 @@ python -m json.tool data/national_fines.json >/dev/null
 python -m json.tool data/vehicle_types.json >/dev/null
 python -m json.tool data/state_data.json >/dev/null
 python -m json.tool data/metadata.json >/dev/null
+python -m json.tool data/legal_sections.json >/dev/null
 pytest -q
 ```
 

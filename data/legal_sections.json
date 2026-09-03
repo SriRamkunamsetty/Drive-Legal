@@ -58,5 +58,35 @@
     "section": "199A",
     "title": "Offences by juveniles",
     "description": "Guardian/owner liability, up to three years' imprisonment, ₹25,000 fine, registration cancellation, and licence restrictions as applicable."
+  },
+  {
+    "section": "3 / 181",
+    "title": "Driving without a valid driving licence",
+    "description": "Sections 3 and 4 mandate a valid driving licence and minimum age requirements. Section 181 prescribes a fine of ₹5,000 and/or imprisonment up to 3 months for driving without a licence or permitting an unauthorised person to drive."
+  },
+  {
+    "section": "39 / 192",
+    "title": "Driving an unregistered vehicle",
+    "description": "Section 39 prohibits driving an unregistered motor vehicle without a valid Certificate of Registration (RC). Section 192 prescribes a fine up to ₹5,000 (minimum ₹2,000) for a first offence, and up to ₹10,000 and/or imprisonment up to 1 year for repeat offences."
+  },
+  {
+    "section": "66 / 192A",
+    "title": "Using a transport vehicle without permit",
+    "description": "Section 66 mandates that transport vehicles must operate under a valid permit. Section 192A prescribes a fine up to ₹10,000 (minimum ₹5,000) and/or imprisonment up to 6 months for contravention."
+  },
+  {
+    "section": "146 / 196",
+    "title": "Driving an uninsured vehicle",
+    "description": "Section 146 requires mandatory third-party insurance coverage for all motor vehicles. Section 196 prescribes a fine of ₹2,000 and/or imprisonment up to 3 months for a first offence, and ₹4,000 and/or imprisonment up to 3 months for repeat offences."
+  },
+  {
+    "section": "177 / 201",
+    "title": "General traffic offences, dangerous parking, and obstruction",
+    "description": "Section 177 prescribes a general fine of ₹500 for traffic rule contraventions where no specific penalty is provided. Section 122 prohibits leaving vehicles in hazardous positions, and Section 201 imposes ₹500 per hour for causing obstruction to traffic flow."
+  },
+  {
+    "section": "190(2)",
+    "title": "Violation of road safety and pollution standards (PUC)",
+    "description": "Section 190(2) penalises operating a motor vehicle in violation of prescribed emission or pollution standards (Pollution Under Control) with a fine up to ₹10,000 and/or driving licence suspension for 3 months."
   }
 ]

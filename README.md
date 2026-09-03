@@ -10,22 +10,28 @@ DriveLegal India is an **offline informational reference and challan estimator**
 |---|---|
 | Challan estimator | Calculates a transparent reference amount with fine, surcharge, repeat, and quantity components |
 | Legal section distinction | Displays the underlying rule/duty section separately from the penalty section |
+| Traffic-law catalogue & search | Complete 18-section statutory catalogue with live search across sections, titles, and legal provisions |
 | Valid vehicle choices | Filters vehicle categories according to the offence record instead of allowing every combination |
 | Quantity-based penalties | Supports excess passengers and excess tonnes where the statute uses a quantity |
+| Multi-offence challan cart | Accumulate multiple simultaneous offences into an itemized summary with a combined reference total |
+| State compounding schedules | Verified Section 200 MVA compounding fees and gazette citations for Delhi, Karnataka, Maharashtra, Gujarat, Tamil Nadu, and Uttar Pradesh |
 | State/UT reference rules | Covers 36 locations with speed, helmet, surcharge, and enforcement-reference records |
+| Offline receipt export | Export single or itemized multi-offence calculation breakdowns directly as offline reference receipts |
 | Offline runtime | Loads all application data locally and does not require a runtime API or remote image |
-| Automated tests | Tests schema validation, calculator behavior, legal mapping, rounding, and invalid inputs |
+| Automated CI & tests | Matrix testing across Python 3.11, 3.12, and 3.13 covering schema validation and calculator behavior |
 
 ## Project structure
 
 ```text
 Drive-Legal/
+├── .github/workflows/ci.yml  # GitHub Actions automated CI matrix
 ├── app.py                    # Streamlit presentation layer
 ├── app_core.py               # Import-safe data loading, validation, and calculator logic
 ├── data/
 │   ├── national_fines.json   # Fine records and legal semantics
 │   ├── vehicle_types.json    # Vehicle labels and reference multipliers
-│   ├── state_data.json       # State/UT reference records
+│   ├── state_data.json       # State/UT reference records & compounding schedules
+│   ├── legal_sections.json   # Bundled traffic-law catalogue
 │   ├── metadata.json         # Schema version, sources, review date, disclaimer
 │   └── README.md             # Data-maintenance policy
 ├── tests/
