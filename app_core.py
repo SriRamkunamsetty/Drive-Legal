@@ -406,7 +406,9 @@ def calculate_fine(
     allowed = record["allowed_vehicle_types"]
     if vehicle_key not in allowed:
         raise CalculatorInputError(f"{record['description']} is not applicable to {vehicle_key}")
-    if record["repeat_policy"] in {"not_applicable", "reference_only"} and repeat:
+    if record["repeat_policy"] == "not_applicable" and repeat:
+        raise CalculatorInputError(f"Repeat-offence calculation does not apply to {record['description']}")
+    if record["repeat_policy"] == "reference_only" and repeat:
         raise CalculatorInputError(f"Repeat-offence calculation is not available for {record['description']}")
 
     numeric_quantity = _validate_quantity(record, quantity)
@@ -456,4 +458,61 @@ def calculate_fine(
         "compounding_notification_id": compounding_info["notification_id"] if compounding_info else None,
         "compounding_effective_date": compounding_info["effective_date"] if compounding_info else None,
         "compounding_jurisdiction": compounding_info["jurisdiction"] if compounding_info else None,
+    }
+
+
+def calculate_multi_fine(
+    items: list[dict[str, Any]],
+    state: str,
+) -> dict[str, Any]:
+    """Calculate a consolidated reference summary for multiple simultaneous offences."""
+    if not isinstance(items, list) or not items:
+        raise CalculatorInputError("At least one offence item is required for multi-offence calculation")
+    if state not in STATE_DATA:
+        raise CalculatorInputError(f"Unknown state or Union Territory: {state}")
+
+    results = []
+    total_amount = 0.0
+    total_base = 0.0
+    total_vehicle_adjustment = 0.0
+    total_state_surcharge = 0.0
+    total_repeat_penalty = 0.0
+    total_compounding = 0.0
+    has_compounding_items = False
+
+    for index, item in enumerate(items):
+        if not isinstance(item, dict):
+            raise CalculatorInputError(f"Item {index} must be a dictionary")
+        v_key = item.get("violation_key")
+        veh_key = item.get("vehicle_key")
+        repeat = item.get("repeat", False)
+        quantity = item.get("quantity")
+
+        if not v_key or not veh_key:
+            raise CalculatorInputError(f"Item {index} is missing violation_key or vehicle_key")
+
+        res = calculate_fine(v_key, veh_key, state, repeat=repeat, quantity=quantity)
+        results.append(res)
+
+        total_amount += res["total"]
+        total_base += res["base_fine"]
+        total_vehicle_adjustment += res["vehicle_adjustment"]
+        total_state_surcharge += res["state_surcharge"]
+        total_repeat_penalty += res["repeat_penalty"]
+
+        if res.get("compounding_fee") is not None:
+            total_compounding += res["compounding_fee"]
+            has_compounding_items = True
+
+    return {
+        "state": state,
+        "items": results,
+        "item_count": len(results),
+        "total_base_fine": round(total_base, 2),
+        "total_vehicle_adjustment": round(total_vehicle_adjustment, 2),
+        "total_state_surcharge": round(total_state_surcharge, 2),
+        "total_repeat_penalty": round(total_repeat_penalty, 2),
+        "grand_total": round(total_amount, 2),
+        "has_compounding_items": has_compounding_items,
+        "total_compounding_fee": round(total_compounding, 2) if has_compounding_items else None,
     }

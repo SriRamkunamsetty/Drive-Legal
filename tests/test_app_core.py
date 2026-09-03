@@ -18,6 +18,7 @@ from app_core import (
     CalculatorInputError,
     DataValidationError,
     calculate_fine,
+    calculate_multi_fine,
     get_allowed_vehicle_types,
     get_source_details,
     get_state_compounding_info,
@@ -184,7 +185,7 @@ def test_boolean_quantities_are_rejected():
 
 
 def test_fixed_records_reject_repeat_when_not_applicable():
-    with pytest.raises(CalculatorInputError, match="not available"):
+    with pytest.raises(CalculatorInputError, match="does not apply"):
         calculate_fine("no_helmet", "Two-Wheeler (> 50cc)", "Delhi", repeat=True)
 
 
@@ -313,3 +314,52 @@ def test_legal_catalogue_search_filters():
     insurance = [law for law in LEGAL_SECTIONS if "third-party insurance" in law["description"].lower()]
     assert len(insurance) == 1
     assert insurance[0]["section"] == "146 / 196"
+
+
+def test_expanded_state_compounding_resolution():
+    # Gujarat
+    gujarat_helmet = get_state_compounding_info("Gujarat", "no_helmet")
+    assert gujarat_helmet is not None
+    assert gujarat_helmet["notification_id"] == "GH/L/30/MVA/102019/1884/Kh"
+    assert gujarat_helmet["effective_date"] == "2019-09-11"
+    assert gujarat_helmet["compounding_fee"] == 500
+
+    # Tamil Nadu
+    tn_helmet = get_state_compounding_info("Tamil Nadu", "no_helmet")
+    assert tn_helmet is not None
+    assert tn_helmet["notification_id"] == "G.O. (Ms.) No. 445"
+    assert tn_helmet["effective_date"] == "2022-10-19"
+    assert tn_helmet["compounding_fee"] == 1000
+
+    # Uttar Pradesh
+    up_dl = get_state_compounding_info("Uttar Pradesh", "no_dl")
+    assert up_dl is not None
+    assert up_dl["notification_id"] == "1326/XXX-4-2020-07(11)/2019"
+    assert up_dl["effective_date"] == "2020-06-18"
+    assert up_dl["compounding_fee"] == 2500
+
+
+def test_calculate_multi_fine_combines_items():
+    items = [
+        {"violation_key": "no_helmet", "vehicle_key": "Two-Wheeler (> 50cc)"},
+        {"violation_key": "no_dl", "vehicle_key": "Two-Wheeler (> 50cc)"},
+        {"violation_key": "signal_jump", "vehicle_key": "Two-Wheeler (> 50cc)"},
+    ]
+    res = calculate_multi_fine(items, "Delhi")
+    assert res["state"] == "Delhi"
+    assert res["item_count"] == 3
+    assert res["total_base_fine"] == 1000 + 5000 + 5000  # 11000
+    assert res["grand_total"] == 11000
+    assert res["has_compounding_items"] is True
+    assert res["total_compounding_fee"] == 6000  # no_helmet (1000) + signal_jump (5000) in Delhi
+
+
+def test_calculate_multi_fine_validation_rejects_empty_and_invalid():
+    with pytest.raises(CalculatorInputError, match="At least one offence item"):
+        calculate_multi_fine([], "Delhi")
+
+    with pytest.raises(CalculatorInputError, match="Unknown state"):
+        calculate_multi_fine([{"violation_key": "no_helmet", "vehicle_key": "Two-Wheeler (> 50cc)"}], "Atlantis")
+
+    with pytest.raises(CalculatorInputError, match="missing violation_key or vehicle_key"):
+        calculate_multi_fine([{"violation_key": "no_helmet"}], "Delhi")

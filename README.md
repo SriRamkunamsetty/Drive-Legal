@@ -13,9 +13,10 @@ DriveLegal India is an **offline informational reference and challan estimator**
 | Traffic-law catalogue & search | Complete 18-section statutory catalogue with live search across sections, titles, and legal provisions |
 | Valid vehicle choices | Filters vehicle categories according to the offence record instead of allowing every combination |
 | Quantity-based penalties | Supports excess passengers and excess tonnes where the statute uses a quantity |
-| State compounding schedules | Verified Section 200 MVA compounding fees and gazette notification citations |
+| Multi-offence challan cart | Accumulate multiple simultaneous offences into an itemized summary with a combined reference total |
+| State compounding schedules | Verified Section 200 MVA compounding fees and gazette citations for Delhi, Karnataka, Maharashtra, Gujarat, Tamil Nadu, and Uttar Pradesh |
 | State/UT reference rules | Covers 36 locations with speed, helmet, surcharge, and enforcement-reference records |
-| Offline receipt export | Export itemized calculation breakdowns directly as offline reference text receipts |
+| Offline receipt export | Export single or itemized multi-offence calculation breakdowns directly as offline reference receipts |
 | Offline runtime | Loads all application data locally and does not require a runtime API or remote image |
 | Automated CI & tests | Matrix testing across Python 3.11, 3.12, and 3.13 covering schema validation and calculator behavior |
 

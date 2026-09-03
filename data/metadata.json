@@ -26,6 +26,21 @@
       "id": "maharashtra_transport",
       "title": "Motor Vehicles Department, Government of Maharashtra",
       "url": "https://transport.maharashtra.gov.in"
+    },
+    {
+      "id": "gujarat_transport",
+      "title": "Ports and Transport Department, Government of Gujarat",
+      "url": "https://cot.gujarat.gov.in"
+    },
+    {
+      "id": "tamilnadu_transport",
+      "title": "Home (Transport) Department, Government of Tamil Nadu",
+      "url": "https://transport.tn.gov.in"
+    },
+    {
+      "id": "up_transport",
+      "title": "Transport Department, Government of Uttar Pradesh",
+      "url": "https://uptransport.upsdc.gov.in"
     }
   ],
   "disclaimer": "This application is an offline informational reference, not an official challan lookup or legal-advice service. Amounts may vary by effective notification, state compounding schedule, court order, and enforcement circumstances."
