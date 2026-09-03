@@ -20,6 +20,8 @@ The `source_status` value is `act_reference` when the record is directly grounde
 
 Repeat treatment is `explicit` only when the record contains a specific repeat amount. Records marked `reference_only` do not offer a repeat calculation; the application does not invent a generic doubled amount.
 
+The traffic-law catalogue (`legal_sections.json`) maintains parity with the national fine records, ensuring every statutory penalty section referenced in the calculator has a corresponding educational entry explaining duties, scope, and penalties.
+
 ## Updating data
 
 Update the relevant JSON file, add or revise source metadata, and run:
@@ -29,6 +31,7 @@ python -m json.tool data/national_fines.json >/dev/null
 python -m json.tool data/vehicle_types.json >/dev/null
 python -m json.tool data/state_data.json >/dev/null
 python -m json.tool data/metadata.json >/dev/null
+python -m json.tool data/legal_sections.json >/dev/null
 pytest -q
 ```
 

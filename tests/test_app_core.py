@@ -104,7 +104,7 @@ def test_all_national_records_have_record_level_legal_notes():
 
 
 def test_legal_catalogue_is_loaded_from_bundled_data():
-    assert len(LEGAL_SECTIONS) == 12
+    assert len(LEGAL_SECTIONS) == 18
     assert len({record["section"] for record in LEGAL_SECTIONS}) == len(LEGAL_SECTIONS)
     assert all(record["title"] and record["description"] for record in LEGAL_SECTIONS)
 
@@ -287,3 +287,29 @@ def test_compounding_validation_rejects_invalid_values():
     neg_schedule = {**STATE_DATA, "Delhi": {**STATE_DATA["Delhi"], "compounding_schedule": {"no_helmet": -500}}}
     with pytest.raises(DataValidationError, match="invalid compounding amount"):
         validate_data(NATIONAL_FINES, VEHICLE_TYPES, neg_schedule, METADATA)
+
+
+def test_catalogue_covers_all_national_fine_penalty_sections():
+    catalogue_sections = [law["section"].replace(" ", "") for law in LEGAL_SECTIONS]
+    for key, fine_record in NATIONAL_FINES.items():
+        clean_penalty = fine_record["penalty_section"].replace(" ", "")
+        matched = any(clean_penalty in sec or sec in clean_penalty for sec in catalogue_sections)
+        assert matched, f"Penalty section {fine_record['penalty_section']} for {key} is not covered in LEGAL_SECTIONS"
+
+
+def test_legal_catalogue_search_filters():
+    assert len(LEGAL_SECTIONS) == 18
+
+    # Search by section number
+    sec_184 = [law for law in LEGAL_SECTIONS if "184" in law["section"]]
+    assert len(sec_184) == 1
+    assert sec_184[0]["title"] == "Dangerous driving and red-light jumping"
+
+    # Search by keyword in title
+    licence_matches = [law for law in LEGAL_SECTIONS if "licence" in law["title"].lower()]
+    assert len(licence_matches) >= 1
+
+    # Search by topic in description
+    insurance = [law for law in LEGAL_SECTIONS if "third-party insurance" in law["description"].lower()]
+    assert len(insurance) == 1
+    assert insurance[0]["section"] == "146 / 196"

@@ -82,7 +82,8 @@ with tab1:
     st.info(METADATA["disclaimer"])
 
     violation_options = get_violation_options()
-    selected_violation_label = st.selectbox("Select violation", list(violation_options))
+    sorted_violation_labels = sorted(violation_options)
+    selected_violation_label = st.selectbox("Select violation", sorted_violation_labels)
     selected_violation_key = violation_options[selected_violation_label]
     violation = NATIONAL_FINES[selected_violation_key]
     allowed_vehicles = get_allowed_vehicle_types(selected_violation_key)
@@ -158,6 +159,42 @@ with tab1:
             for note in state_info["notes"]:
                 st.markdown(f'<div class="state-note">• {note}</div>', unsafe_allow_html=True)
 
+            challan_summary = (
+                f"DriveLegal India — Offline Reference Challan Estimate\n"
+                f"=======================================================\n"
+                f"State / UT: {selected_state}\n"
+                f"Violation: {violation['description']}\n"
+                f"Vehicle Category: {vehicle_type}\n"
+                f"Statutory Basis: Rule Sec {result['rule_section']} / Penalty Sec {result['penalty_section']}\n"
+                f"-------------------------------------------------------\n"
+                f"Reference Fine: ₹{result['base_fine']:,.2f}\n"
+                f"Vehicle Adjustment: ₹{result['vehicle_adjustment']:,.2f}\n"
+                f"Applied State Surcharge: ₹{result['state_surcharge']:,.2f}\n"
+                f"Repeat Penalty: ₹{result['repeat_penalty']:,.2f}\n"
+                f"TOTAL ESTIMATED AMOUNT: ₹{result['total']:,.2f}\n"
+                f"-------------------------------------------------------\n"
+            )
+            if result.get("compounding_fee"):
+                challan_summary += (
+                    f"State Compounding Option: ₹{result['compounding_fee']:,} "
+                    f"(Notification {result['compounding_notification_id']}, Effective {result['compounding_effective_date']})\n"
+                )
+            if result["imprisonment"]:
+                challan_summary += f"Custodial Provision: {result['imprisonment']}\n"
+            if result["legal_note"]:
+                challan_summary += f"Legal Note: {result['legal_note']}\n"
+            challan_summary += (
+                f"\nDisclaimer: {METADATA['disclaimer']}\n"
+                f"Generated from local bundled data package (Version {METADATA['schema_version']}, Reviewed: {METADATA['last_reviewed']})\n"
+            )
+            st.download_button(
+                label="📥 Download Reference Challan Summary",
+                data=challan_summary,
+                file_name=f"drivelegal_{selected_state.lower().replace(' ', '_')}_{selected_violation_key}.txt",
+                mime="text/plain",
+                use_container_width=True,
+            )
+
     with st.expander("📊 View national fine records"):
         rows = []
         for record in NATIONAL_FINES.values():
@@ -176,7 +213,18 @@ with tab1:
 with tab2:
     st.markdown("## 📋 Traffic Laws — India")
     st.warning("Sections are shown separately as the rule/duty section and the penalty section. Amounts are informational references, not official challan determinations.")
-    for law in LEGAL_SECTIONS:
+    search_law = st.text_input("🔍 Search traffic laws", placeholder="Search by section number, title, or topic (e.g. 184, helmet, license)")
+    filtered_laws = [
+        law
+        for law in LEGAL_SECTIONS
+        if not search_law
+        or search_law.lower() in law["section"].lower()
+        or search_law.lower() in law["title"].lower()
+        or search_law.lower() in law["description"].lower()
+    ]
+    if not filtered_laws:
+        st.info(f"No traffic law sections matched '{search_law}'.")
+    for law in filtered_laws:
         with st.expander(f"**Section {law['section']}** — {law['title']}"):
             st.write(law["description"])
 
