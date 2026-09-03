@@ -137,6 +137,12 @@ with tab1:
                 st.warning(f"Potential custodial consequence in the source record: {result['imprisonment']}")
             if result["legal_note"]:
                 st.caption(result["legal_note"])
+            if result.get("compounding_fee"):
+                st.success(
+                    f"🏛️ **Verified State Compounding Fee:** In **{selected_state}**, this offence can be compounded "
+                    f"under Section 200 MVA for **₹{result['compounding_fee']:,}** pursuant to Notification *{result['compounding_notification_id']}* "
+                    f"(effective {result['compounding_effective_date']})."
+                )
             if result["source_status"] != "act_reference":
                 st.warning("This amount is a reference value and must be checked against the latest state notification or official challan portal.")
             if result["state_surcharge_rate"] and not result["state_surcharge_applied"]:
@@ -203,6 +209,26 @@ with tab3:
             st.markdown(f"**Helmet law:** {info['helmet_law']}")
             for note in info["notes"]:
                 st.markdown(f'<div class="state-note">• {note}</div>', unsafe_allow_html=True)
+            if info.get("notification_id"):
+                st.markdown(
+                    f"**Official Notification:** `{info['notification_id']}` · "
+                    f"**Effective:** `{info['effective_date']}` · "
+                    f"**Jurisdiction:** {info['jurisdiction']}"
+                )
+            if info.get("compounding_schedule"):
+                with st.expander("📜 Verified Compounding Schedule (Sec 200 MVA)"):
+                    st.caption(f"Offences compoundable in {state} under Notification {info['notification_id']}:")
+                    sched_rows = [
+                        {
+                            "Offence": NATIONAL_FINES[k]["description"],
+                            "Statutory Section": NATIONAL_FINES[k]["penalty_section"],
+                            "Central Statutory Fine": f"₹{NATIONAL_FINES[k]['fine']:,}",
+                            "State Compounding Fee": f"₹{amt:,}",
+                        }
+                        for k, amt in info["compounding_schedule"].items()
+                        if k in NATIONAL_FINES
+                    ]
+                    st.dataframe(sched_rows, use_container_width=True, hide_index=True)
             st.caption(f"Source status: `{info['source_status']}`")
             if info["source_ids"]:
                 with st.expander("🔎 Bundled source references"):
