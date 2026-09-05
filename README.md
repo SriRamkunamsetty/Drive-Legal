@@ -14,7 +14,7 @@ DriveLegal India is an **offline informational reference and challan estimator**
 | Valid vehicle choices | Filters vehicle categories according to the offence record instead of allowing every combination |
 | Quantity-based penalties | Supports excess passengers and excess tonnes where the statute uses a quantity |
 | Multi-offence challan cart | Accumulate multiple simultaneous offences into an itemized summary with a combined reference total |
-| State compounding schedules | Verified Section 200 MVA compounding fees and gazette citations for Delhi, Karnataka, Maharashtra, Gujarat, Tamil Nadu, and Uttar Pradesh |
+| State compounding schedules | Verified Section 200 MVA compounding fees and gazette citations for Delhi, Karnataka, Maharashtra, Gujarat, Kerala, Rajasthan, Tamil Nadu, and Uttar Pradesh |
 | Inter-state compounding matrix | Side-by-side comparison table analyzing central statutory fines against state compounding rates across all verified states |
 | State/UT reference rules | Covers 36 locations with speed, helmet, surcharge, and enforcement-reference records |
 | Citizen rights & redressal guide | Offline reference for DigiLocker document validity (Rule 139 CMVR), 15-day grace periods, Virtual Courts, and 24/7 emergency helplines |
