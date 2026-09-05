@@ -21,6 +21,7 @@ from app_core import (
     calculate_fine,
     calculate_multi_fine,
     get_allowed_vehicle_types,
+    get_compounding_comparison_matrix,
     get_source_details,
     get_state_compounding_info,
     get_violation_options,
@@ -393,3 +394,28 @@ def test_citizen_rights_schema_and_content():
         assert r["summary"]
         assert len(r["key_provisions"]) >= 2
         assert r["source_id"] in source_ids
+
+
+def test_get_compounding_comparison_matrix_structure():
+    matrix = get_compounding_comparison_matrix()
+    assert len(matrix["states"]) == 6
+    assert matrix["states"] == ["Delhi", "Gujarat", "Karnataka", "Maharashtra", "Tamil Nadu", "Uttar Pradesh"]
+    assert len(matrix["rows"]) > 0
+
+    helmet_row = next(r for r in matrix["rows"] if r["violation_key"] == "no_helmet")
+    assert helmet_row["central_fine"] == 1000
+    assert helmet_row["state_fees"]["Delhi"] == 1000
+    assert helmet_row["state_fees"]["Gujarat"] == 500
+    assert helmet_row["state_fees"]["Karnataka"] == 500
+    assert helmet_row["state_fees"]["Maharashtra"] == 500
+    assert helmet_row["state_fees"]["Tamil Nadu"] == 1000
+    assert helmet_row["state_fees"]["Uttar Pradesh"] == 1000
+
+
+def test_get_compounding_comparison_matrix_filtering_and_errors():
+    filtered = get_compounding_comparison_matrix(violation_keys=["no_helmet", "signal_jump"])
+    assert len(filtered["rows"]) == 2
+    assert [r["violation_key"] for r in filtered["rows"]] == ["no_helmet", "signal_jump"]
+
+    with pytest.raises(CalculatorInputError, match="Unknown violation"):
+        get_compounding_comparison_matrix(violation_keys=["invalid_offence"])
