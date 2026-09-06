@@ -439,3 +439,56 @@ def test_get_compounding_comparison_matrix_filtering_and_errors():
 
     with pytest.raises(CalculatorInputError, match="Unknown violation"):
         get_compounding_comparison_matrix(violation_keys=["invalid_offence"])
+
+
+def test_pydantic_package_validation():
+    import models
+    counts = models.validate_package_with_models(
+        NATIONAL_FINES, VEHICLE_TYPES, STATE_DATA, METADATA, LEGAL_SECTIONS, CITIZEN_RIGHTS
+    )
+    assert counts == (19, 7, 36, 14, 18, 5)
+
+
+def test_pydantic_single_and_multi_challan_models():
+    import models
+    req = models.SingleCalculationRequest(
+        violation_key="no_helmet",
+        vehicle_type="Two-Wheeler (> 50cc)",
+        state="Karnataka",
+    )
+    assert req.violation_key == "no_helmet"
+    assert req.is_repeat is False
+
+    multi_req = models.MultiChallanRequest(
+        items=[
+            models.MultiChallanItemRequest(
+                violation_key="no_helmet",
+                vehicle_type="Two-Wheeler (> 50cc)"
+            )
+        ],
+        state="Delhi"
+    )
+    assert len(multi_req.items) == 1
+    assert multi_req.state == "Delhi"
+
+
+def test_pydantic_models_reject_invalid_data():
+    import models
+    from pydantic import ValidationError
+
+    with pytest.raises(ValidationError):
+        models.FineRecordModel(
+            description="Bad Fine",
+            fine=-500,  # Negative fine rejected
+            imprisonment=None,
+            rule_section="119",
+            penalty_section="184",
+            allowed_vehicle_types=["Two-Wheeler (> 50cc)"],
+            repeat_policy="not_applicable",
+            fine_basis="fixed",
+            apply_vehicle_multiplier=False,
+            source_status="act_reference",
+            source_ids=["mva1988"],
+            legal_note="Sample"
+        )
+
