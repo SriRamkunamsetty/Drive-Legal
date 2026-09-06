@@ -18,6 +18,7 @@ from app_core import (
     VEHICLE_TYPES,
     CalculatorInputError,
     DISPUTE_CATEGORIES,
+    audit_challan_batch,
     calculate_fine,
     calculate_multi_fine,
     generate_dispute_representation,
@@ -293,6 +294,102 @@ with tab1:
             if st.button("🗑️ Clear Cart", use_container_width=True):
                 st.session_state.challan_cart = []
                 st.rerun()
+
+    st.markdown("---")
+    st.markdown("### 🚛 Commercial Fleet & Logistics Batch Challan Audit")
+    st.caption("Upload a CSV of multiple challans across vehicles and states to audit against Section 200 compounding rates and flag discrepancies.")
+
+    with st.expander("📂 Open Fleet Batch Challan Audit Tool", expanded=False):
+        st.markdown(
+            "Fleet operators and logistics managers can verify whether traffic authorities applied the "
+            "notified Section 200 state compounding rates or overcharged central statutory maximums."
+        )
+
+        sample_csv_text = (
+            "challan_id,vehicle_number,vehicle_type,state,violation_key,amount_paid,quantity,repeat\n"
+            "CH-001,KA-01-AB-1234,Two-Wheeler (> 50cc),Karnataka,no_helmet,1000,,\n"
+            "CH-002,MH-02-CD-5678,Light Motor Vehicle (Car),Maharashtra,no_seatbelt,1000,,\n"
+            "CH-003,DL-01-EF-9012,Heavy Motor Vehicle,Delhi,overloading_goods,22000,1,\n"
+            "CH-004,TN-09-GH-3456,Transport / Commercial,Tamil Nadu,no_dl,5000,,\n"
+            "CH-005,DL-04-IJ-7890,Light Motor Vehicle (Car),Delhi,drunk_driving,10000,,\n"
+        )
+        st.download_button(
+            label="📥 Download Sample Fleet CSV Template",
+            data=sample_csv_text,
+            file_name="sample_fleet_challans.csv",
+            mime="text/csv",
+        )
+
+        uploaded_csv = st.file_uploader("Upload Fleet Challans CSV", type=["csv"], key="fleet_csv_uploader")
+        if uploaded_csv is not None:
+            import csv
+            import io
+            try:
+                decoded_file = uploaded_csv.getvalue().decode("utf-8")
+                reader = csv.DictReader(io.StringIO(decoded_file))
+                batch_records = []
+                for row in reader:
+                    if not any(row.values()):
+                        continue
+                    amt_str = row.get("amount_paid", "0").replace(",", "").strip()
+                    qty_str = row.get("quantity", "").strip()
+                    repeat_str = row.get("repeat", "").strip().lower()
+                    batch_records.append({
+                        "challan_id": row.get("challan_id", ""),
+                        "vehicle_number": row.get("vehicle_number", ""),
+                        "vehicle_type": row.get("vehicle_type", ""),
+                        "state": row.get("state", ""),
+                        "violation_key": row.get("violation_key", ""),
+                        "amount_paid": float(amt_str) if amt_str else 0.0,
+                        "quantity": float(qty_str) if qty_str else None,
+                        "repeat": repeat_str in ("true", "1", "yes"),
+                    })
+
+                if not batch_records:
+                    st.warning("The uploaded CSV contains no valid data rows.")
+                else:
+                    audit_res = audit_challan_batch(batch_records)
+
+                    fc1, fc2, fc3, fc4 = st.columns(4)
+                    fc1.metric("Challans Audited", audit_res["total_challans_audited"])
+                    fc2.metric("Total Paid", f"₹{audit_res['total_amount_paid']:,.2f}")
+                    fc3.metric("Legally Due", f"₹{audit_res['total_legally_due']:,.2f}")
+                    fc4.metric("Flagged Overcharges", f"₹{audit_res['total_potential_overcharges']:,.2f}")
+
+                    status_cols = st.columns(3)
+                    status_cols[0].info(f"✅ Compliant: {audit_res['compliant_count']}")
+                    status_cols[1].error(f"⚠️ Overcharged: {audit_res['overcharged_count']}")
+                    status_cols[2].warning(f"⚖️ Court Mandatory: {audit_res['court_only_count']}")
+
+                    table_rows = []
+                    for r in audit_res["records"]:
+                        table_rows.append({
+                            "Challan ID": r["challan_id"],
+                            "Vehicle No": r["vehicle_number"],
+                            "State": r["state"],
+                            "Violation": r["violation_description"],
+                            "Paid (₹)": f"₹{r['amount_paid']:,.2f}",
+                            "Legally Due (₹)": f"₹{r['legally_due']:,.2f}",
+                            "Overcharge (₹)": f"₹{r['overcharge_amount']:,.2f}",
+                            "Status": r["audit_status"],
+                            "Gazette Ref": r["notification_id"] or "N/A",
+                        })
+                    st.dataframe(table_rows, use_container_width=True, hide_index=True)
+
+                    export_csv_io = io.StringIO()
+                    writer = csv.DictWriter(export_csv_io, fieldnames=["Challan ID", "Vehicle No", "State", "Violation", "Paid (₹)", "Legally Due (₹)", "Overcharge (₹)", "Status", "Gazette Ref"])
+                    writer.writeheader()
+                    writer.writerows(table_rows)
+
+                    st.download_button(
+                        label="📥 Download Audited Fleet Report (CSV)",
+                        data=export_csv_io.getvalue(),
+                        file_name="fleet_audit_report.csv",
+                        mime="text/csv",
+                        use_container_width=True,
+                    )
+            except Exception as err:
+                st.error(f"Error parsing batch CSV: {err}")
 
     with st.expander("📊 View national fine records"):
         rows = []

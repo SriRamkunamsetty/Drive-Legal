@@ -228,6 +228,40 @@ class DisputeRepresentationResponse(BaseModel):
     vehicle_number: str
 
 
+class FleetChallanInputRow(BaseModel):
+    """Input row representing an individual challan in a commercial fleet batch."""
+    model_config = ConfigDict(extra="ignore")
+
+    challan_id: str | None = None
+    vehicle_number: str | None = None
+    vehicle_type: str
+    state: str
+    violation_key: str
+    amount_paid: float
+    quantity: float | None = None
+    repeat: bool = False
+
+
+class BatchAuditRequest(BaseModel):
+    """Request to audit multiple commercial fleet challans."""
+    model_config = ConfigDict(extra="forbid")
+
+    records: list[FleetChallanInputRow] = Field(..., min_length=1)
+
+
+class BatchAuditResponse(BaseModel):
+    """Aggregated financial audit report for a commercial fleet batch."""
+    total_challans_audited: int
+    total_amount_paid: float
+    total_legally_due: float
+    total_potential_overcharges: float
+    overcharged_count: int
+    compliant_count: int
+    court_only_count: int
+    undercharged_count: int
+    records: list[dict[str, Any]]
+
+
 	# --- Domain Package Validator Helper ---
 
 def validate_package_with_models(

@@ -746,3 +746,104 @@ Generated via DriveLegal India (Civic Legal Tech Platform)
 """
     return letter.strip()
 
+
+def audit_challan_batch(records: list[dict[str, Any]]) -> dict[str, Any]:
+    """Audit a batch of commercial fleet or transport challans against Section 200 state compounding rates.
+
+    Detects overcharges where central statutory maximums were levied despite valid state compounding schedules,
+    identifies non-compoundable offences requiring court adjudication, and aggregates financial audit totals.
+    """
+    if not isinstance(records, list) or not records:
+        raise CalculatorInputError("At least one challan record is required for fleet batch audit")
+
+    audited_rows = []
+    total_paid = 0.0
+    total_legally_due = 0.0
+    total_overcharge = 0.0
+    overcharged_count = 0
+    compliant_count = 0
+    court_only_count = 0
+    undercharged_count = 0
+
+    for idx, rec in enumerate(records):
+        if not isinstance(rec, dict):
+            raise CalculatorInputError(f"Record {idx} must be a dictionary")
+
+        challan_id = str(rec.get("challan_id") or f"CH-{idx+1}").strip()
+        veh_no = str(rec.get("vehicle_number") or f"VEH-{idx+1}").strip().upper()
+        veh_type = str(rec.get("vehicle_type") or "").strip()
+        state = str(rec.get("state") or "").strip()
+        v_key = str(rec.get("violation_key") or "").strip()
+
+        try:
+            amount_paid = float(rec.get("amount_paid", 0.0))
+        except (TypeError, ValueError) as exc:
+            raise CalculatorInputError(f"Record {idx} ({challan_id}) has invalid numeric amount_paid") from exc
+
+        if not math.isfinite(amount_paid) or amount_paid < 0:
+            raise CalculatorInputError(f"Record {idx} ({challan_id}) amount_paid must be a finite non-negative number")
+
+        quantity = rec.get("quantity")
+        repeat = bool(rec.get("repeat", False))
+
+        calc_res = calculate_fine(v_key, veh_type, state, repeat=repeat, quantity=quantity)
+        fine_rec = NATIONAL_FINES[v_key]
+        compounded_fee = calc_res.get("compounding_fee")
+
+        if compounded_fee is not None:
+            legally_due = float(compounded_fee)
+        else:
+            legally_due = float(calc_res["total"])
+
+        diff = round(amount_paid - legally_due, 2)
+        if compounded_fee is None and fine_rec.get("repeat_policy") == "explicit" and v_key == "drunk_driving":
+            audit_status = "COURT_ONLY"
+            notes = "Non-compoundable under Section 200 MVA; court adjudication mandatory."
+            court_only_count += 1
+        elif diff > 0:
+            audit_status = "OVERCHARGED"
+            notes = f"Overcharged by ₹{diff:,.2f}; state compounding rate (₹{legally_due:,.2f}) was not applied."
+            overcharged_count += 1
+            total_overcharge += diff
+        elif diff == 0:
+            audit_status = "COMPLIANT"
+            notes = "Challan amount accurately matches legal statutory/compounding rate."
+            compliant_count += 1
+        else:
+            audit_status = "UNDERCHARGED"
+            notes = f"Paid ₹{amount_paid:,.2f}, below statutory rate of ₹{legally_due:,.2f}."
+            undercharged_count += 1
+
+        total_paid += amount_paid
+        total_legally_due += legally_due
+
+        audited_rows.append({
+            "challan_id": challan_id,
+            "vehicle_number": veh_no,
+            "vehicle_type": veh_type,
+            "violation_key": v_key,
+            "violation_description": fine_rec["description"],
+            "state": state,
+            "amount_paid": round(amount_paid, 2),
+            "statutory_fine": round(calc_res["total"], 2),
+            "compounded_fine": compounded_fee,
+            "legally_due": round(legally_due, 2),
+            "overcharge_amount": max(0.0, diff),
+            "audit_status": audit_status,
+            "notification_id": calc_res.get("compounding_notification_id"),
+            "notes": notes,
+        })
+
+    return {
+        "total_challans_audited": len(audited_rows),
+        "total_amount_paid": round(total_paid, 2),
+        "total_legally_due": round(total_legally_due, 2),
+        "total_potential_overcharges": round(total_overcharge, 2),
+        "overcharged_count": overcharged_count,
+        "compliant_count": compliant_count,
+        "court_only_count": court_only_count,
+        "undercharged_count": undercharged_count,
+        "records": audited_rows,
+    }
+
+
