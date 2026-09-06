@@ -43,6 +43,16 @@
       "url": "https://uptransport.upsdc.gov.in"
     },
     {
+      "id": "kerala_transport",
+      "title": "Motor Vehicles Department, Government of Kerala",
+      "url": "https://mvd.kerala.gov.in"
+    },
+    {
+      "id": "rajasthan_transport",
+      "title": "Transport Department, Government of Rajasthan",
+      "url": "https://transport.rajasthan.gov.in"
+    },
+    {
       "id": "morth_digilocker",
       "title": "MoRTH Digital Document Validity Notification (RT-11036/64/2017-MVL)",
       "url": "https://morth.nic.in"
