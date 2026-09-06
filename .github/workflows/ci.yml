@@ -34,12 +34,14 @@ jobs:
           pip install -r requirements-dev.txt
 
       - name: Run unit test suite
+        env:
+          PYTHONPATH: .
         run: |
-          pytest -q
+          python -m pytest -q
 
       - name: Verify Python compilation
         run: |
-          python -m py_compile app.py app_core.py models.py
+          python -m py_compile app.py app_core.py models.py api.py
 
       - name: Validate bundled JSON data files
         run: |
