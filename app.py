@@ -17,8 +17,10 @@ from app_core import (
     STATE_DATA,
     VEHICLE_TYPES,
     CalculatorInputError,
+    DISPUTE_CATEGORIES,
     calculate_fine,
     calculate_multi_fine,
+    generate_dispute_representation,
     get_allowed_vehicle_types,
     get_compounding_comparison_matrix,
     get_source_details,
@@ -351,6 +353,59 @@ with tab2:
             source = next((s for s in METADATA["sources"] if s["id"] == right.get("source_id")), None)
             if source:
                 st.caption(f"Official Source: [{source['title']}]({source['url']})")
+
+    st.markdown("---")
+    st.markdown("### ⚖️ Draft Formal Legal Grievance / Dispute Representation")
+    st.caption("Generate a formal statutory representation letter to submit to the Traffic Police Commissioner, e-Challan Grievance Cell, or Virtual Court.")
+
+    with st.expander("📝 Open Legal Representation Drafting Form", expanded=False):
+        d_col1, d_col2 = st.columns(2)
+        with d_col1:
+            disp_citizen_name = st.text_input("Citizen Full Name", placeholder="e.g. Rajesh Kumar")
+            disp_vehicle_no = st.text_input("Vehicle Registration Number", placeholder="e.g. DL-01-AB-1234").upper()
+            disp_challan_no = st.text_input("e-Challan Number", placeholder="e.g. DL12345678901234")
+            disp_date = st.text_input("Date of Challan / Alleged Incident", placeholder="e.g. 2026-09-01")
+
+        with d_col2:
+            default_state_idx = ALL_STATES.index("Delhi") if "Delhi" in ALL_STATES else 0
+            disp_state = st.selectbox("State / Union Territory", ALL_STATES, index=default_state_idx, key="disp_state_select")
+            disp_authority = st.text_input("Issuing Enforcement Authority / District", placeholder="e.g. Traffic Police, New Delhi District")
+            disp_type_options = {meta["title"]: k for k, meta in DISPUTE_CATEGORIES.items()}
+            selected_disp_title = st.selectbox("Grievance / Dispute Grounds", list(disp_type_options.keys()))
+            selected_disp_type = disp_type_options[selected_disp_title]
+            disp_violation_desc = st.selectbox("Associated Violation (Optional)", ["None"] + list(get_violation_options().keys()), key="disp_violation_select")
+            selected_violation_key = get_violation_options().get(disp_violation_desc) if disp_violation_desc != "None" else None
+
+        disp_narrative = st.text_area("Additional Facts & Circumstances (Optional)", placeholder="Describe specific events, e.g. officer refused to look at DigiLocker app...")
+
+        if st.button("📄 Generate Formal Representation Letter", use_container_width=True):
+            if not disp_citizen_name or not disp_vehicle_no or not disp_challan_no or not disp_date or not disp_authority:
+                st.error("Please fill in all mandatory fields (Name, Vehicle No, Challan No, Date, Issuing Authority).")
+            else:
+                try:
+                    letter_text = generate_dispute_representation(
+                        citizen_name=disp_citizen_name,
+                        vehicle_number=disp_vehicle_no,
+                        challan_number=disp_challan_no,
+                        challan_date=disp_date,
+                        state=disp_state,
+                        issuing_authority=disp_authority,
+                        dispute_type=selected_disp_type,
+                        violation_key=selected_violation_key,
+                        additional_facts=disp_narrative,
+                    )
+                    st.success("✅ Formal Legal Representation Letter generated successfully!")
+                    st.code(letter_text, language="text")
+
+                    st.download_button(
+                        label="📥 Download Legal Representation Letter (.txt)",
+                        data=letter_text,
+                        file_name=f"legal_representation_{disp_challan_no.lower()}.txt",
+                        mime="text/plain",
+                        use_container_width=True,
+                    )
+                except CalculatorInputError as err:
+                    st.error(f"Validation error: {err}")
 
 with tab3:
     st.markdown("## 🗺️ State and UT reference rules")

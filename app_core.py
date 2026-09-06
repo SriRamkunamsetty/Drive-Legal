@@ -593,3 +593,156 @@ def calculate_multi_fine(
         "has_compounding_items": has_compounding_items,
         "total_compounding_fee": round(total_compounding, 2) if has_compounding_items else None,
     }
+
+
+DISPUTE_CATEGORIES = {
+    "digilocker_rejection": {
+        "title": "Refusal of DigiLocker / mParivahan Electronic Documents",
+        "statutory_authority": "Rule 139 CMVR 1989 read with MoRTH Notification RT-11036/64/2017-MVL and Section 4 IT Act 2000",
+        "grounds": (
+            "The inspecting officer refused to acknowledge or accept original electronic vehicle documents "
+            "(Driving Licence / Registration Certificate / Insurance) presented via the Government of India's "
+            "DigiLocker / mParivahan mobile applications, in contravention of Rule 139 of the Central Motor Vehicles Rules "
+            "and statutory binding MoRTH notifications."
+        ),
+        "prayer": (
+            "It is respectfully requested that the impugned e-challan be immediately withdrawn and cancelled, "
+            "as electronic documents presented in DigiLocker carry full statutory equivalence to physical documents."
+        ),
+    },
+    "unapplied_compounding": {
+        "title": "Failure to Apply Section 200 State Compounding Gazette Rate",
+        "statutory_authority": "Section 200 Motor Vehicles Act 1988 and relevant State Gazette Notification",
+        "grounds": (
+            "The issued e-challan levied the maximum central statutory fine without applying the compounding reduction "
+            "specifically notified by the State Government under Section 200 of the Motor Vehicles Act 1988."
+        ),
+        "prayer": (
+            "It is respectfully requested that the challan amount be revised downward in accordance with the official "
+            "State Gazette Notification issued under Section 200 MVA, or rectified on the e-Challan portal."
+        ),
+    },
+    "grace_period_demand": {
+        "title": "Denial of 15-Day Document Production Grace Period",
+        "statutory_authority": "Section 130(1) & 130(4) Motor Vehicles Act 1988 read with Rule 139 CMVR",
+        "grounds": (
+            "The motorist was not provided the statutory 15-day window to produce physical vehicle documents at the "
+            "police station or designated enforcement authority, and was summarily penalized on the spot."
+        ),
+        "prayer": (
+            "It is requested that the citizen be afforded the statutory 15-day period under Section 130(4) to produce "
+            "valid original documents, and upon satisfactory verification, the challan be dropped."
+        ),
+    },
+    "wrong_vehicle_or_cloned_plate": {
+        "title": "Mismatched Vehicle, Incorrect OCR, or Suspected Cloned Plate",
+        "statutory_authority": "Section 136A MVA 1988 (Electronic Monitoring) & Principles of Natural Justice",
+        "grounds": (
+            "The alleged offence was recorded incorrectly against the vehicle registration due to automated camera OCR "
+            "errors, mismatched vehicle make/model, or unauthorized duplicate/cloned number plate usage by an unknown third party."
+        ),
+        "prayer": (
+            "It is requested that photographic and video evidence captured by the ANPR camera system be manually examined "
+            "to verify vehicle make, model, and chassis characteristics, and the erroneous challan be revoked."
+        ),
+    },
+}
+
+
+def generate_dispute_representation(
+    citizen_name: str,
+    vehicle_number: str,
+    challan_number: str,
+    challan_date: str,
+    state: str,
+    issuing_authority: str,
+    dispute_type: str,
+    violation_key: str | None = None,
+    additional_facts: str | None = None,
+) -> str:
+    """Generate a formal statutory representation letter to dispute an erroneous or improper e-challan."""
+    for field_name, val in [
+        ("citizen_name", citizen_name),
+        ("vehicle_number", vehicle_number),
+        ("challan_number", challan_number),
+        ("challan_date", challan_date),
+        ("state", state),
+        ("issuing_authority", issuing_authority),
+        ("dispute_type", dispute_type),
+    ]:
+        if not isinstance(val, str) or not val.strip():
+            raise CalculatorInputError(f"Field '{field_name}' must be a non-empty string")
+
+    if state not in STATE_DATA:
+        raise CalculatorInputError(f"Unknown state or Union Territory: {state}")
+
+    if dispute_type not in DISPUTE_CATEGORIES:
+        raise CalculatorInputError(
+            f"Unknown dispute type '{dispute_type}'. Allowed types: {sorted(DISPUTE_CATEGORIES.keys())}"
+        )
+
+    dispute_meta = DISPUTE_CATEGORIES[dispute_type]
+    state_rec = STATE_DATA[state]
+    gazette_ref = ""
+    if dispute_type == "unapplied_compounding" and state_rec.get("notification_id"):
+        gazette_ref = (
+            f"\n- State Gazette Notification: {state_rec['notification_id']} "
+            f"(Effective Date: {state_rec.get('effective_date', 'N/A')}, Jurisdiction: {state_rec.get('jurisdiction', state)})"
+        )
+
+    offence_detail = ""
+    if violation_key:
+        if violation_key not in NATIONAL_FINES:
+            raise CalculatorInputError(f"Unknown violation: {violation_key}")
+        fine_rec = NATIONAL_FINES[violation_key]
+        offence_detail = (
+            f"\nAlleged Offence: {fine_rec['description']} "
+            f"(Rule Section: {fine_rec['rule_section']}, Charging Section: {fine_rec['penalty_section']}, Reference Base Fine: ₹{fine_rec['fine']:,})"
+        )
+
+    additional_section = ""
+    if additional_facts and additional_facts.strip():
+        additional_section = f"\nAdditional Facts & Narrative:\n{additional_facts.strip()}\n"
+
+    letter = f"""FORMAL LEGAL REPRESENTATION / GRIEVANCE UNDER THE MOTOR VEHICLES ACT, 1988
+================================================================================
+
+To,
+The Competent Enforcement Authority / Grievance Redressal Cell,
+{issuing_authority.strip()},
+{state}.
+
+Subject: Formal Representation against erroneous/improper e-Challan No. {challan_number.strip()}
+Reference: Vehicle Registration No.: {vehicle_number.strip().upper()}
+Date of Impugned Challan: {challan_date.strip()}
+Grievance Category: {dispute_meta['title']}
+
+Respected Authority,
+
+I, {citizen_name.strip()}, hereby submit this formal statutory representation with respect to the above-referenced e-challan issued against my motor vehicle.
+
+1. STATEMENT OF FACTS:
+On {challan_date.strip()}, the aforementioned e-challan was generated against vehicle registration {vehicle_number.strip().upper()} under the jurisdiction of {issuing_authority.strip()}.{offence_detail}
+
+2. STATUTORY GROUNDS & LEGAL DEFENCE:
+{dispute_meta['grounds']}
+
+Statutory Basis:
+- Primary Legal Authority: {dispute_meta['statutory_authority']}{gazette_ref}
+{additional_section}
+3. PRAYER / RELIEF SOUGHT:
+In light of the statutory provisions, binding MoRTH notifications, and state government gazette orders cited above, {dispute_meta['prayer']}
+
+I reserve the right to seek further judicial remedies before the Hon'ble Virtual Court or regular jurisdictional Metropolitan / Judicial Magistrate if this arbitrary challan is not rectified administratively.
+
+Yours sincerely,
+
+_______________________________
+Name: {citizen_name.strip()}
+Vehicle No: {vehicle_number.strip().upper()}
+Date: {challan_date.strip()}
+State: {state}
+Generated via DriveLegal India (Civic Legal Tech Platform)
+"""
+    return letter.strip()
+

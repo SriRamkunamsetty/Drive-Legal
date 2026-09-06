@@ -15,6 +15,8 @@ import app_core
 from models import (
     CitizenRightModel,
     CompoundingMatrixResponse,
+    DisputeRepresentationRequest,
+    DisputeRepresentationResponse,
     LegalSectionModel,
     MultiChallanRequest,
     MultiChallanResponse,
@@ -221,3 +223,44 @@ def get_citizen_rights(
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Citizen right guide '{id}' not found")
         return [guide]
     return app_core.CITIZEN_RIGHTS
+
+
+@app.get("/api/v1/dispute-types", tags=["disputes"], summary="List Available Dispute Grounds & Authorities")
+def get_dispute_types() -> dict[str, Any]:
+    """Retrieve recognized statutory grounds for disputing an e-challan."""
+    return app_core.DISPUTE_CATEGORIES
+
+
+@app.post(
+    "/api/v1/dispute-representation",
+    response_model=DisputeRepresentationResponse,
+    tags=["disputes"],
+    summary="Draft Formal Statutory Representation Letter",
+)
+def create_dispute_representation(payload: DisputeRepresentationRequest) -> DisputeRepresentationResponse:
+    """Generate a formal legal grievance / representation letter citing exact sections and rules."""
+    try:
+        letter = app_core.generate_dispute_representation(
+            citizen_name=payload.citizen_name,
+            vehicle_number=payload.vehicle_number,
+            challan_number=payload.challan_number,
+            challan_date=payload.challan_date,
+            state=payload.state,
+            issuing_authority=payload.issuing_authority,
+            dispute_type=payload.dispute_type,
+            violation_key=payload.violation_key,
+            additional_facts=payload.additional_facts,
+        )
+        meta = app_core.DISPUTE_CATEGORIES[payload.dispute_type]
+        return DisputeRepresentationResponse(
+            letter_text=letter,
+            dispute_type=payload.dispute_type,
+            statutory_authority=meta["statutory_authority"],
+            challan_number=payload.challan_number,
+            vehicle_number=payload.vehicle_number,
+        )
+    except app_core.CalculatorInputError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Dispute generation error: {exc}") from exc
+

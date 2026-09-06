@@ -20,6 +20,7 @@ from app_core import (
     DataValidationError,
     calculate_fine,
     calculate_multi_fine,
+    generate_dispute_representation,
     get_allowed_vehicle_types,
     get_compounding_comparison_matrix,
     get_source_details,
@@ -491,4 +492,64 @@ def test_pydantic_models_reject_invalid_data():
             source_ids=["mva1988"],
             legal_note="Sample"
         )
+
+
+def test_generate_dispute_representation_digilocker():
+    letter = generate_dispute_representation(
+        citizen_name="Amit Sharma",
+        vehicle_number="DL-01-AB-1234",
+        challan_number="DL1234567890",
+        challan_date="2026-09-01",
+        state="Delhi",
+        issuing_authority="Delhi Traffic Police, South District",
+        dispute_type="digilocker_rejection",
+        violation_key="no_dl",
+        additional_facts="Officer declined to inspect digital driving licence on DigiLocker."
+    )
+    assert "Rule 139 CMVR 1989" in letter
+    assert "DL-01-AB-1234" in letter
+    assert "Amit Sharma" in letter
+    assert "DL1234567890" in letter
+    assert "F.19(148)/Tpt/Ops/2019/379" not in letter  # not unapplied compounding
+
+
+def test_generate_dispute_representation_unapplied_compounding():
+    letter = generate_dispute_representation(
+        citizen_name="Suresh Kumar",
+        vehicle_number="KA-01-XY-9876",
+        challan_number="KA9876543210",
+        challan_date="2026-09-02",
+        state="Karnataka",
+        issuing_authority="Bangalore City Traffic Police",
+        dispute_type="unapplied_compounding",
+        violation_key="no_helmet",
+    )
+    assert "Section 200" in letter
+    assert "TD 132 TMR 2019" in letter
+    assert "KA-01-XY-9876" in letter
+
+
+def test_generate_dispute_representation_validation_errors():
+    with pytest.raises(CalculatorInputError, match="must be a non-empty string"):
+        generate_dispute_representation(
+            citizen_name="",
+            vehicle_number="DL-01-AB-1234",
+            challan_number="DL123",
+            challan_date="2026-09-01",
+            state="Delhi",
+            issuing_authority="Delhi Police",
+            dispute_type="digilocker_rejection",
+        )
+
+    with pytest.raises(CalculatorInputError, match="Unknown dispute type"):
+        generate_dispute_representation(
+            citizen_name="Amit",
+            vehicle_number="DL-01-AB-1234",
+            challan_number="DL123",
+            challan_date="2026-09-01",
+            state="Delhi",
+            issuing_authority="Delhi Police",
+            dispute_type="invalid_type",
+        )
+
 
