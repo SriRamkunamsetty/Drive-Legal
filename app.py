@@ -20,6 +20,7 @@ from app_core import (
     calculate_fine,
     calculate_multi_fine,
     get_allowed_vehicle_types,
+    get_compounding_comparison_matrix,
     get_source_details,
     get_violation_options,
 )
@@ -353,6 +354,24 @@ with tab2:
 
 with tab3:
     st.markdown("## 🗺️ State and UT reference rules")
+
+    with st.expander("📊 Inter-State Section 200 Compounding Comparison Matrix", expanded=False):
+        st.markdown("Compare official compounding amounts notified under Section 200 MVA across verified states against the central statutory fine:")
+        matrix_data = get_compounding_comparison_matrix()
+        matrix_rows = []
+        for r in matrix_data["rows"]:
+            row_dict = {
+                "Violation": r["description"],
+                "Penalty Section": r["penalty_section"],
+                "Central Act Fine": f"₹{r['central_fine']:,}",
+            }
+            for st_name in matrix_data["states"]:
+                fee = r["state_fees"].get(st_name)
+                row_dict[st_name] = f"₹{fee:,}" if fee is not None else "—"
+            matrix_rows.append(row_dict)
+        st.dataframe(matrix_rows, use_container_width=True, hide_index=True)
+        st.caption("Note: '—' indicates that the offence has not been notified as compoundable by that state government under Section 200 of the Act, so the central statutory fine applies.")
+
     search_term = st.text_input("🔍 Search state or Union Territory", placeholder="e.g. Maharashtra, Delhi, Goa")
     filtered_states = [state for state in ALL_STATES if not search_term or search_term.lower() in state.lower()]
     for state in filtered_states:

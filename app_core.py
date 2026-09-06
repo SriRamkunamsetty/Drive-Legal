@@ -373,6 +373,48 @@ def get_state_compounding_info(state: str, violation_key: str | None = None) -> 
     }
 
 
+def get_compounding_comparison_matrix(
+    violation_keys: list[str] | None = None,
+) -> dict[str, Any]:
+    """Generate a structured inter-state comparison of Section 200 compounding fees."""
+    compounding_states = sorted(
+        [state for state, data in STATE_DATA.items() if data.get("compounding_schedule")]
+    )
+    if not compounding_states:
+        return {"states": [], "rows": []}
+
+    if violation_keys is None:
+        all_compounded_keys = set()
+        for state in compounding_states:
+            all_compounded_keys.update(STATE_DATA[state]["compounding_schedule"].keys())
+        selected_keys = [k for k in NATIONAL_FINES if k in all_compounded_keys]
+    else:
+        for k in violation_keys:
+            if k not in NATIONAL_FINES:
+                raise CalculatorInputError(f"Unknown violation: {k}")
+        selected_keys = violation_keys
+
+    rows = []
+    for k in selected_keys:
+        fine_record = NATIONAL_FINES[k]
+        row: dict[str, Any] = {
+            "violation_key": k,
+            "description": fine_record["description"],
+            "penalty_section": fine_record["penalty_section"],
+            "central_fine": fine_record["fine"],
+            "state_fees": {},
+        }
+        for state in compounding_states:
+            fee = STATE_DATA[state]["compounding_schedule"].get(k)
+            row["state_fees"][state] = fee
+        rows.append(row)
+
+    return {
+        "states": compounding_states,
+        "rows": rows,
+    }
+
+
 def _validate_quantity(record: dict[str, Any], quantity: float | int | None) -> float:
     basis = record["fine_basis"]
     if basis == "fixed":
