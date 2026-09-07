@@ -196,6 +196,38 @@ class CompoundingMatrixResponse(BaseModel):
     rows: list[CompoundingMatrixRow]
 
 
+DisputeCategoryType = Literal[
+    "digilocker_rejection",
+    "unapplied_compounding",
+    "grace_period_demand",
+    "wrong_vehicle_or_cloned_plate",
+]
+
+
+class DisputeRepresentationRequest(BaseModel):
+    """Parameters to generate a formal legal grievance / representation letter."""
+    model_config = ConfigDict(extra="forbid")
+
+    citizen_name: str = Field(..., min_length=1)
+    vehicle_number: str = Field(..., min_length=1)
+    challan_number: str = Field(..., min_length=1)
+    challan_date: str = Field(..., min_length=1)
+    state: str = Field(..., min_length=1)
+    issuing_authority: str = Field(..., min_length=1)
+    dispute_type: DisputeCategoryType
+    violation_key: str | None = None
+    additional_facts: str | None = None
+
+
+class DisputeRepresentationResponse(BaseModel):
+    """Formatted legal representation notice and statutory metadata."""
+    letter_text: str
+    dispute_type: str
+    statutory_authority: str
+    challan_number: str
+    vehicle_number: str
+
+
 	# --- Domain Package Validator Helper ---
 
 def validate_package_with_models(

@@ -155,3 +155,34 @@ def test_api_citizen_rights():
 
     not_found = client.get("/api/v1/citizen-rights", params={"id": "non_existent"})
     assert not_found.status_code == 404
+
+
+def test_api_dispute_types():
+    response = client.get("/api/v1/dispute-types")
+    assert response.status_code == 200
+    types = response.json()
+    assert "digilocker_rejection" in types
+    assert "unapplied_compounding" in types
+    assert "grace_period_demand" in types
+    assert "wrong_vehicle_or_cloned_plate" in types
+
+
+def test_api_create_dispute_representation():
+    payload = {
+        "citizen_name": "Rohan Verma",
+        "vehicle_number": "MH-02-CD-5678",
+        "challan_number": "MH56781234",
+        "challan_date": "2026-09-03",
+        "state": "Maharashtra",
+        "issuing_authority": "Mumbai Traffic Police",
+        "dispute_type": "unapplied_compounding",
+        "violation_key": "no_helmet"
+    }
+    response = client.post("/api/v1/dispute-representation", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["challan_number"] == "MH56781234"
+    assert data["vehicle_number"] == "MH-02-CD-5678"
+    assert "Section 200" in data["letter_text"]
+    assert "MVR 0919/C.R. 152/TRA-2" in data["letter_text"]
+
