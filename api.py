@@ -13,6 +13,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 import app_core
 from models import (
+    BatchAuditRequest,
+    BatchAuditResponse,
     CitizenRightModel,
     CompoundingMatrixResponse,
     DisputeRepresentationRequest,
@@ -263,4 +265,36 @@ def create_dispute_representation(payload: DisputeRepresentationRequest) -> Disp
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
     except Exception as exc:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Dispute generation error: {exc}") from exc
+
+
+@app.post(
+    "/api/v1/fleet/audit-batch",
+    response_model=BatchAuditResponse,
+    tags=["fleet"],
+    summary="Audit Commercial Fleet Challan Batch",
+)
+def audit_fleet_batch_endpoint(payload: BatchAuditRequest) -> BatchAuditResponse:
+    """Audit multiple fleet challans against Section 200 state compounding rates and flag overcharges."""
+    try:
+        records_payload = [rec.model_dump() for rec in payload.records]
+        res = app_core.audit_challan_batch(records_payload)
+        return BatchAuditResponse.model_validate(res)
+    except app_core.CalculatorInputError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Fleet audit error: {exc}") from exc
+
+
+@app.get("/api/v1/fleet/sample-csv", tags=["fleet"], summary="Download Fleet Audit Sample CSV Template")
+def get_sample_csv() -> dict[str, str]:
+    """Provide a reference CSV format for bulk fleet challan auditing."""
+    sample_csv = (
+        "challan_id,vehicle_number,vehicle_type,state,violation_key,amount_paid,quantity,repeat\n"
+        "CH-001,KA-01-AB-1234,Two-Wheeler (> 50cc),Karnataka,no_helmet,1000,,\n"
+        "CH-002,MH-02-CD-5678,Light Motor Vehicle (Car),Maharashtra,no_seatbelt,1000,,\n"
+        "CH-003,DL-01-EF-9012,Heavy Motor Vehicle,Delhi,overloading_goods,22000,1,\n"
+        "CH-004,TN-09-GH-3456,Transport / Commercial,Tamil Nadu,no_dl,5000,,\n"
+    )
+    return {"filename": "sample_fleet_challans.csv", "csv_content": sample_csv}
+
 
