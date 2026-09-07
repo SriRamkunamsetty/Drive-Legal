@@ -415,6 +415,21 @@ def get_compounding_comparison_matrix(
     }
 
 
+def search_legal_sections(query: str) -> list[dict[str, Any]]:
+    """Search traffic laws catalogue by section number, title, or description."""
+    q = query.lower().strip()
+    if not q:
+        return list(LEGAL_SECTIONS)
+    return [
+        sec
+        for sec in LEGAL_SECTIONS
+        if q in sec.get("section", "").lower()
+        or q in sec.get("title", "").lower()
+        or q in sec.get("description", "").lower()
+    ]
+
+
+
 def _validate_quantity(record: dict[str, Any], quantity: float | int | None) -> float:
     basis = record["fine_basis"]
     if basis == "fixed":

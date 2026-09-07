@@ -1,4 +1,4 @@
-﻿# ==============================================================================
+# ==============================================================================
 # DriveLegal India — Docker Compose Service Specification
 # ==============================================================================
 
@@ -19,3 +19,22 @@ services:
       timeout: 5s
       retries: 3
       start_period: 10s
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: drivelegal-api
+    restart: unless-stopped
+    command: ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+

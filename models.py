@@ -132,7 +132,7 @@ class SingleCalculationResponse(BaseModel):
     effective_fine: float
     savings_from_compounding: float
     sources: list[ResolvedSource]
-    legal_note: str
+    legal_note: str | None = None
 
 
 class MultiChallanItemRequest(BaseModel):
@@ -155,30 +155,30 @@ class MultiChallanRequest(BaseModel):
 
 class MultiChallanItemResponse(BaseModel):
     """Calculated breakdown for a single item in a multi-challan summary."""
-    violation_key: str
-    description: str
-    vehicle_type: str
-    quantity: float | None = None
-    is_repeat: bool = False
-    statutory_total: float
-    effective_fine: float
-    state_compounding_applied: bool
-    compounded_fine: int | None = None
-    savings: float = 0.0
+    base_fine: float
+    vehicle_multiplier: float
+    state_surcharge: float
+    total: float
+    rule_section: str
     penalty_section: str
-    legal_note: str
+    compounding_fee: int | None = None
+    compounding_notification_id: str | None = None
+    compounding_effective_date: str | None = None
+    legal_note: str | None = None
 
 
 class MultiChallanResponse(BaseModel):
     """Aggregated multi-challan summary and grand totals."""
     state: str
-    items: list[MultiChallanItemResponse]
-    total_national_fine: float
-    total_effective_fine: float
-    total_savings: float
-    compounding_applied: bool
-    notification_id: str | None = None
+    items: list[dict[str, Any]]
     item_count: int
+    total_base_fine: float
+    total_vehicle_adjustment: float
+    total_state_surcharge: float
+    total_repeat_penalty: float
+    grand_total: float
+    has_compounding_items: bool
+    total_compounding_fee: float | None = None
 
 
 class CompoundingMatrixRow(BaseModel):
