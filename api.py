@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 import app_core
 from models import (
+    VehicleRegistrationResolution,
     BatchAuditRequest,
     BatchAuditResponse,
     CitizenRightModel,
@@ -64,6 +65,7 @@ def health_check() -> dict[str, Any]:
             "verified_compounding_states": len(compounding_states),
             "statutory_sections": len(app_core.LEGAL_SECTIONS),
             "citizen_rights_guides": len(app_core.CITIZEN_RIGHTS),
+            "rto_jurisdictions": len(app_core.RTO_DIRECTORY.get("state_codes", {})),
         },
     }
 
@@ -297,4 +299,14 @@ def get_sample_csv() -> dict[str, str]:
     )
     return {"filename": "sample_fleet_challans.csv", "csv_content": sample_csv}
 
+@app.get(
+    "/api/v1/rto/resolve/{reg_number}",
+    response_model=VehicleRegistrationResolution,
+    tags=["rto"],
+    summary="Resolve Vehicle Registration and Jurisdiction (Standard & BH-Series)",
+)
+def resolve_vehicle_registration(reg_number: str) -> VehicleRegistrationResolution:
+    """Parse vehicle registration number, resolve state/UT, RTO division, and detect BH-series."""
+    res = app_core.parse_vehicle_registration(reg_number)
+    return VehicleRegistrationResolution.model_validate(res)
 

@@ -26,6 +26,7 @@ from app_core import (
     get_compounding_comparison_matrix,
     get_source_details,
     get_violation_options,
+    parse_vehicle_registration,
 )
 
 
@@ -89,6 +90,20 @@ with tab1:
 
     if "challan_cart" not in st.session_state:
         st.session_state.challan_cart = []
+
+    with st.expander("🔍 Quick Vehicle Registration & RTO Lookup", expanded=False):
+        reg_input = st.text_input("Enter Vehicle Registration Number", placeholder="e.g. DL-01-AB-1234 or 22BH1234AB", key="tab1_reg_input").strip()
+        if reg_input:
+            reg_info = parse_vehicle_registration(reg_input)
+            if reg_info["is_valid"]:
+                if reg_info["is_bh_series"]:
+                    st.success(f"🇮🇳 **Bharat (BH) Series Vehicle Detected!** Registered Year: {reg_info['registration_year']}. {reg_info['statutory_note']}")
+                else:
+                    st.info(f"🏛️ **Jurisdiction:** {reg_info['state_name']} | **RTO:** {reg_info['rto_name']} ({reg_info['rto_code']}) | **Category:** {reg_info['jurisdiction_type']}")
+                    if reg_info["state_name"] and reg_info["state_name"] != selected_state:
+                        st.warning(f"Note: Current active sidebar state is **{selected_state}**, but this vehicle is registered in **{reg_info['state_name']}**.")
+            else:
+                st.caption(f"ℹ️ {reg_info['statutory_note']}")
 
     violation_options = get_violation_options()
     sorted_violation_labels = sorted(violation_options)
