@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 
 import pytest
+import app_core
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -552,4 +553,14 @@ def test_generate_dispute_representation_validation_errors():
             dispute_type="invalid_type",
         )
 
+def test_validate_rto_directory_validation():
+    """Verify _validate_rto_directory rejects malformed datasets."""
+    with pytest.raises(DataValidationError, match="rto_directory must be an object"):
+        app_core._validate_rto_directory([])
+
+    with pytest.raises(DataValidationError, match="state_codes must be an object"):
+        app_core._validate_rto_directory({"rto_divisions": {}})
+
+    with pytest.raises(DataValidationError, match="bh_series must be an object"):
+        app_core._validate_rto_directory({"state_codes": {}, "rto_divisions": {}})
 

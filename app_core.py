@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import math
+import re
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
@@ -99,6 +100,13 @@ def _validate_legal_sections(legal_sections: Any) -> None:
             )
         sections.append(record["section"])
     _require(len(sections) == len(set(sections)), "legal section identifiers must be unique")
+
+
+def _validate_rto_directory(rto_dir: Any) -> None:
+    _require(isinstance(rto_dir, dict), "rto_directory must be an object")
+    _require("state_codes" in rto_dir and isinstance(rto_dir["state_codes"], dict), "state_codes must be an object")
+    _require("bh_series" in rto_dir and isinstance(rto_dir["bh_series"], dict), "bh_series must be an object")
+    _require("rto_divisions" in rto_dir and isinstance(rto_dir["rto_divisions"], dict), "rto_divisions must be an object")
 
 
 def _validate_citizen_rights(citizen_rights: Any) -> None:
@@ -314,6 +322,8 @@ LEGAL_SECTIONS = _read_json("legal_sections.json")
 _validate_legal_sections(LEGAL_SECTIONS)
 CITIZEN_RIGHTS = _read_json("citizen_rights.json")
 _validate_citizen_rights(CITIZEN_RIGHTS)
+RTO_DIRECTORY = _read_json("rto_directory.json")
+_validate_rto_directory(RTO_DIRECTORY)
 ALL_STATES = sorted(STATE_DATA)
 
 
@@ -846,4 +856,98 @@ def audit_challan_batch(records: list[dict[str, Any]]) -> dict[str, Any]:
         "records": audited_rows,
     }
 
+def parse_vehicle_registration(registration_number: str) -> dict[str, Any]:
+    """Parse and resolve an Indian vehicle registration number or Bharat (BH) Series.
+
+    Identifies State, RTO division, registration year (for BH), series, and
+    provides the corresponding jurisdiction information.
+    """
+    if not isinstance(registration_number, str):
+        raise CalculatorInputError("Vehicle registration number must be a string.")
+
+    cleaned = re.sub(r"[^A-Za-z0-9]", "", registration_number).upper()
+    if not cleaned:
+        return {
+            "input_registration": registration_number,
+            "normalized_registration": "",
+            "is_valid": False,
+            "is_bh_series": False,
+            "registration_year": None,
+            "state_code": None,
+            "state_name": None,
+            "rto_code": None,
+            "rto_name": None,
+            "series_code": None,
+            "vehicle_unique_number": None,
+            "jurisdiction_type": "unknown",
+            "statutory_note": "Registration number cannot be empty.",
+        }
+
+    # 1. Check for Central Bharat (BH) Series: YY BH #### XX
+    bh_match = re.match(r"^(\d{2})BH(\d{4})([A-Z]{1,2})$", cleaned)
+    if bh_match:
+        yy, num, series = bh_match.groups()
+        full_year = f"20{yy}"
+        bh_info = RTO_DIRECTORY.get("bh_series", {})
+        return {
+            "input_registration": registration_number,
+            "normalized_registration": cleaned,
+            "is_valid": True,
+            "is_bh_series": True,
+            "registration_year": full_year,
+            "state_code": "BH",
+            "state_name": bh_info.get("default_state_for_rules", "Delhi"),
+            "rto_code": "BH",
+            "rto_name": bh_info.get("name", "Bharat Series (BH)"),
+            "series_code": series,
+            "vehicle_unique_number": num,
+            "jurisdiction_type": "central_bh",
+            "statutory_note": (
+                f"Registered in {full_year} under Central Bharat Series (Notification G.S.R. 594(E)). "
+                "Exempt from interstate re-registration under Rule 51B of Central Motor Vehicles Rules."
+            ),
+        }
+
+    # 2. Check for Standard State Series: SS DD [SSS] ####
+    state_match = re.match(r"^([A-Z]{2})(\d{1,2})([A-Z]{0,3})(\d{1,4})$", cleaned)
+    if state_match:
+        st_code, rto_num, series, num = state_match.groups()
+        rto_num_padded = rto_num.zfill(2)
+        state_codes = RTO_DIRECTORY.get("state_codes", {})
+        rto_divs = RTO_DIRECTORY.get("rto_divisions", {}).get(st_code, {})
+
+        if st_code in state_codes:
+            state_name = state_codes[st_code]
+            rto_name = rto_divs.get(rto_num_padded) or rto_divs.get(rto_num) or f"RTO District {rto_num_padded}"
+            return {
+                "input_registration": registration_number,
+                "normalized_registration": cleaned,
+                "is_valid": True,
+                "is_bh_series": False,
+                "registration_year": None,
+                "state_code": st_code,
+                "state_name": state_name,
+                "rto_code": rto_num_padded,
+                "rto_name": rto_name,
+                "series_code": series if series else None,
+                "vehicle_unique_number": num,
+                "jurisdiction_type": "state",
+                "statutory_note": f"Registered in {state_name} under RTO {rto_name} ({st_code}-{rto_num_padded}).",
+            }
+
+    return {
+        "input_registration": registration_number,
+        "normalized_registration": cleaned,
+        "is_valid": False,
+        "is_bh_series": False,
+        "registration_year": None,
+        "state_code": None,
+        "state_name": None,
+        "rto_code": None,
+        "rto_name": None,
+        "series_code": None,
+        "vehicle_unique_number": None,
+        "jurisdiction_type": "unknown",
+        "statutory_note": "Registration format not recognized under standard State or Bharat (BH) formats.",
+    }
 

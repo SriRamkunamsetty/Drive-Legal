@@ -307,3 +307,22 @@ def validate_package_with_models(
         len(legal_sections),
         len(citizen_rights),
     )
+
+class VehicleRegistrationResolution(BaseModel):
+    """Resolved jurisdictional and RTO details for an Indian vehicle registration number."""
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    input_registration: str
+    normalized_registration: str
+    is_valid: bool
+    is_bh_series: bool
+    registration_year: str | None = None
+    state_code: str | None = None
+    state_name: str | None = None
+    rto_code: str | None = None
+    rto_name: str | None = None
+    series_code: str | None = None
+    vehicle_unique_number: str | None = None
+    jurisdiction_type: str
+    statutory_note: str
+
