@@ -19,6 +19,7 @@ DriveLegal India is an **offline informational reference and challan estimator**
 | State/UT reference rules | Covers 36 locations with speed, helmet, surcharge, and enforcement-reference records |
 | Citizen rights & redressal guide | Offline reference for DigiLocker document validity (Rule 139 CMVR), 15-day grace periods, Virtual Courts, and 24/7 emergency helplines |
 | Offline receipt export | Export single or itemized multi-offence calculation breakdowns directly as offline reference receipts |
+| Traffic stop citizen safeguards | Verified statutory protections for on-the-road police/RTO stops — key-seizure limits, officer-rank compounding authority, DigiLocker acceptance, occupied-vehicle towing prohibition, and the right to record — exposed via `GET /api/v1/traffic-stop-safeguards` |
 | Offline runtime | Loads all application data locally and does not require a runtime API or remote image |
 | Automated CI & tests | Matrix testing across Python 3.11, 3.12, and 3.13 covering schema validation and calculator behavior |
 
