@@ -326,3 +326,39 @@ class VehicleRegistrationResolution(BaseModel):
     jurisdiction_type: str
     statutory_note: str
 
+class TrafficStopSafeguardModel(BaseModel):
+    """Statutory citizen safeguard during on-the-road police traffic stops."""
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    id: str
+    title: str
+    statutory_authority: str
+    summary: str
+    citizen_action: str
+    legal_citations: list[str]
+
+
+class FleetAuditAnalyticsResponse(BaseModel):
+    """Executive analytics for commercial fleet batch challan audit."""
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    compliance_rate_pct: float
+    overcharge_rate_pct: float
+    court_mandatory_rate_pct: float
+    savings_opportunity_pct: float
+    by_status: dict[str, int]
+    by_state: dict[str, Any]
+    by_violation: dict[str, Any]
+
+
+class StateCompoundingReliefStatModel(BaseModel):
+    """Comparative compounding discount rate for a notified state."""
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    state: str
+    notification_id: str
+    compoundable_offences: int
+    central_sum: float
+    state_compounded_sum: float
+    average_relief_pct: float
+

@@ -109,6 +109,18 @@ def _validate_rto_directory(rto_dir: Any) -> None:
     _require("rto_divisions" in rto_dir and isinstance(rto_dir["rto_divisions"], dict), "rto_divisions must be an object")
 
 
+def _validate_traffic_stop_safeguards(safeguards: Any) -> None:
+    _require(isinstance(safeguards, list) and safeguards, "traffic_stop_safeguards must be a non-empty array")
+    ids = []
+    for index, item in enumerate(safeguards):
+        _require(isinstance(item, dict), f"safeguard {index} must be an object")
+        for field in ("id", "title", "statutory_authority", "summary", "citizen_action", "legal_citations"):
+            _require(bool(item.get(field)), f"safeguard {index} is missing {field}")
+        _require(isinstance(item["legal_citations"], list) and item["legal_citations"], f"legal_citations must be a list in safeguard {index}")
+        ids.append(item["id"])
+    _require(len(ids) == len(set(ids)), "traffic stop safeguard IDs must be unique")
+
+
 def _validate_citizen_rights(citizen_rights: Any) -> None:
     _require(isinstance(citizen_rights, list) and citizen_rights, "citizen_rights must be a non-empty array")
     ids = []
@@ -322,6 +334,8 @@ LEGAL_SECTIONS = _read_json("legal_sections.json")
 _validate_legal_sections(LEGAL_SECTIONS)
 CITIZEN_RIGHTS = _read_json("citizen_rights.json")
 _validate_citizen_rights(CITIZEN_RIGHTS)
+TRAFFIC_STOP_SAFEGUARDS = _read_json("traffic_stop_safeguards.json")
+_validate_traffic_stop_safeguards(TRAFFIC_STOP_SAFEGUARDS)
 RTO_DIRECTORY = _read_json("rto_directory.json")
 _validate_rto_directory(RTO_DIRECTORY)
 ALL_STATES = sorted(STATE_DATA)
@@ -950,4 +964,90 @@ def parse_vehicle_registration(registration_number: str) -> dict[str, Any]:
         "jurisdiction_type": "unknown",
         "statutory_note": "Registration format not recognized under standard State or Bharat (BH) formats.",
     }
+
+def get_traffic_stop_safeguards() -> list[dict[str, Any]]:
+    """Return verified statutory citizen safeguards for on-the-road traffic stops."""
+    return list(TRAFFIC_STOP_SAFEGUARDS)
+
+
+def get_fleet_audit_analytics(audit_result: dict[str, Any]) -> dict[str, Any]:
+    """Generate executive analytics and distribution statistics for a batch challan audit."""
+    total = audit_result.get("total_challans_audited", 0)
+    if total == 0:
+        return {
+            "compliance_rate_pct": 100.0,
+            "overcharge_rate_pct": 0.0,
+            "court_mandatory_rate_pct": 0.0,
+            "savings_opportunity_pct": 0.0,
+            "by_status": {"Compliant": 0, "Overcharged": 0, "Court Mandatory": 0},
+            "by_state": {},
+            "by_violation": {},
+        }
+
+    comp = audit_result.get("compliant_count", 0)
+    over = audit_result.get("overcharged_count", 0)
+    court = audit_result.get("court_only_count", 0)
+    paid = audit_result.get("total_amount_paid", 0.0)
+    savings = audit_result.get("total_potential_overcharges", 0.0)
+
+    by_state: dict[str, dict[str, Any]] = {}
+    by_violation: dict[str, dict[str, Any]] = {}
+
+    for r in audit_result.get("records", []):
+        st_name = r.get("state", "Unknown")
+        v_desc = r.get("violation_description", "Unknown")
+        oc = r.get("overcharge_amount", 0.0)
+
+        if st_name not in by_state:
+            by_state[st_name] = {"challans": 0, "overcharges": 0.0}
+        by_state[st_name]["challans"] += 1
+        by_state[st_name]["overcharges"] = round(by_state[st_name]["overcharges"] + oc, 2)
+
+        if v_desc not in by_violation:
+            by_violation[v_desc] = {"challans": 0, "overcharges": 0.0}
+        by_violation[v_desc]["challans"] += 1
+        by_violation[v_desc]["overcharges"] = round(by_violation[v_desc]["overcharges"] + oc, 2)
+
+    return {
+        "compliance_rate_pct": round((comp / total) * 100, 1),
+        "overcharge_rate_pct": round((over / total) * 100, 1),
+        "court_mandatory_rate_pct": round((court / total) * 100, 1),
+        "savings_opportunity_pct": round((savings / paid * 100), 1) if paid > 0 else 0.0,
+        "by_status": {
+            "Compliant": comp,
+            "Overcharged": over,
+            "Court Mandatory": court,
+        },
+        "by_state": by_state,
+        "by_violation": by_violation,
+    }
+
+
+def get_state_compounding_relief_stats() -> list[dict[str, Any]]:
+    """Compute comparative compounding concession statistics across all verified states."""
+    stats = []
+    for st_name, st_info in sorted(STATE_DATA.items()):
+        sched = st_info.get("compounding_schedule")
+        if not sched:
+            continue
+        compoundable_count = 0
+        central_total = 0.0
+        state_total = 0.0
+        for v_key, fee in sched.items():
+            if v_key in NATIONAL_FINES:
+                compoundable_count += 1
+                c_fine = float(NATIONAL_FINES[v_key]["fine"])
+                central_total += c_fine
+                state_total += float(fee)
+
+        relief_pct = round(((central_total - state_total) / central_total) * 100, 1) if central_total > 0 else 0.0
+        stats.append({
+            "state": st_name,
+            "notification_id": st_info.get("notification_id", "N/A"),
+            "compoundable_offences": compoundable_count,
+            "central_sum": round(central_total, 2),
+            "state_compounded_sum": round(state_total, 2),
+            "average_relief_pct": relief_pct,
+        })
+    return stats
 
