@@ -19,6 +19,8 @@ from models import (
     AccidentCompensationEstimateRequest,
     AccidentCompensationEstimateResponse,
     DLSuspensionRiskResponse,
+    OffenceRiskProfileRequest,
+    OffenceRiskProfileResponse,
     StateCompoundingReliefStatModel,
     FleetAuditAnalyticsResponse,
     TrafficStopSafeguardModel,
@@ -89,6 +91,10 @@ def health_check() -> dict[str, Any]:
             "citizen_rights_guides": len(app_core.CITIZEN_RIGHTS),
             "rto_jurisdictions": len(app_core.RTO_DIRECTORY.get("state_codes", {})),
             "traffic_stop_safeguards": len(app_core.TRAFFIC_STOP_SAFEGUARDS),
+            "dl_risk_violations": sum(
+                1 for r in app_core.NATIONAL_FINES.values()
+                if r.get("dl_suspension_risk", "none") != "none"
+            ),
         },
     }
 
@@ -450,3 +456,22 @@ def accident_compensation_estimate_endpoint(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Compensation estimate error: {exc}",
         ) from exc
+
+
+@app.post(
+    "/api/v1/offence-risk-profile",
+    response_model=OffenceRiskProfileResponse,
+    tags=["dl_risk"],
+    summary="Cumulative DL Risk Profile Across Multiple Traffic Violations (Sec 19, 206 MVA)",
+)
+def get_offence_risk_profile_endpoint(
+    payload: OffenceRiskProfileRequest,
+) -> OffenceRiskProfileResponse:
+    """Compute a cumulative Driving Licence risk profile across multiple violations.
+    Detects habitual offender threshold (>= 3 offences in 2 years under Sec 206 MVA)
+    and returns the highest risk level with specific statutory guidance."""
+    try:
+        result = app_core.get_offence_risk_profile(payload.violation_keys)
+        return OffenceRiskProfileResponse.model_validate(result)
+    except app_core.CalculatorInputError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
