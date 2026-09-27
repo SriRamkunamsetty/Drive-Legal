@@ -7,12 +7,17 @@ and statutory legal catalogue search.
 
 from __future__ import annotations
 
+import time
+import uuid
 from typing import Any
-from fastapi import FastAPI, HTTPException, Query, status
+from fastapi import FastAPI, HTTPException, Query, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 
 import app_core
 from models import (
+    TrafficStopSafeguardModel,
+    FleetAuditAnalyticsResponse,
+    StateCompoundingReliefStatModel,
     VehicleRegistrationResolution,
     BatchAuditRequest,
     BatchAuditResponse,
@@ -48,6 +53,18 @@ app.add_middleware(
 )
 
 
+@app.middleware("http")
+async def add_observability_headers(request: Request, call_next):
+    """Inject X-Request-ID tracing and X-Process-Time-Ms latency telemetry into response headers."""
+    request_id = request.headers.get("x-request-id") or uuid.uuid4().hex
+    start_time = time.perf_counter()
+    response = await call_next(request)
+    process_time_ms = (time.perf_counter() - start_time) * 1000.0
+    response.headers["X-Request-ID"] = request_id
+    response.headers["X-Process-Time-Ms"] = f"{process_time_ms:.2f}"
+    return response
+
+
 @app.get("/health", tags=["health"], summary="Liveness & Readiness Health Check")
 @app.get("/api/v1/health", tags=["health"], summary="API Health and Dataset Metadata")
 def health_check() -> dict[str, Any]:
@@ -66,6 +83,7 @@ def health_check() -> dict[str, Any]:
             "statutory_sections": len(app_core.LEGAL_SECTIONS),
             "citizen_rights_guides": len(app_core.CITIZEN_RIGHTS),
             "rto_jurisdictions": len(app_core.RTO_DIRECTORY.get("state_codes", {})),
+            "traffic_stop_safeguards": len(app_core.TRAFFIC_STOP_SAFEGUARDS),
         },
     }
 
@@ -255,9 +273,21 @@ def create_dispute_representation(payload: DisputeRepresentationRequest) -> Disp
             violation_key=payload.violation_key,
             additional_facts=payload.additional_facts,
         )
+        html_letter = app_core.generate_dispute_representation_html(
+            citizen_name=payload.citizen_name,
+            vehicle_number=payload.vehicle_number,
+            challan_number=payload.challan_number,
+            challan_date=payload.challan_date,
+            state=payload.state,
+            issuing_authority=payload.issuing_authority,
+            dispute_type=payload.dispute_type,
+            violation_key=payload.violation_key,
+            additional_facts=payload.additional_facts,
+        )
         meta = app_core.DISPUTE_CATEGORIES[payload.dispute_type]
         return DisputeRepresentationResponse(
             letter_text=letter,
+            html_content=html_letter,
             dispute_type=payload.dispute_type,
             statutory_authority=meta["statutory_authority"],
             challan_number=payload.challan_number,
@@ -309,4 +339,46 @@ def resolve_vehicle_registration(reg_number: str) -> VehicleRegistrationResoluti
     """Parse vehicle registration number, resolve state/UT, RTO division, and detect BH-series."""
     res = app_core.parse_vehicle_registration(reg_number)
     return VehicleRegistrationResolution.model_validate(res)
+
+@app.get(
+    "/api/v1/traffic-stop-safeguards",
+    response_model=list[TrafficStopSafeguardModel],
+    tags=["safeguards"],
+    summary="Statutory Traffic Stop Legal Safeguards & Citizen Protocols",
+)
+def get_traffic_stop_safeguards() -> list[TrafficStopSafeguardModel]:
+    """Retrieve verified statutory safeguards for citizens during police/RTO on-road stops."""
+    safeguards = app_core.get_traffic_stop_safeguards()
+    return [TrafficStopSafeguardModel.model_validate(s) for s in safeguards]
+
+
+@app.get(
+    "/api/v1/compounding-relief-stats",
+    response_model=list[StateCompoundingReliefStatModel],
+    tags=["compounding"],
+    summary="Comparative State Compounding Concession Statistics",
+)
+def get_compounding_relief_stats() -> list[StateCompoundingReliefStatModel]:
+    """Compute average financial relief percentage across all Section 200 notified states."""
+    stats = app_core.get_state_compounding_relief_stats()
+    return [StateCompoundingReliefStatModel.model_validate(s) for s in stats]
+
+
+@app.post(
+    "/api/v1/fleet/analytics",
+    response_model=FleetAuditAnalyticsResponse,
+    tags=["fleet"],
+    summary="Generate Executive Fleet Audit Visual Telematics & Analytics",
+)
+def generate_fleet_analytics(payload: BatchAuditRequest) -> FleetAuditAnalyticsResponse:
+    """Audit batch and generate executive KPIs, breakdown by status, state, and violations."""
+    try:
+        records_payload = [rec.model_dump() for rec in payload.records]
+        audit_res = app_core.audit_challan_batch(records_payload)
+        analytics = app_core.get_fleet_audit_analytics(audit_res)
+        return FleetAuditAnalyticsResponse.model_validate(analytics)
+    except app_core.CalculatorInputError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Fleet analytics error: {exc}") from exc
 

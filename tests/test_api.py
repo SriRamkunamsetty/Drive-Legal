@@ -185,4 +185,68 @@ def test_api_create_dispute_representation():
     assert data["vehicle_number"] == "MH-02-CD-5678"
     assert "Section 200" in data["letter_text"]
     assert "MVR 0919/C.R. 152/TRA-2" in data["letter_text"]
+    assert data["html_content"] is not None
+    assert "<!DOCTYPE html>" in data["html_content"]
+    assert "MH56781234" in data["html_content"]
+    assert "Rohan Verma" in data["html_content"]
+
+def test_api_observability_headers():
+    """Verify X-Request-ID and X-Process-Time-Ms middleware headers on all responses."""
+    resp = client.get("/health")
+    assert resp.status_code == 200
+    assert "x-request-id" in resp.headers
+    assert len(resp.headers["x-request-id"]) > 0
+    assert "x-process-time-ms" in resp.headers
+    process_ms = float(resp.headers["x-process-time-ms"])
+    assert process_ms >= 0.0
+
+    custom_id = "test-custom-trace-uuid-1234"
+    resp_custom = client.get("/health", headers={"x-request-id": custom_id})
+    assert resp_custom.status_code == 200
+    assert resp_custom.headers["x-request-id"] == custom_id
+
+def test_api_compounding_relief_stats():
+    """Verify GET /api/v1/compounding-relief-stats endpoint."""
+    resp = client.get("/api/v1/compounding-relief-stats")
+    assert resp.status_code == 200
+    stats = resp.json()
+    assert len(stats) == 8
+    for item in stats:
+        assert item["compoundable_offences"] > 0
+        assert item["central_sum"] > 0.0
+        assert item["state_compounded_sum"] > 0.0
+        assert 0.0 <= item["average_relief_pct"] <= 100.0
+
+
+def test_api_fleet_analytics():
+    """Verify POST /api/v1/fleet/analytics endpoint."""
+    payload = {
+        "records": [
+            {
+                "challan_id": "CH-01",
+                "vehicle_number": "KA-01-AB-1234",
+                "vehicle_type": "Two-Wheeler (> 50cc)",
+                "state": "Karnataka",
+                "violation_key": "no_helmet",
+                "amount_paid": 1000.0,
+            },
+            {
+                "challan_id": "CH-02",
+                "vehicle_number": "MH-02-CD-5678",
+                "vehicle_type": "Light Motor Vehicle (Car)",
+                "state": "Maharashtra",
+                "violation_key": "no_seatbelt",
+                "amount_paid": 200.0,
+            },
+        ]
+    }
+    resp = client.post("/api/v1/fleet/analytics", json=payload)
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["compliance_rate_pct"] == 50.0
+    assert data["overcharge_rate_pct"] == 50.0
+    assert data["by_status"]["Compliant"] == 1
+    assert data["by_status"]["Overcharged"] == 1
+    assert "Karnataka" in data["by_state"]
+    assert data["by_state"]["Karnataka"]["overcharges"] == 500.0
 
