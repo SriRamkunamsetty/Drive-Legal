@@ -35,7 +35,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 def test_complete_data_package_is_loaded_from_local_files():
-    assert len(NATIONAL_FINES) == 19
+    assert len(NATIONAL_FINES) == 28
     assert len(VEHICLE_TYPES) == 7
     assert len(STATE_DATA) == 36
     assert ALL_STATES == sorted(STATE_DATA)
@@ -111,7 +111,7 @@ def test_all_national_records_have_record_level_legal_notes():
 
 
 def test_legal_catalogue_is_loaded_from_bundled_data():
-    assert len(LEGAL_SECTIONS) == 18
+    assert len(LEGAL_SECTIONS) == 20
     assert len({record["section"] for record in LEGAL_SECTIONS}) == len(LEGAL_SECTIONS)
     assert all(record["title"] and record["description"] for record in LEGAL_SECTIONS)
 
@@ -305,7 +305,7 @@ def test_catalogue_covers_all_national_fine_penalty_sections():
 
 
 def test_legal_catalogue_search_filters():
-    assert len(LEGAL_SECTIONS) == 18
+    assert len(LEGAL_SECTIONS) == 20
 
     # Search by section number
     sec_184 = [law for law in LEGAL_SECTIONS if "184" in law["section"]]
@@ -378,8 +378,8 @@ def test_compounding_state_count_and_metrics():
         "Andhra Pradesh", "Delhi", "Gujarat", "Haryana", "Karnataka", "Kerala",
         "Maharashtra", "Odisha", "Punjab", "Rajasthan", "Tamil Nadu", "Uttar Pradesh", "West Bengal"
     }
-    assert len(LEGAL_SECTIONS) == 18
-    assert len(NATIONAL_FINES) == 19
+    assert len(LEGAL_SECTIONS) == 20
+    assert len(NATIONAL_FINES) == 28
 
 
 def test_citizen_rights_schema_and_content():
@@ -450,7 +450,8 @@ def test_pydantic_package_validation():
     counts = models.validate_package_with_models(
         NATIONAL_FINES, VEHICLE_TYPES, STATE_DATA, METADATA, LEGAL_SECTIONS, CITIZEN_RIGHTS
     )
-    assert counts == (19, 7, 36, 19, 18, 5)
+    assert counts == (28, 7, 36, 19, 20, 5)
+    assert counts == (28, 7, 36, 19, 20, 5)
 
 
 def test_pydantic_single_and_multi_challan_models():
@@ -586,10 +587,12 @@ def test_pydantic_package_validation_helper():
         legal_sections=LEGAL_SECTIONS,
         citizen_rights=CITIZEN_RIGHTS,
     )
-    assert counts[0] == 19
+    assert counts[0] == 28
     assert counts[1] == 7
     assert counts[2] == 36
     assert counts[3] == 19
-    assert counts[4] == 18
+    assert counts[4] == 20
+    assert counts[3] == 19
+    assert counts[4] == 20
     assert counts[5] == 5
 

@@ -163,6 +163,13 @@ with tab1:
                 """,
                 unsafe_allow_html=True,
             )
+            
+            # DL suspension risk badge
+            dl_risk_data = app_core.get_dl_suspension_risk(selected_violation_key)
+            risk_level = dl_risk_data["risk_level"]
+            risk_icons = {"none": "🟢", "caution": "🟡", "high": "🔴", "automatic": "🚫"}
+            risk_labels = {"none": "No DL Risk", "caution": "DL Caution", "high": "DL High Risk", "automatic": "DL Auto-Suspension"}
+            st.info(f"{risk_icons[risk_level]} **DL Risk**: {risk_labels[risk_level]} — {dl_risk_data['citizen_action']}")
             if result["imprisonment"]:
                 st.warning(f"Potential custodial consequence in the source record: {result['imprisonment']}")
             if result["legal_note"]:

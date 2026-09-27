@@ -15,6 +15,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 import app_core
 from models import (
+    DLSuspensionRiskResponse,
     TrafficStopSafeguardModel,
     FleetAuditAnalyticsResponse,
     StateCompoundingReliefStatModel,
@@ -77,6 +78,7 @@ def health_check() -> dict[str, Any]:
         "offline_first": True,
         "metrics": {
             "national_violations": len(app_core.NATIONAL_FINES),
+            "dl_risk_violations": sum(1 for r in app_core.NATIONAL_FINES.values() if r.get("dl_suspension_risk", "none") != "none"),
             "vehicle_classes": len(app_core.VEHICLE_TYPES),
             "jurisdictions_covered": len(app_core.STATE_DATA),
             "verified_compounding_states": len(compounding_states),
@@ -382,3 +384,17 @@ def generate_fleet_analytics(payload: BatchAuditRequest) -> FleetAuditAnalyticsR
     except Exception as exc:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Fleet analytics error: {exc}") from exc
 
+
+@app.get(
+    "/api/v1/violations/{violation_key}/dl-risk",
+    response_model=DLSuspensionRiskResponse,
+    tags=["dl_risk"],
+    summary="Driving Licence Suspension Risk for a Traffic Violation",
+)
+def get_dl_risk_endpoint(violation_key: str) -> DLSuspensionRiskResponse:
+    """Return the DL suspension or disqualification risk level and statutory basis for a specific violation."""
+    try:
+        result = app_core.get_dl_suspension_risk(violation_key)
+        return DLSuspensionRiskResponse.model_validate(result)
+    except app_core.CalculatorInputError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc

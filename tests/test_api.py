@@ -20,7 +20,7 @@ def test_api_health():
     data = response.json()
     assert data["status"] == "healthy"
     assert data["version"] == "2.0.0"
-    assert data["metrics"]["national_violations"] == 19
+    assert data["metrics"]["national_violations"] == 28
     assert data["metrics"]["jurisdictions_covered"] == 36
     assert data["metrics"]["verified_compounding_states"] == 13
 
@@ -33,7 +33,7 @@ def test_api_get_violations():
     response = client.get("/api/v1/violations")
     assert response.status_code == 200
     violations = response.json()
-    assert len(violations) == 19
+    assert len(violations) == 28
 
     # Filter by vehicle
     bike_resp = client.get("/api/v1/violations", params={"vehicle_type": "Two-Wheeler (> 50cc)"})
@@ -135,7 +135,7 @@ def test_api_compounding_matrix():
 def test_api_laws_catalogue():
     response = client.get("/api/v1/laws")
     assert response.status_code == 200
-    assert len(response.json()) == 18
+    assert len(response.json()) == 20
 
     search_resp = client.get("/api/v1/laws", params={"q": "185"})
     assert search_resp.status_code == 200
@@ -210,7 +210,7 @@ def test_api_compounding_relief_stats():
     resp = client.get("/api/v1/compounding-relief-stats")
     assert resp.status_code == 200
     stats = resp.json()
-    assert len(stats) == 8
+    assert len(stats) == 13
     for item in stats:
         assert item["compoundable_offences"] > 0
         assert item["central_sum"] > 0.0
