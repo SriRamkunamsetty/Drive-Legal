@@ -367,3 +367,58 @@ class DLSuspensionRiskResponse(BaseModel):
     citizen_action: str
     is_automatic: bool
     legal_note: str
+
+
+# --- Motor Accident Claim Guide Models (Sec 161–166 MVA) ---
+
+class AccidentClaimGuideEntry(BaseModel):
+    """A single guide entry in the motor accident claim guide."""
+    model_config = ConfigDict(frozen=True)
+
+    id: str = Field(..., description="Unique guide entry identifier")
+    category: str = Field(..., description="Category (e.g. Hit-and-Run Compensation)")
+    statutory_basis: str = Field(..., description="Applicable MVA sections")
+    title: str = Field(..., description="Citizen-friendly title")
+    summary: str = Field(..., description="Plain-language summary of the right")
+    eligibility: list[str] = Field(..., min_length=1)
+    procedure: list[str] = Field(..., min_length=1)
+    key_provisions: list[str] = Field(..., min_length=1)
+    documents_required: list[str] = Field(..., min_length=1)
+    time_limit: str = Field(..., description="Filing or reporting time limit")
+    compensation: dict[str, Any] | None = None
+
+
+class AccidentCompensationEstimateRequest(BaseModel):
+    """Request to estimate road accident compensation."""
+    model_config = ConfigDict(extra="forbid")
+
+    accident_type: Literal[
+        "hit_and_run_death",
+        "hit_and_run_grievous",
+        "fatal",
+        "grievous_hurt",
+        "simple_hurt",
+    ] = Field(..., description="Type of road accident claim")
+    monthly_income: float | None = Field(
+        default=None,
+        ge=0,
+        description="Victim's monthly income in INR (None = unknown)",
+    )
+    age: int | None = Field(
+        default=None,
+        ge=1,
+        le=99,
+        description="Victim's age in years (None = unknown)",
+    )
+
+
+class AccidentCompensationEstimateResponse(BaseModel):
+    """Formula-based road accident compensation estimate."""
+    accident_type: str
+    statutory_minimum_inr: float
+    estimated_compensation_inr: float
+    methodology: str
+    components: dict[str, Any]
+    statutory_basis: str
+    disclaimer: str
+

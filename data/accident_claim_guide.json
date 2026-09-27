@@ -1,0 +1,195 @@
+[
+  {
+    "id": "hit_and_run_compensation",
+    "category": "Hit-and-Run Compensation Scheme",
+    "statutory_basis": "Sections 161–163, Motor Vehicles Act, 1988 (as amended by MVA 2019)",
+    "title": "Hit-and-Run Motor Accident Compensation",
+    "summary": "If you or a family member is injured or killed in a hit-and-run accident where the offending vehicle cannot be identified, you are entitled to fixed statutory compensation from the Solatium Fund without proving negligence.",
+    "compensation": {
+      "grievous_hurt": 50000,
+      "death": 200000
+    },
+    "eligibility": [
+      "Victim of a road accident involving an unidentified/untraceable motor vehicle",
+      "Accident must have occurred on a public road, highway, or street",
+      "Claim must be filed within 6 months of the accident (extendable for sufficient cause)"
+    ],
+    "procedure": [
+      "Step 1: File an FIR at the nearest police station immediately after the accident (Sec 154 CrPC). Note: police cannot refuse to register FIR.",
+      "Step 2: Obtain medical treatment. Keep all medical bills, prescriptions, and doctor certificates.",
+      "Step 3: Obtain the FIR copy and Accident Information Report (AIR) from police.",
+      "Step 4: Approach the Claims Enquiry Officer (CEO) — typically a magistrate or officer designated by State Govt — with the FIR, medical documents, and claim application.",
+      "Step 5: The CEO forwards the claim to the insurer (IRDAI-designated) within 15 days of completion of enquiry.",
+      "Step 6: Payment is released within 30 days of claim acceptance from the Solatium Fund maintained by GIC Re."
+    ],
+    "key_provisions": [
+      "Sec 161 MVA: Defines 'hit and run motor accident' and entitlement to solatium.",
+      "Sec 162 MVA: Prescribes the payment scheme and fund management by GIC Re.",
+      "Sec 163 MVA: Bars the compensation from being pleaded as an admission of liability if the vehicle is later identified.",
+      "MVA 2019 Amendment: Enhanced amounts from Rs 25,000 (death) to Rs 2 lakh and from Rs 12,500 (grievous hurt) to Rs 50,000.",
+      "MoRTH Notification S.O. 3454(E) dated 22.10.2022: Clarifies claim procedure and designated CEO roles."
+    ],
+    "documents_required": [
+      "Duly filled claim application form",
+      "Copy of FIR / Accident Information Report",
+      "Death certificate (for fatal accidents) or medical disability certificate",
+      "Post-mortem report (for fatal accidents)",
+      "Hospital treatment records and bills",
+      "Identity proof of claimant (Aadhaar / PAN)",
+      "Bank account details for NEFT transfer"
+    ],
+    "time_limit": "Within 6 months of accident (extendable with sufficient cause shown to CEO)"
+  },
+  {
+    "id": "no_fault_compensation",
+    "category": "No-Fault / Structured Compensation",
+    "statutory_basis": "Section 164, Motor Vehicles Act, 1988 (as amended by MVA 2019)",
+    "title": "No-Fault Structured Formula Compensation (Sec 164)",
+    "summary": "Section 164 provides a statutory right to a fixed minimum compensation without proving negligence or fault. It applies where a vehicle insured under MVA is involved, and the claimant need not establish who was at fault.",
+    "compensation": {
+      "death": 500000,
+      "grievous_hurt": 250000
+    },
+    "eligibility": [
+      "Death or grievous hurt caused by a motor vehicle in a public place",
+      "The vehicle must be registered under the MVA and insured under Sec 146",
+      "Claim is in addition to any other compensation separately determined by the MACT",
+      "The structured amount acts as a floor — MACT can award more based on fault"
+    ],
+    "procedure": [
+      "Step 1: File claim before the Motor Accident Claims Tribunal (MACT) having jurisdiction (where accident occurred, claimant resides, or vehicle is registered).",
+      "Step 2: Submit Form (prescribed by State under Sec 166) along with FIR, medical/death records, vehicle insurance details.",
+      "Step 3: MACT adjudicates and directs the insurance company to pay within 30 days of award.",
+      "Step 4: If disputing the structured amount, proceed with full fault-based claim under Sec 166 (higher potential award)."
+    ],
+    "key_provisions": [
+      "Sec 164(1) MVA: Rs 5 lakh for death, Rs 2.5 lakh for grievous hurt without proof of fault.",
+      "Sec 164(2) MVA: Where the claim exceeds the structured limit, full MACT proceedings under Sec 166 apply.",
+      "Sec 164(4) MVA: Payment must be made within 30 days of the MACT award.",
+      "Fatal Accident Act, 1855 (Sec 1A): Family members can also claim loss of dependency separately.",
+      "National Insurance Co. v. Pranay Sethi (2017) SC: Supreme Court prescribed structured compensation multiplier methodology."
+    ],
+    "documents_required": [
+      "Claim petition (MACT Form)",
+      "FIR and Accident Information Report",
+      "Vehicle insurance certificate (RC + Insurance Policy)",
+      "Death certificate / Medical disability certificate",
+      "Identity proof and address of claimant",
+      "Proof of relationship (for family claimants)",
+      "Income/earnings proof if claiming loss of dependency"
+    ],
+    "time_limit": "Within 6 months of accident (Sec 166 — extendable for sufficient cause)"
+  },
+  {
+    "id": "mact_petition",
+    "category": "Motor Accident Claims Tribunal",
+    "statutory_basis": "Sections 165–176, Motor Vehicles Act, 1988",
+    "title": "Filing a MACT Petition for Road Accident Compensation",
+    "summary": "The Motor Accident Claims Tribunal (MACT) is the specialist quasi-judicial body mandated to adjudicate road accident compensation claims quickly, without the formality and delay of regular civil courts. Claims must be filed here — not in Civil Court.",
+    "eligibility": [
+      "Victim (injured person), or legal representative (for death claims)",
+      "Accident involving any motor vehicle on a public road",
+      "Both fault-based claims (Sec 166) and no-fault claims (Sec 164) are filed here"
+    ],
+    "procedure": [
+      "Step 1: Identify the correct MACT (where accident occurred OR where claimant resides OR where the offending vehicle is registered — your choice).",
+      "Step 2: Hire an advocate or file the claim yourself (Vakalatnama optional in many states).",
+      "Step 3: File the claim petition (prescribed form) within 6 months of accident. Late filing requires showing 'sufficient cause'.",
+      "Step 4: Submit supporting documents along with the petition.",
+      "Step 5: Court issues notice to the owner, driver, and insurer. Insurer must respond within 30 days.",
+      "Step 6: Evidence stage — medical experts, police witnesses, accident reconstruction (if needed).",
+      "Step 7: MACT passes award. Insurance company must pay within 30 days (Sec 168).",
+      "Step 8: If award is unsatisfactory, appeal lies to the High Court within 90 days (Sec 173)."
+    ],
+    "key_provisions": [
+      "Sec 165 MVA: Constitution of MACT by State Governments.",
+      "Sec 166 MVA: Claimant's right to file petition; insurer's right to contest.",
+      "Sec 168 MVA: MACT to pass reasoned award; payment within 30 days.",
+      "Sec 173 MVA: Appeal to High Court within 90 days of MACT award.",
+      "Sec 176 MVA: State governments may make rules prescribing MACT procedure.",
+      "National Insurance Co. v. Pranay Sethi (2017) 16 SCC 680: SC guidelines on computation of compensation.",
+      "Sarla Verma v. DTC (2009) 6 SCC 121: SC multiplier chart for dependency calculation."
+    ],
+    "documents_required": [
+      "MACT claim petition (prescribed state form)",
+      "FIR / Accident Information Report (certified copy)",
+      "Driving licence of alleged offender (if available)",
+      "RC and insurance certificate of offending vehicle",
+      "Medical records, bills, doctor's disability certificate",
+      "Claimant's income proof (salary slips, IT returns, employer certificate)",
+      "Death certificate + legal heirship certificate (for fatal claims)",
+      "Photographs of accident site and injuries (if available)"
+    ],
+    "time_limit": "6 months from date of accident (Sec 166); extendable with sufficient cause shown to MACT"
+  },
+  {
+    "id": "insurance_claim_own_damage",
+    "category": "Own Damage Insurance Claim",
+    "statutory_basis": "Section 146, Motor Vehicles Act, 1988; IRDAI Motor Insurance Guidelines",
+    "title": "Motor Insurance Own Damage (OD) Claim Procedure",
+    "summary": "If your vehicle is damaged in an accident, you can claim from your own comprehensive motor insurance policy for Own Damage (OD). This is separate from Third Party (TP) liability claims by the victim.",
+    "eligibility": [
+      "You must hold a valid Comprehensive Motor Insurance Policy (not just mandatory Third Party policy)",
+      "Accident must be reported to the insurer within the policy-prescribed time (usually 24–48 hours)",
+      "Policy must not be lapsed at the time of accident",
+      "Damage must be accidental — not wear and tear, mechanical failure, or wilful act"
+    ],
+    "procedure": [
+      "Step 1: Intimate the insurer immediately after the accident (call the claim helpline or online portal).",
+      "Step 2: File FIR if required by policy (mandatory for theft, third-party injury, or serious accidents).",
+      "Step 3: Do NOT move or repair the vehicle until a surveyor is appointed by the insurer.",
+      "Step 4: Insurer appoints a licensed motor surveyor within 48–72 hours.",
+      "Step 5: Surveyor inspects the damage and submits a Survey Report.",
+      "Step 6: Insurer issues a claim settlement amount (Repair approval or Total Loss declaration).",
+      "Step 7: If claim is rejected or inadequately settled, escalate to IRDAI Bima Bharosa portal or Insurance Ombudsman."
+    ],
+    "key_provisions": [
+      "IRDAI Motor Insurance Guidelines (2019): Prescribe claim settlement timelines.",
+      "Sec 64UM Insurance Act, 1938: Licensed surveyor mandatory for claims above Rs 50,000.",
+      "IRDAI Circular (14 Oct 2019): Cashless claim facility at network garages.",
+      "Insurance Ombudsman Rules, 2017: Ombudsman jurisdiction for disputes up to Rs 30 lakh.",
+      "IRDAI Bima Bharosa (bimabharosa.irdai.gov.in): Online grievance portal for insurance complaints."
+    ],
+    "documents_required": [
+      "Claim intimation form (insurer's form)",
+      "Copy of FIR (if applicable)",
+      "Vehicle RC and Insurance Policy",
+      "Valid Driving Licence of driver at time of accident",
+      "Repair estimate from authorised garage",
+      "Photographs of vehicle damage",
+      "Surveyor's report (provided by insurer)"
+    ],
+    "time_limit": "Intimate insurer within 24–48 hours of accident (check your policy terms)"
+  },
+  {
+    "id": "victim_rights_at_accident_scene",
+    "category": "Victim Rights at Accident Scene",
+    "statutory_basis": "Sections 134, 134A, 134B, Motor Vehicles Act, 1988 (MVA 2019 Amendment)",
+    "title": "Rights and Duties of Persons at a Road Accident Scene",
+    "summary": "The MVA 2019 Amendment created a comprehensive Good Samaritan framework and imposed strict duties on drivers involved in accidents to assist victims and report to police. Failure is an offence; Good Samaritans are now protected from police harassment.",
+    "eligibility": [
+      "Any person who witnesses or is involved in a road accident",
+      "Applies to drivers of offending vehicle, other motorists, and bystanders who assist"
+    ],
+    "procedure": [
+      "If you are the driver involved: You are legally obligated to stop, provide name/address, and assist the injured. Fleeing is an offence under Sec 134.",
+      "If you are a bystander (Good Samaritan): You have the right to take the injured to the nearest hospital. Hospitals CANNOT refuse treatment on grounds of medico-legal case. Police CANNOT detain you or demand you file a complaint.",
+      "At the hospital: Sec 134A mandates that hospitals treat victims first and comply with medico-legal procedures second. No advance payment can be demanded for emergency treatment.",
+      "Reporting: Call 112 (National Emergency) or local police. Accident must be reported to the nearest police station within 24 hours."
+    ],
+    "key_provisions": [
+      "Sec 134 MVA: Driver's duty to stop, give name, and assist — failure is punishable.",
+      "Sec 134A MVA (2019): Good Samaritan protection — no civil or criminal liability for a person who assists an accident victim in good faith.",
+      "Sec 134B MVA (2019): Hospitals must provide emergency treatment without demanding deposit or police clearance first.",
+      "MoRTH Good Samaritan Guidelines (S.O. 2187(E), 2016): SOPs for police and hospitals on protecting Good Samaritans.",
+      "SC Order in SaveLIFE Foundation v. Union of India (2016): Supreme Court mandatory guidelines on Good Samaritan protection.",
+      "Sec 187 MVA: Punishment for leaving the scene of an accident without reporting."
+    ],
+    "documents_required": [
+      "No documents required for Good Samaritans",
+      "Drivers involved: Driving Licence, RC, Insurance Certificate",
+      "FIR / Accident Information Report (file at nearest police station within 24 hours)"
+    ],
+    "time_limit": "Report accident to police within 24 hours (Sec 134 MVA)"
+  }
+]
