@@ -22,7 +22,7 @@ def test_api_health():
     assert data["version"] == "2.0.0"
     assert data["metrics"]["national_violations"] == 19
     assert data["metrics"]["jurisdictions_covered"] == 36
-    assert data["metrics"]["verified_compounding_states"] == 8
+    assert data["metrics"]["verified_compounding_states"] == 13
 
     v1_resp = client.get("/api/v1/health")
     assert v1_resp.status_code == 200
@@ -55,7 +55,7 @@ def test_api_get_states():
     compounding_resp = client.get("/api/v1/states", params={"compounding_only": True})
     assert compounding_resp.status_code == 200
     compounding_states = compounding_resp.json()
-    assert len(compounding_states) == 8
+    assert len(compounding_states) == 13
     assert all(s["has_compounding_schedule"] for s in compounding_states)
 
 
@@ -123,7 +123,7 @@ def test_api_compounding_matrix():
     response = client.get("/api/v1/compounding-matrix")
     assert response.status_code == 200
     data = response.json()
-    assert len(data["states"]) == 8
+    assert len(data["states"]) == 13
     assert len(data["rows"]) > 0
 
     # Filter matrix

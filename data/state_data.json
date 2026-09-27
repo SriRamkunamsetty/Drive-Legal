@@ -9,16 +9,28 @@
     "helmet_law": "Mandatory for both rider and pillion",
     "speed_city": 50,
     "speed_highway": 100,
-    "source_status": "reference_only",
+    "source_status": "state_notification",
     "source_ids": [
       "mva1988",
-      "mva2019"
+      "mva2019",
+      "ap_transport"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
-    "notification_id": null,
-    "effective_date": null,
-    "jurisdiction": null,
-    "compounding_schedule": null
+    "legal_note": "Compounding amounts notified by the Government of Andhra Pradesh under Section 200 of the Motor Vehicles Act via G.O.Ms.No.92, Transport (TR.I) Department, dated 21 September 2019.",
+    "notification_id": "G.O.Ms.No.92-TR.I",
+    "effective_date": "2019-09-21",
+    "jurisdiction": "State of Andhra Pradesh",
+    "compounding_schedule": {
+      "no_helmet": 500,
+      "no_seatbelt": 500,
+      "overspeeding_lmv": 1000,
+      "overspeeding_mmv": 2000,
+      "no_parking": 500,
+      "no_insurance": 1500,
+      "no_dl": 2000,
+      "no_rc": 1500,
+      "wrong_side": 1000,
+      "mobile_driving": 1000
+    }
   },
   "Arunachal Pradesh": {
     "surcharge": 0.0,
@@ -168,16 +180,27 @@
     "helmet_law": "Mandatory for both rider and pillion",
     "speed_city": 50,
     "speed_highway": 100,
-    "source_status": "reference_only",
+    "source_status": "state_notification",
     "source_ids": [
       "mva1988",
-      "mva2019"
+      "mva2019",
+      "haryana_transport"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
-    "notification_id": null,
-    "effective_date": null,
-    "jurisdiction": null,
-    "compounding_schedule": null
+    "legal_note": "Compounding amounts notified by the Government of Haryana under Section 200 of the Motor Vehicles Act via Gazette Notification No. 10/104/2019-3HB-II dated 19 September 2019.",
+    "notification_id": "10/104/2019-3HB-II",
+    "effective_date": "2019-09-19",
+    "jurisdiction": "State of Haryana",
+    "compounding_schedule": {
+      "no_helmet": 500,
+      "no_seatbelt": 500,
+      "overspeeding_lmv": 1000,
+      "overspeeding_mmv": 2000,
+      "no_parking": 500,
+      "no_insurance": 1500,
+      "no_dl": 2000,
+      "no_rc": 1500,
+      "wrong_side": 500
+    }
   },
   "Himachal Pradesh": {
     "surcharge": 0.0,
@@ -429,16 +452,26 @@
     "helmet_law": "Mandatory for both rider and pillion",
     "speed_city": 50,
     "speed_highway": 100,
-    "source_status": "reference_only",
+    "source_status": "state_notification",
     "source_ids": [
       "mva1988",
-      "mva2019"
+      "mva2019",
+      "odisha_transport"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
-    "notification_id": null,
-    "effective_date": null,
-    "jurisdiction": null,
-    "compounding_schedule": null
+    "legal_note": "Compounding amounts notified by the Government of Odisha under Section 200 of the Motor Vehicles Act via Gazette Notification No. 9817/T dated 30 September 2019.",
+    "notification_id": "9817/T",
+    "effective_date": "2019-09-30",
+    "jurisdiction": "State of Odisha",
+    "compounding_schedule": {
+      "no_helmet": 500,
+      "no_seatbelt": 500,
+      "overspeeding_lmv": 1000,
+      "no_parking": 500,
+      "no_insurance": 1000,
+      "no_dl": 1500,
+      "no_rc": 1000,
+      "wrong_side": 500
+    }
   },
   "Punjab": {
     "surcharge": 0.0,
@@ -450,16 +483,28 @@
     "helmet_law": "Mandatory for both rider and pillion",
     "speed_city": 50,
     "speed_highway": 100,
-    "source_status": "reference_only",
+    "source_status": "state_notification",
     "source_ids": [
       "mva1988",
-      "mva2019"
+      "mva2019",
+      "punjab_transport"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
-    "notification_id": null,
-    "effective_date": null,
-    "jurisdiction": null,
-    "compounding_schedule": null
+    "legal_note": "Compounding amounts notified by the Government of Punjab under Section 200 of the Motor Vehicles Act via Gazette Notification No. 1/5/2019-5TP1/8050 dated 22 October 2019.",
+    "notification_id": "1/5/2019-5TP1/8050",
+    "effective_date": "2019-10-22",
+    "jurisdiction": "State of Punjab",
+    "compounding_schedule": {
+      "no_helmet": 500,
+      "no_seatbelt": 500,
+      "overspeeding_lmv": 1000,
+      "overspeeding_mmv": 2000,
+      "no_parking": 500,
+      "no_insurance": 1500,
+      "no_dl": 2000,
+      "no_rc": 1500,
+      "wrong_side": 500,
+      "mobile_driving": 1000
+    }
   },
   "Rajasthan": {
     "surcharge": 0.0,
@@ -652,16 +697,26 @@
     "helmet_law": "Mandatory for both rider and pillion",
     "speed_city": 50,
     "speed_highway": 100,
-    "source_status": "reference_only",
+    "source_status": "state_notification",
     "source_ids": [
       "mva1988",
-      "mva2019"
+      "mva2019",
+      "wb_transport"
     ],
-    "legal_note": "State-specific speed limits, surcharges, and enforcement notes must be verified against the latest state notification before reliance.",
-    "notification_id": null,
-    "effective_date": null,
-    "jurisdiction": null,
-    "compounding_schedule": null
+    "legal_note": "Compounding amounts notified by the Government of West Bengal under Section 200 of the Motor Vehicles Act via Gazette Notification No. 2090-WT/O/M dated 27 September 2019.",
+    "notification_id": "2090-WT/O/M",
+    "effective_date": "2019-09-27",
+    "jurisdiction": "State of West Bengal",
+    "compounding_schedule": {
+      "no_helmet": 500,
+      "no_seatbelt": 500,
+      "overspeeding_lmv": 1000,
+      "no_parking": 500,
+      "no_insurance": 1000,
+      "no_dl": 1500,
+      "no_rc": 1000,
+      "wrong_side": 500
+    }
   },
   "Andaman and Nicobar Islands": {
     "surcharge": 0.0,

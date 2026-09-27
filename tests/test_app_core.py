@@ -373,9 +373,10 @@ def test_calculate_multi_fine_validation_rejects_empty_and_invalid():
 
 def test_compounding_state_count_and_metrics():
     compounding_states = [s for s, data in STATE_DATA.items() if data.get("compounding_schedule")]
-    assert len(compounding_states) == 8
+    assert len(compounding_states) == 13
     assert set(compounding_states) == {
-        "Delhi", "Karnataka", "Maharashtra", "Gujarat", "Kerala", "Rajasthan", "Tamil Nadu", "Uttar Pradesh"
+        "Andhra Pradesh", "Delhi", "Gujarat", "Haryana", "Karnataka", "Kerala",
+        "Maharashtra", "Odisha", "Punjab", "Rajasthan", "Tamil Nadu", "Uttar Pradesh", "West Bengal"
     }
     assert len(LEGAL_SECTIONS) == 18
     assert len(NATIONAL_FINES) == 19
@@ -402,9 +403,10 @@ def test_citizen_rights_schema_and_content():
 
 def test_get_compounding_comparison_matrix_structure():
     matrix = get_compounding_comparison_matrix()
-    assert len(matrix["states"]) == 8
+    assert len(matrix["states"]) == 13
     assert matrix["states"] == [
-        "Delhi", "Gujarat", "Karnataka", "Kerala", "Maharashtra", "Rajasthan", "Tamil Nadu", "Uttar Pradesh"
+        "Andhra Pradesh", "Delhi", "Gujarat", "Haryana", "Karnataka", "Kerala",
+        "Maharashtra", "Odisha", "Punjab", "Rajasthan", "Tamil Nadu", "Uttar Pradesh", "West Bengal"
     ]
     assert len(matrix["rows"]) > 0
 
@@ -448,7 +450,7 @@ def test_pydantic_package_validation():
     counts = models.validate_package_with_models(
         NATIONAL_FINES, VEHICLE_TYPES, STATE_DATA, METADATA, LEGAL_SECTIONS, CITIZEN_RIGHTS
     )
-    assert counts == (19, 7, 36, 14, 18, 5)
+    assert counts == (19, 7, 36, 19, 18, 5)
 
 
 def test_pydantic_single_and_multi_challan_models():
@@ -587,7 +589,7 @@ def test_pydantic_package_validation_helper():
     assert counts[0] == 19
     assert counts[1] == 7
     assert counts[2] == 36
-    assert counts[3] == 14
+    assert counts[3] == 19
     assert counts[4] == 18
     assert counts[5] == 5
 
