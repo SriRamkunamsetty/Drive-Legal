@@ -1155,3 +1155,43 @@ def get_state_compounding_relief_stats() -> list[dict[str, Any]]:
         })
     return stats
 
+def get_dl_suspension_risk(violation_key: str) -> dict[str, Any]:
+    """Return the Driving Licence suspension risk level and statutory basis for a violation.
+    
+    Returns a dict with keys: risk_level, statutory_basis, citizen_action, is_automatic.
+    """
+    if violation_key not in NATIONAL_FINES:
+        raise CalculatorInputError(f"Unknown violation key: {violation_key!r}")
+    
+    rec = NATIONAL_FINES[violation_key]
+    risk = rec.get("dl_suspension_risk", "none")
+    
+    DL_RISK_DETAILS: dict[str, dict[str, str]] = {
+        "none": {
+            "statutory_basis": "No direct DL disqualification provision for this offence.",
+            "citizen_action": "Pay or compound the fine as applicable. No DL action required.",
+        },
+        "caution": {
+            "statutory_basis": "Sec 19 MVA (licensing authority may suspend for repeated violations). Sec 206 MVA (spot suspension by traffic authority for habitual offenders).",
+            "citizen_action": "Pay the fine promptly. Repeated instances of this offence may trigger DL review under Sec 206 MVA.",
+        },
+        "high": {
+            "statutory_basis": "Sec 19 MVA (DL suspension by licensing authority). Sec 24 MVA (court-ordered disqualification). Sec 184 MVA (dangerous driving — high risk of disqualification).",
+            "citizen_action": "Engage a traffic law advocate. A formal DL suspension order may be issued. You have the right to a hearing before the licensing authority under Sec 19(2) MVA.",
+        },
+        "automatic": {
+            "statutory_basis": "Mandatory DL suspension or disqualification under the Motor Vehicles Act, 1988. Sec 206 MVA (spot disqualification by traffic authority). Court proceeding mandatory.",
+            "citizen_action": "Engage a lawyer immediately. The licence may be seized on the spot. Appear before the licensing authority within the prescribed period for hearing under Sec 19(2) MVA.",
+        },
+    }
+    
+    details = DL_RISK_DETAILS.get(risk, DL_RISK_DETAILS["none"])
+    return {
+        "violation_key": violation_key,
+        "description": rec["description"],
+        "risk_level": risk,
+        "statutory_basis": details["statutory_basis"],
+        "citizen_action": details["citizen_action"],
+        "is_automatic": risk == "automatic",
+        "legal_note": rec.get("legal_note", ""),
+    }

@@ -48,6 +48,7 @@ class FineRecordModel(BaseModel):
     quantity_field: str | None = None
     quantity_label: str | None = None
     legal_note: str = Field(..., min_length=1)
+    dl_suspension_risk: Literal["none", "caution", "high", "automatic"] | None = None
 
 
 class StateDataModel(BaseModel):
@@ -354,3 +355,15 @@ class StateCompoundingReliefStatModel(BaseModel):
     state_compounded_sum: float
     average_relief_pct: float
 
+
+class DLSuspensionRiskResponse(BaseModel):
+    """Driving Licence suspension or disqualification risk for a traffic violation."""
+    model_config = ConfigDict(frozen=True)
+
+    violation_key: str
+    description: str
+    risk_level: Literal["none", "caution", "high", "automatic"]
+    statutory_basis: str
+    citizen_action: str
+    is_automatic: bool
+    legal_note: str

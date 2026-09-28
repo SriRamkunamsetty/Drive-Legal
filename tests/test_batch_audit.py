@@ -182,7 +182,7 @@ def test_state_compounding_relief_stats():
     """Verify extraction and percentage calculation of Section 200 state relief rates."""
     stats = app_core.get_state_compounding_relief_stats()
     assert isinstance(stats, list)
-    assert len(stats) == 8
+    assert len(stats) == 13
 
     states = {s["state"] for s in stats}
     assert "Gujarat" in states
