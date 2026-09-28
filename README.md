@@ -23,6 +23,8 @@ DriveLegal India is an **offline informational reference and challan estimator**
 | API request observability | Every FastAPI response carries an `X-Request-ID` trace identifier (client-supplied or generated) and an `X-Process-Time-Ms` latency header for local diagnostics, with no external telemetry call |
 | Offline runtime | Loads all application data locally and does not require a runtime API or remote image |
 | Automated CI & tests | Matrix testing across Python 3.11, 3.12, and 3.13 covering schema validation and calculator behavior |
+| Fleet audit analytics | Executive KPI dashboard (compliance, overcharge, and savings-opportunity rates) with state and violation breakdowns computed from a batch challan audit, exposed via `GET/POST /api/v1/fleet/analytics` and a Streamlit bar chart |
+| Comparative compounding relief stats | Per-state average financial relief percentage between central Section 200 fines and verified state-compounded fees, exposed via `GET /api/v1/compounding-relief-stats` |
 
 ## Project structure
 
