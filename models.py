@@ -447,3 +447,54 @@ class OffenceRiskProfileResponse(BaseModel):
     statutory_basis: str
     recommendation: str
 
+
+# --- Vehicle Scrappage Policy & EV Concession Models ---
+class ScrappageIncentiveRequest(BaseModel):
+    """Input payload to compute vehicle scrappage Certificate of Deposit (CoD) benefits."""
+    model_config = ConfigDict(extra="forbid")
+
+    vehicle_type: str = Field(..., min_length=2, max_length=50)
+    new_vehicle_ex_showroom: float = Field(..., gt=0)
+    state: str = Field(..., min_length=2, max_length=50)
+    vehicle_age_years: int = Field(..., ge=0, le=100)
+    is_transport: bool = False
+
+
+class ScrappageIncentiveResponse(BaseModel):
+    """Vehicle scrappage incentives, rebates, and fee waivers under MoRTH G.S.R. 653(E)."""
+    model_config = ConfigDict(frozen=True)
+
+    vehicle_type: str
+    new_vehicle_ex_showroom: float
+    state: str
+    vehicle_age_years: int
+    is_transport: bool
+    is_eligible: bool
+    minimum_scrappage_age: int
+    scrap_value_estimate: float
+    oem_discount_estimate: float
+    estimated_road_tax: float
+    road_tax_rebate: float
+    road_tax_rebate_pct: float
+    registration_fee_waiver: float
+    total_financial_benefits: float
+    statutory_advisory: str
+    statutory_authority: dict[str, str]
+
+
+class EVConcessionsResponse(BaseModel):
+    """Statutory privileges and tax concessions for Electric Vehicles (Green Plate)."""
+    model_config = ConfigDict(frozen=True)
+
+    state: str
+    vehicle_category: str
+    policy_name: str
+    road_tax_concession_pct: float
+    registration_fee_concession_pct: float
+    permit_exemption_active: bool
+    zero_emission_urban_delivery: bool
+    green_plate_specification: str
+    statutory_permit_exemption_basis: str
+    legal_advisory: str
+
+
