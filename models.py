@@ -447,3 +447,80 @@ class OffenceRiskProfileResponse(BaseModel):
     statutory_basis: str
     recommendation: str
 
+
+# --- Commercial Driver Rest Hours & HAZCHEM Carriage Models ---
+class DriverHoursViolationItem(BaseModel):
+    """Specific statutory working hours violation under MTWA 1961."""
+    model_config = ConfigDict(frozen=True)
+
+    section: str
+    issue: str
+    severity: Literal["HIGH", "CRITICAL"]
+
+
+class DriverFatigueAuditRequest(BaseModel):
+    """Input payload to audit commercial driver working hours."""
+    model_config = ConfigDict(extra="forbid")
+
+    continuous_driving_hours: float = Field(..., ge=0)
+    daily_working_hours: float = Field(..., ge=0)
+    weekly_working_hours: float = Field(..., ge=0)
+    rest_interval_minutes: int = Field(..., ge=0)
+    is_long_distance: bool = False
+
+
+class DriverFatigueAuditResponse(BaseModel):
+    """Compliance result of driver fatigue and rest hours audit."""
+    model_config = ConfigDict(frozen=True)
+
+    continuous_driving_hours: float
+    daily_working_hours: float
+    weekly_working_hours: float
+    rest_interval_minutes: int
+    is_long_distance: bool
+    compliance_status: Literal["COMPLIANT", "MODERATE_FATIGUE_RISK", "UNLAWFUL_EXCESSIVE_HOURS"]
+    statutory_limits: dict[str, float]
+    violations_count: int
+    violations: list[DriverHoursViolationItem]
+    safety_advisory: str
+    statutory_authority: dict[str, str]
+
+
+class HazchemChecklistItem(BaseModel):
+    """Specific HAZCHEM safety equipment verification item."""
+    model_config = ConfigDict(frozen=True)
+
+    item: str
+    rule: str
+    satisfied: bool
+    weight: int
+
+
+class HazchemCarriageAuditRequest(BaseModel):
+    """Input payload to audit dangerous goods transport compliance."""
+    model_config = ConfigDict(extra="forbid")
+
+    un_class_id: int = Field(..., ge=1, le=9)
+    has_eip_display: bool = False
+    has_tremcard: bool = False
+    has_hazardous_dl_endorsement: bool = False
+    has_spark_arrester: bool = False
+    has_fire_extinguisher: bool = False
+
+
+class HazchemCarriageAuditResponse(BaseModel):
+    """Hazardous goods transport compliance audit response."""
+    model_config = ConfigDict(frozen=True)
+
+    un_class_id: int
+    hazard_class_name: str
+    cargo_example: str
+    compliance_score: int = Field(..., ge=0, le=100)
+    compliance_status: Literal["FULLY_COMPLIANT", "SERIOUS_SAFETY_DEFICIT", "CRITICAL_PROSECUTION_RISK"]
+    checklist: list[HazchemChecklistItem]
+    missing_items: list[str]
+    statutory_advisory: str
+    penalty_risk: str
+    statutory_authority: dict[str, str]
+
+
