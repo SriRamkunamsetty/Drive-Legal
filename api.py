@@ -36,7 +36,12 @@ from models import (
     MultiChallanResponse,
     SingleCalculationRequest,
     SingleCalculationResponse,
+    WomenDriverSafeguardRequest,
+    WomenDriverSafeguardResponse,
+    GoodSamaritanCertificateRequest,
+    GoodSamaritanCertificateResponse,
 )
+
 
 app = FastAPI(
     title="DriveLegal India — Traffic Law & Challan Engine API",
@@ -457,7 +462,6 @@ def accident_compensation_estimate_endpoint(
             detail=f"Compensation estimate error: {exc}",
         ) from exc
 
-
 @app.post(
     "/api/v1/offence-risk-profile",
     response_model=OffenceRiskProfileResponse,
@@ -475,3 +479,44 @@ def get_offence_risk_profile_endpoint(
         return OffenceRiskProfileResponse.model_validate(result)
     except app_core.CalculatorInputError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
+
+@app.post(
+    "/api/v1/safeguards/women-driver",
+    response_model=WomenDriverSafeguardResponse,
+    tags=["safeguards"],
+    summary="Evaluate Women Motorist On-Road Safeguards (Sec 46(4) CrPC / Sec 35 BNSS)",
+)
+def get_women_safeguards_endpoint(request: WomenDriverSafeguardRequest) -> WomenDriverSafeguardResponse:
+    """Evaluate statutory rights, night-time arrest bans, and immediate actions for women motorists."""
+    try:
+        result = app_core.get_women_motorist_safeguards(
+            is_night_time=request.is_night_time,
+            female_officer_present=request.female_officer_present,
+            alone_in_vehicle=request.alone_in_vehicle,
+        )
+        return WomenDriverSafeguardResponse.model_validate(result)
+    except app_core.CalculatorInputError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
+
+@app.post(
+    "/api/v1/safeguards/good-samaritan-charter",
+    response_model=GoodSamaritanCertificateResponse,
+    tags=["safeguards"],
+    summary="Generate Statutory Good Samaritan Immunity Certificate (Sec 134A MVA)",
+)
+def generate_good_samaritan_endpoint(request: GoodSamaritanCertificateRequest) -> GoodSamaritanCertificateResponse:
+    """Generate a formal Good Samaritan Immunity Notice protecting accident rescuers from liability and harassment."""
+    try:
+        result = app_core.generate_good_samaritan_certificate(
+            rescuer_name=request.rescuer_name,
+            accident_location=request.accident_location,
+            incident_date=request.incident_date,
+            hospital_name=request.hospital_name,
+            victim_transported=request.victim_transported,
+        )
+        return GoodSamaritanCertificateResponse.model_validate(result)
+    except app_core.CalculatorInputError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+

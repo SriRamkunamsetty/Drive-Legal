@@ -447,3 +447,75 @@ class OffenceRiskProfileResponse(BaseModel):
     statutory_basis: str
     recommendation: str
 
+
+# --- Women Motorist Safeguards & Good Samaritan Models ---
+class WomenProtectiveRuleItem(BaseModel):
+    """Specific statutory safeguard item for women motorists."""
+    model_config = ConfigDict(frozen=True)
+
+    id: str
+    title: str
+    statutory_citation: str
+    rule: str
+    citizen_instruction: str
+
+
+class WomenDriverSafeguardRequest(BaseModel):
+    """Input payload to evaluate women motorist rights."""
+    model_config = ConfigDict(extra="forbid")
+
+    is_night_time: bool = False
+    female_officer_present: bool = True
+    alone_in_vehicle: bool = False
+
+
+class WomenDriverSafeguardResponse(BaseModel):
+    """Response detailing on-road rights and emergency legal directives."""
+    model_config = ConfigDict(frozen=True)
+
+    is_night_time: bool
+    female_officer_present: bool
+    alone_in_vehicle: bool
+    advisory_level: Literal["STANDARD_PROCEDURE", "ELEVATED_CAUTION", "CRITICAL_SAFEGUARD_ALERT"]
+    action_summary: str
+    immediate_actions: list[str]
+    applicable_safeguards: list[WomenProtectiveRuleItem]
+    statutory_references: dict[str, str]
+
+
+class GoodSamaritanCharterItem(BaseModel):
+    """Statutory guarantee clause under Good Samaritan regulations."""
+    model_config = ConfigDict(frozen=True)
+
+    guarantee_id: str
+    title: str
+    statutory_basis: str
+    clause: str
+
+
+class GoodSamaritanCertificateRequest(BaseModel):
+    """Input payload to generate Good Samaritan Immunity Certificate."""
+    model_config = ConfigDict(extra="forbid")
+
+    rescuer_name: str = Field(..., min_length=2, max_length=100)
+    accident_location: str = Field(..., min_length=3, max_length=200)
+    incident_date: str = Field(..., min_length=4, max_length=50)
+    hospital_name: str = Field(..., min_length=2, max_length=150)
+    victim_transported: bool = True
+
+
+class GoodSamaritanCertificateResponse(BaseModel):
+    """Formal Immunity Notice and Charter for Good Samaritans."""
+    model_config = ConfigDict(frozen=True)
+
+    rescuer_name: str
+    accident_location: str
+    incident_date: str
+    hospital_name: str
+    victim_transported: bool
+    notice_text: str
+    statutory_clauses: list[GoodSamaritanCharterItem]
+    supreme_court_citation: str
+    statutory_basis: str
+
+
