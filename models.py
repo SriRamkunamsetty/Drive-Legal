@@ -447,3 +447,58 @@ class OffenceRiskProfileResponse(BaseModel):
     statutory_basis: str
     recommendation: str
 
+
+# --- Inter-State Vehicle Relocation & Road Tax Refund Models ---
+class InterstateRelocationAuditRequest(BaseModel):
+    """Input payload to evaluate vehicle inter-state stay compliance under Sec 47 MVA."""
+    model_config = ConfigDict(extra="forbid")
+
+    origin_state: str = Field(..., min_length=2, max_length=50)
+    destination_state: str = Field(..., min_length=2, max_length=50)
+    stay_duration_months: int = Field(..., ge=0, le=240)
+    has_noc: bool = False
+
+
+class InterstateRelocationAuditResponse(BaseModel):
+    """Compliance audit under Section 47 (12-month rule) and Section 48 (NOC)."""
+    model_config = ConfigDict(frozen=True)
+
+    origin_state: str
+    destination_state: str
+    stay_duration_months: int
+    grace_period_months: int
+    is_within_grace_period: bool
+    re_registration_required: bool
+    status_code: Literal["INTRA_STATE_OPERATION", "WITHIN_STATUTORY_GRACE_PERIOD", "RE_REGISTRATION_MANDATORY"]
+    legal_advisory: str
+    noc_status_advisory: str
+    required_documents: list[str]
+    statutory_provisions: dict[str, str]
+
+
+class RoadTaxRefundRequest(BaseModel):
+    """Input payload to compute pro-rata road tax refund."""
+    model_config = ConfigDict(extra="forbid")
+
+    original_road_tax_paid: float = Field(..., gt=0)
+    vehicle_age_months: int = Field(..., ge=0, le=300)
+    origin_state: str = Field(..., min_length=2, max_length=50)
+    destination_state: str = Field(..., min_length=2, max_length=50)
+
+
+class RoadTaxRefundResponse(BaseModel):
+    """Pro-rata refund calculation for parent state motor vehicle tax."""
+    model_config = ConfigDict(frozen=True)
+
+    origin_state: str
+    destination_state: str
+    original_road_tax_paid: float
+    vehicle_age_months: int
+    statutory_lifespan_months: int
+    unused_lifespan_months: int
+    refund_percentage: float
+    eligible_refund_amount: float
+    advisory: str
+    claim_procedure: str
+
+
