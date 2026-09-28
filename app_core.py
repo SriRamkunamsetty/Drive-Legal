@@ -1451,3 +1451,110 @@ def get_offence_risk_profile(violation_keys: list[str]) -> dict[str, Any]:
         ),
         "recommendation": recommendation,
     }
+
+
+# ---------------------------------------------------------------------------
+# National Lok Adalat Challan Settlement & Concession Engine (Legal Services Authorities Act 1987)
+# ---------------------------------------------------------------------------
+
+LOK_ADALAT_RULES: dict[str, Any] = _read_json("lok_adalat_rules.json")
+
+
+def get_lok_adalat_schedules() -> dict[str, Any]:
+    """Return National Lok Adalat quarterly schedules, legal authority, and SLSA state policies."""
+    return {
+        "title": LOK_ADALAT_RULES["title"],
+        "statutory_basis": LOK_ADALAT_RULES["statutory_basis"],
+        "authority": LOK_ADALAT_RULES["authority"],
+        "award_finality": LOK_ADALAT_RULES["award_finality"],
+        "quarterly_calendar": LOK_ADALAT_RULES["quarterly_calendar"],
+        "state_policies": LOK_ADALAT_RULES["state_concession_policies"],
+        "non_compoundable_offences": LOK_ADALAT_RULES["non_compoundable_offences"],
+    }
+
+
+def calculate_lok_adalat_concession(
+    violation_keys: list[str],
+    state: str = "Delhi",
+) -> dict[str, Any]:
+    """Estimate Lok Adalat financial relief, waiver percentage, and procedural settlement steps.
+
+    Args:
+        violation_keys: List of offence keys from NATIONAL_FINES.
+        state: State where challans were issued (e.g. 'Delhi', 'Karnataka', 'Maharashtra').
+
+    Returns:
+        dict with total nominal fine, compoundable sum, non-compoundable sum,
+        estimated Lok Adalat payable, savings, and procedural guidance.
+    """
+    if not violation_keys:
+        raise CalculatorInputError("violation_keys must be a non-empty list.")
+
+    invalid = [k for k in violation_keys if k not in NATIONAL_FINES]
+    if invalid:
+        raise CalculatorInputError(f"Unknown violation keys: {invalid!r}")
+    state_norm = state.strip()
+    policies = LOK_ADALAT_RULES.get("state_concession_policies", {})
+    policy = policies.get(state_norm, policies.get("DEFAULT", {}))
+    concession_pct = policy.get("average_concession_pct", 50.0)
+
+    non_compoundable_set = set(LOK_ADALAT_RULES.get("non_compoundable_offences", []))
+
+    total_nominal = 0.0
+    compoundable_sum = 0.0
+    non_compoundable_sum = 0.0
+    compoundable_items = []
+    non_compoundable_items = []
+
+    for key in violation_keys:
+        rec = NATIONAL_FINES[key]
+        fine = float(rec["fine"])
+        total_nominal += fine
+
+        if key in non_compoundable_set or rec.get("dl_suspension_risk") == "automatic":
+            non_compoundable_sum += fine
+            non_compoundable_items.append({
+                "violation_key": key,
+                "description": rec["description"],
+                "fine": fine,
+                "ineligibility_reason": "Non-compoundable criminal offence or mandatory DL suspension under MVA. Must be tried before regular court.",
+            })
+        else:
+            compoundable_sum += fine
+            compoundable_items.append({
+                "violation_key": key,
+                "description": rec["description"],
+                "nominal_fine": fine,
+                "estimated_settlement": round(fine * (1.0 - (concession_pct / 100.0)), 2),
+            })
+
+    estimated_compoundable_payable = round(compoundable_sum * (1.0 - (concession_pct / 100.0)), 2)
+    estimated_total_payable = round(estimated_compoundable_payable + non_compoundable_sum, 2)
+    total_savings = round(total_nominal - estimated_total_payable, 2)
+    effective_concession_pct = round((total_savings / total_nominal) * 100.0, 1) if total_nominal > 0 else 0.0
+
+    procedural_steps = [
+        "1. Check Pending Challans: Visit Parivahan e-Challan portal to verify notice numbers and vehicle registration.",
+        f"2. Online Token Booking: Access the {policy.get('slsa_name', 'SLSA')} Lok Adalat portal ({policy.get('token_portal', 'https://nalsa.gov.in')}) 7-10 days before the scheduled Lok Adalat date.",
+        "3. Download Token Slip: Print your token slip containing designated Court Complex, Bench Number, and allocated time slot.",
+        "4. Appearance & Disposal: Present the token slip before the Lok Adalat bench. Pay the compromised token amount digitally or at the court counter to receive a formal Final Disposal Award under Section 21 Legal Services Authorities Act (no further appeal/prosecution)."
+    ]
+
+    return {
+        "state": state_norm,
+        "slsa_name": policy.get("slsa_name", "State Legal Services Authority"),
+        "token_portal": policy.get("token_portal", "https://nalsa.gov.in"),
+        "offence_count": len(violation_keys),
+        "total_nominal_fine": total_nominal,
+        "compoundable_fine_sum": compoundable_sum,
+        "non_compoundable_fine_sum": non_compoundable_sum,
+        "estimated_lok_adalat_payable": estimated_total_payable,
+        "estimated_savings": total_savings,
+        "effective_concession_pct": effective_concession_pct,
+        "state_standard_concession_pct": concession_pct,
+        "compoundable_items": compoundable_items,
+        "non_compoundable_items": non_compoundable_items,
+        "procedural_steps": procedural_steps,
+        "statutory_basis": LOK_ADALAT_RULES["statutory_basis"],
+        "award_finality": LOK_ADALAT_RULES["award_finality"],
+    }

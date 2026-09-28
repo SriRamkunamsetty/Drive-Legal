@@ -18,6 +18,9 @@ from models import (
     AccidentClaimGuideEntry,
     AccidentCompensationEstimateRequest,
     AccidentCompensationEstimateResponse,
+    LokAdalatScheduleModel,
+    LokAdalatConcessionRequest,
+    LokAdalatConcessionResponse,
     DLSuspensionRiskResponse,
     OffenceRiskProfileRequest,
     OffenceRiskProfileResponse,
@@ -408,6 +411,7 @@ def get_dl_risk_endpoint(violation_key: str) -> DLSuspensionRiskResponse:
     except app_core.CalculatorInputError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
+
 @app.get(
     "/api/v1/accident-claim-guide",
     response_model=list[AccidentClaimGuideEntry],
@@ -475,3 +479,40 @@ def get_offence_risk_profile_endpoint(
         return OffenceRiskProfileResponse.model_validate(result)
     except app_core.CalculatorInputError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
+
+@app.get(
+    "/api/v1/lok-adalat/schedules",
+    response_model=LokAdalatScheduleModel,
+    tags=["lok_adalat"],
+    summary="National Lok Adalat Quarterly Calendar and State SLSA Policies",
+)
+def get_lok_adalat_schedules_endpoint() -> LokAdalatScheduleModel:
+    """Retrieve National Lok Adalat calendar quarters, legal authority, and state concession rates."""
+    data = app_core.get_lok_adalat_schedules()
+    return LokAdalatScheduleModel.model_validate(data)
+
+
+@app.post(
+    "/api/v1/lok-adalat/concession-estimate",
+    response_model=LokAdalatConcessionResponse,
+    tags=["lok_adalat"],
+    summary="Estimate National Lok Adalat Challan Settlement Concession and Procedures",
+)
+def calculate_lok_adalat_concession_endpoint(
+    payload: LokAdalatConcessionRequest,
+) -> LokAdalatConcessionResponse:
+    """Estimate financial waiver and compromise settlement amount for pending traffic challans at National Lok Adalat."""
+    try:
+        res = app_core.calculate_lok_adalat_concession(
+            violation_keys=payload.violation_keys,
+            state=payload.state,
+        )
+        return LokAdalatConcessionResponse.model_validate(res)
+    except app_core.CalculatorInputError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Lok Adalat concession error: {exc}",
+        ) from exc
