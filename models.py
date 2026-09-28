@@ -447,3 +447,52 @@ class OffenceRiskProfileResponse(BaseModel):
     statutory_basis: str
     recommendation: str
 
+
+class ChallanThreatFlag(BaseModel):
+    """Specific threat indicator flag detected by the cyber scanner."""
+    model_config = ConfigDict(frozen=True)
+
+    indicator: str
+    severity: Literal["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+    detail: str
+
+
+class StatutoryCyberRecourse(BaseModel):
+    """Statutory remedies and reporting authorities under IT Act."""
+    model_config = ConfigDict(frozen=True)
+
+    it_act: str
+    helpline: str
+    portal: str
+    action: str
+
+
+class ChallanThreatScanRequest(BaseModel):
+    """Input payload for scanning an SMS, notification, or URL."""
+    model_config = ConfigDict(extra="forbid")
+
+    message_text: str = Field(..., min_length=3, max_length=2000, description="Raw text of the SMS, alert, or link received")
+
+
+class ChallanThreatScanResponse(BaseModel):
+    """Response payload detailing threat analysis and scam risk."""
+    model_config = ConfigDict(frozen=True)
+
+    text_sample: str
+    threat_score: int = Field(..., ge=0, le=100)
+    risk_level: Literal["SAFE", "SUSPICIOUS", "HIGH_RISK_FRAUD"]
+    extracted_domains: list[str]
+    is_official_domain: bool
+    detected_flags: list[ChallanThreatFlag]
+    recommendation: str
+    statutory_recourse: StatutoryCyberRecourse
+
+
+class TrustedPortalsResponse(BaseModel):
+    """List of verified official state and central traffic challan portals."""
+    model_config = ConfigDict(frozen=True)
+
+    trusted_domains: list[str]
+    total_count: int
+
+

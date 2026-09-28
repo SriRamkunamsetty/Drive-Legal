@@ -36,7 +36,11 @@ from models import (
     MultiChallanResponse,
     SingleCalculationRequest,
     SingleCalculationResponse,
+    ChallanThreatScanRequest,
+    ChallanThreatScanResponse,
+    TrustedPortalsResponse,
 )
+
 
 app = FastAPI(
     title="DriveLegal India — Traffic Law & Challan Engine API",
@@ -408,6 +412,7 @@ def get_dl_risk_endpoint(violation_key: str) -> DLSuspensionRiskResponse:
     except app_core.CalculatorInputError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
+
 @app.get(
     "/api/v1/accident-claim-guide",
     response_model=list[AccidentClaimGuideEntry],
@@ -475,3 +480,31 @@ def get_offence_risk_profile_endpoint(
         return OffenceRiskProfileResponse.model_validate(result)
     except app_core.CalculatorInputError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
+
+@app.post(
+    "/api/v1/cyber/scan-challan-message",
+    response_model=ChallanThreatScanResponse,
+    tags=["cyber_defense"],
+    summary="Scan Challan SMS or Link for Phishing/Fraud (Sec 66D IT Act)",
+)
+def scan_challan_endpoint(request: ChallanThreatScanRequest) -> ChallanThreatScanResponse:
+    """Offline heuristic scanning of traffic challan SMS alerts and URLs for phishing indicators."""
+    try:
+        result = app_core.scan_challan_message(request.message_text)
+        return ChallanThreatScanResponse.model_validate(result)
+    except app_core.CalculatorInputError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
+
+@app.get(
+    "/api/v1/cyber/trusted-domains",
+    response_model=TrustedPortalsResponse,
+    tags=["cyber_defense"],
+    summary="Get List of Verified Official Traffic Challan Domains",
+)
+def get_trusted_domains_endpoint() -> TrustedPortalsResponse:
+    """Return verified official central and state government e-challan portals."""
+    domains = app_core.get_trusted_challan_portals()
+    return TrustedPortalsResponse(trusted_domains=domains, total_count=len(domains))
+
