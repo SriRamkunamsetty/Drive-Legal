@@ -18,6 +18,9 @@ from models import (
     AccidentClaimGuideEntry,
     AccidentCompensationEstimateRequest,
     AccidentCompensationEstimateResponse,
+    AxleConfigurationModel,
+    OverloadingCalculationRequest,
+    OverloadingCalculationResponse,
     DLSuspensionRiskResponse,
     OffenceRiskProfileRequest,
     OffenceRiskProfileResponse,
@@ -408,6 +411,7 @@ def get_dl_risk_endpoint(violation_key: str) -> DLSuspensionRiskResponse:
     except app_core.CalculatorInputError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
+
 @app.get(
     "/api/v1/accident-claim-guide",
     response_model=list[AccidentClaimGuideEntry],
@@ -475,3 +479,43 @@ def get_offence_risk_profile_endpoint(
         return OffenceRiskProfileResponse.model_validate(result)
     except app_core.CalculatorInputError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
+
+@app.get(
+    "/api/v1/commercial/axle-limits",
+    response_model=list[AxleConfigurationModel],
+    tags=["commercial"],
+    summary="MoRTH Statutory Safe Axle Weight Configurations (S.O. 2822(E))",
+)
+def get_axle_limits_endpoint() -> list[AxleConfigurationModel]:
+    """Retrieve MoRTH statutory safe axle weight limits and configurations for commercial transport."""
+    configs = app_core.get_safe_axle_configurations()
+    return [AxleConfigurationModel.model_validate(c) for c in configs]
+
+
+@app.post(
+    "/api/v1/commercial/overloading-calculator",
+    response_model=OverloadingCalculationResponse,
+    tags=["commercial"],
+    summary="Commercial Vehicle Overloading Penalty Calculator (Sec 194(1) MVA)",
+)
+def calculate_overloading_endpoint(
+    payload: OverloadingCalculationRequest,
+) -> OverloadingCalculationResponse:
+    """Compute statutory overloading penalties under Section 194(1) and 194(2) MVA 1988/2019,
+    including base penalty (Rs 20k), per-tonne excess rate (Rs 2k/tonne), and offloading liabilities."""
+    try:
+        res = app_core.calculate_overloading_penalty(
+            registered_gvw_tonnes=payload.registered_gvw_tonnes,
+            actual_weight_tonnes=payload.actual_weight_tonnes,
+            axle_configuration=payload.axle_configuration,
+            refused_weighment=payload.refused_weighment,
+        )
+        return OverloadingCalculationResponse.model_validate(res)
+    except app_core.CalculatorInputError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Overloading calculation error: {exc}",
+        ) from exc
