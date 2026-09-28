@@ -729,7 +729,6 @@ def generate_dispute_representation(
         additional_section = f"\nAdditional Facts & Narrative:\n{additional_facts.strip()}\n"
 
     letter = f"""FORMAL LEGAL REPRESENTATION / GRIEVANCE UNDER THE MOTOR VEHICLES ACT, 1988
-================================================================================
 
 To,
 The Competent Enforcement Authority / Grievance Redressal Cell,
@@ -1356,4 +1355,99 @@ def get_accident_compensation_estimate(
             "This estimate is based on Supreme Court guidelines and statutory floors only. "
             "Actual MACT award depends on proved medical bills, income evidence, and judicial discretion."
         ),
+    }
+
+
+# Number of offences in 2 years that triggers Sec 206 habitual offender review
+_HABITUAL_OFFENDER_THRESHOLD = 3
+
+
+def get_offence_risk_profile(violation_keys: list[str]) -> dict[str, Any]:
+    """Compute a cumulative Driving Licence risk profile across multiple violations.
+
+    Assesses whether the combination of offences triggers the habitual offender
+    threshold under Sec 206 MVA (3 or more offences in a 2-year period),
+    and returns the single highest risk level encountered.
+
+    Args:
+        violation_keys: List of valid violation keys from ``NATIONAL_FINES``.
+            May contain duplicates (e.g., repeat speeding tickets).
+
+    Returns:
+        dict with ``offence_count``, ``highest_risk_level``, ``automatic_offences``,
+        ``high_risk_offences``, ``caution_offences``, ``is_habitual_offender_risk``,
+        ``habitual_offender_threshold``, ``statutory_basis``, and ``recommendation``.
+
+    Raises:
+        CalculatorInputError: If ``violation_keys`` is empty or any key is invalid.
+    """
+    if not violation_keys:
+        raise CalculatorInputError("violation_keys must be a non-empty list.")
+
+    # Validate each key
+    invalid = [k for k in violation_keys if k not in NATIONAL_FINES]
+    if invalid:
+        raise CalculatorInputError(f"Unknown violation keys: {invalid!r}")
+
+    RISK_ORDER = {"none": 0, "caution": 1, "high": 2, "automatic": 3}
+
+    automatic_offences: list[str] = []
+    high_risk_offences: list[str] = []
+    caution_offences: list[str] = []
+    max_risk_level = "none"
+
+    for key in violation_keys:
+        risk = NATIONAL_FINES[key].get("dl_suspension_risk", "none")
+        if RISK_ORDER[risk] > RISK_ORDER[max_risk_level]:
+            max_risk_level = risk
+        if risk == "automatic":
+            automatic_offences.append(key)
+        elif risk == "high":
+            high_risk_offences.append(key)
+        elif risk == "caution":
+            caution_offences.append(key)
+
+    is_habitual = len(violation_keys) >= _HABITUAL_OFFENDER_THRESHOLD
+
+    if automatic_offences:
+        recommendation = (
+            "Engage a traffic law advocate immediately. One or more offences carry mandatory "
+            "DL suspension/disqualification. Court proceedings are likely."
+        )
+    elif high_risk_offences and is_habitual:
+        recommendation = (
+            "You are at serious risk of DL suspension under Sec 19/206 MVA. "
+            "The combination of high-risk offences AND the number of violations (>= 3) "
+            "places you firmly in the habitual offender category. Engage an advocate."
+        )
+    elif high_risk_offences:
+        recommendation = (
+            "One or more offences carry a HIGH risk of DL suspension. "
+            "Pay challans promptly and avoid further traffic violations."
+        )
+    elif is_habitual:
+        recommendation = (
+            "You have reached the habitual offender threshold (>= 3 offences). "
+            "Even though individual offences are low-risk, Sec 206 MVA empowers traffic "
+            "authorities to spot-disqualify habitual offenders. Reduce violations immediately."
+        )
+    else:
+        recommendation = (
+            "Current DL risk is low. Pay challans on time and maintain a clean driving record."
+        )
+
+    return {
+        "offence_count": len(violation_keys),
+        "highest_risk_level": max_risk_level,
+        "automatic_offences": automatic_offences,
+        "high_risk_offences": high_risk_offences,
+        "caution_offences": caution_offences,
+        "is_habitual_offender_risk": is_habitual,
+        "habitual_offender_threshold": _HABITUAL_OFFENDER_THRESHOLD,
+        "statutory_basis": (
+            "Sec 19 MVA (DL suspension by licensing authority), "
+            "Sec 206 MVA (spot disqualification for habitual offenders — 3+ offences in 2 years), "
+            "Sec 24 MVA (court-ordered disqualification)."
+        ),
+        "recommendation": recommendation,
     }

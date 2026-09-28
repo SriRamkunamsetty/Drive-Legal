@@ -355,9 +355,10 @@ class StateCompoundingReliefStatModel(BaseModel):
     state_compounded_sum: float
     average_relief_pct: float
 
+# --- Driving Licence Suspension Risk Engine Models (Sec 19, 24, 206 MVA) ---
 
 class DLSuspensionRiskResponse(BaseModel):
-    """Driving Licence suspension or disqualification risk for a traffic violation."""
+    """Driving Licence suspension or disqualification risk for a single traffic violation."""
     model_config = ConfigDict(frozen=True)
 
     violation_key: str
@@ -421,4 +422,28 @@ class AccidentCompensationEstimateResponse(BaseModel):
     components: dict[str, Any]
     statutory_basis: str
     disclaimer: str
+
+
+class OffenceRiskProfileRequest(BaseModel):
+    """Request to compute cumulative DL risk across multiple violations."""
+    model_config = ConfigDict(extra="forbid")
+
+    violation_keys: list[str] = Field(
+        ...,
+        min_length=1,
+        description="List of violation keys to compute risk profile for. May contain duplicates.",
+    )
+
+
+class OffenceRiskProfileResponse(BaseModel):
+    """Cumulative Driving Licence risk profile across multiple violations."""
+    offence_count: int
+    highest_risk_level: Literal["none", "caution", "high", "automatic"]
+    automatic_offences: list[str]
+    high_risk_offences: list[str]
+    caution_offences: list[str]
+    is_habitual_offender_risk: bool
+    habitual_offender_threshold: int
+    statutory_basis: str
+    recommendation: str
 
