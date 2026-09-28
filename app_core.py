@@ -1195,3 +1195,165 @@ def get_dl_suspension_risk(violation_key: str) -> dict[str, Any]:
         "is_automatic": risk == "automatic",
         "legal_note": rec.get("legal_note", ""),
     }
+
+
+# ---------------------------------------------------------------------------
+# Motor Accident Claim Guide & Compensation Estimator (Sec 161–166 MVA)
+# ---------------------------------------------------------------------------
+
+ACCIDENT_CLAIM_GUIDE: list[dict[str, Any]] = _read_json("accident_claim_guide.json")
+
+
+def get_accident_claim_guide() -> list[dict[str, Any]]:
+    """Return the complete offline motor accident claim guide.
+
+    Covers Hit-and-Run Compensation (Sec 161–163), No-Fault Structured
+    Compensation (Sec 164), MACT Petition procedure (Sec 165–176),
+    Own Damage insurance claim, and victim rights at the accident scene.
+    """
+    return ACCIDENT_CLAIM_GUIDE
+
+
+def get_accident_compensation_estimate(
+    accident_type: str,
+    monthly_income: float | None = None,
+    age: int | None = None,
+) -> dict[str, Any]:
+    """Estimate statutory compensation for a road accident victim.
+
+    Applies the Supreme Court's Pranay Sethi / Sarla Verma multiplier
+    methodology for fatal and grievous hurt cases.
+
+    Args:
+        accident_type: One of ``'hit_and_run_death'``, ``'hit_and_run_grievous'``,
+            ``'fatal'``, ``'grievous_hurt'``, ``'simple_hurt'``.
+        monthly_income: Victim's monthly income in INR (None = unknown/not employed).
+        age: Victim's age in years (None = unknown).
+
+    Returns:
+        dict with ``accident_type``, ``statutory_minimum``, ``estimated_compensation``,
+        ``methodology``, ``components``, and ``statutory_basis``.
+    """
+    VALID_TYPES = {
+        "hit_and_run_death", "hit_and_run_grievous",
+        "fatal", "grievous_hurt", "simple_hurt",
+    }
+    if accident_type not in VALID_TYPES:
+        raise CalculatorInputError(
+            f"Invalid accident_type {accident_type!r}. Must be one of: {sorted(VALID_TYPES)}"
+        )
+
+    # Sarla Verma / Pranay Sethi multiplier chart (age → multiplier)
+    AGE_MULTIPLIER: list[tuple[int, int]] = [
+        (15, 20), (20, 18), (25, 17), (30, 16),
+        (35, 15), (40, 14), (45, 13), (50, 11),
+        (55, 9),  (60, 7),  (65, 5),  (999, 4),
+    ]
+
+    def _multiplier(victim_age: int) -> int:
+        for threshold, mult in AGE_MULTIPLIER:
+            if victim_age <= threshold:
+                return mult
+        return 4
+
+    components: dict[str, float] = {}
+    statutory_minimum = 0
+    estimated = 0
+    methodology = ""
+    statutory_basis = ""
+
+    if accident_type == "hit_and_run_death":
+        statutory_minimum = 200000
+        estimated = statutory_minimum
+        methodology = "Fixed solatium under Sec 162 MVA — no income/fault proof needed."
+        statutory_basis = "Sections 161–163 MVA, MoRTH Notification S.O. 3454(E) (2022)"
+        components = {"solatium_death": float(statutory_minimum)}
+
+    elif accident_type == "hit_and_run_grievous":
+        statutory_minimum = 50000
+        estimated = statutory_minimum
+        methodology = "Fixed solatium under Sec 162 MVA — no income/fault proof needed."
+        statutory_basis = "Sections 161–163 MVA, MoRTH Notification S.O. 3454(E) (2022)"
+        components = {"solatium_grievous_hurt": float(statutory_minimum)}
+
+    elif accident_type == "fatal":
+        statutory_minimum = 500000  # Sec 164 floor
+        methodology = "Structured formula: Pranay Sethi (2017 SC) + Sarla Verma multiplier."
+        statutory_basis = "Section 164 MVA; National Insurance Co. v. Pranay Sethi (2017) 16 SCC 680"
+
+        if monthly_income and monthly_income > 0 and age and 1 <= age <= 99:
+            annual = monthly_income * 12
+            # Deduction for personal expenses (25% single, 33% two dependants — use 33%)
+            dependency = annual * (1 - 0.33)
+            multiplier = _multiplier(age)
+            loss_of_dependency = dependency * multiplier
+            # Add conventional heads (Pranay Sethi amounts)
+            funeral = 15000.0
+            estate = 15000.0
+            consortium = 40000.0
+            total = loss_of_dependency + funeral + estate + consortium
+            estimated = max(total, float(statutory_minimum))
+            components = {
+                "annual_income": round(annual, 2),
+                "dependency_deduction_pct": 33.0,
+                "loss_of_dependency": round(loss_of_dependency, 2),
+                "multiplier": float(multiplier),
+                "funeral_expenses": funeral,
+                "loss_of_estate": estate,
+                "consortium": consortium,
+                "total_estimated": round(total, 2),
+            }
+        else:
+            estimated = float(statutory_minimum)
+            components = {
+                "sec_164_structured_floor": float(statutory_minimum),
+                "note": "Income/age not provided — using Sec 164 statutory floor only.",
+            }
+
+    elif accident_type == "grievous_hurt":
+        statutory_minimum = 250000  # Sec 164 floor
+        methodology = "Structured formula: Pranay Sethi (2017 SC) — medical costs + pain/suffering."
+        statutory_basis = "Section 164 MVA; National Insurance Co. v. Pranay Sethi (2017) 16 SCC 680"
+
+        if monthly_income and monthly_income > 0 and age and 1 <= age <= 99:
+            annual = monthly_income * 12
+            # Loss of earnings during treatment period (assume 3 months)
+            lost_earnings = annual / 4
+            pain_suffering = 50000.0
+            medical_estimate = 100000.0  # Reference; actual depends on bills
+            total = lost_earnings + pain_suffering + medical_estimate
+            estimated = max(total, float(statutory_minimum))
+            components = {
+                "lost_earnings_3_months": round(lost_earnings, 2),
+                "pain_and_suffering": pain_suffering,
+                "medical_expenses_estimate": medical_estimate,
+                "total_estimated": round(total, 2),
+            }
+        else:
+            estimated = float(statutory_minimum)
+            components = {
+                "sec_164_structured_floor": float(statutory_minimum),
+                "note": "Income/age not provided — using Sec 164 statutory floor only.",
+            }
+
+    else:  # simple_hurt
+        statutory_minimum = 0
+        methodology = "Simple hurt claims adjudicated by MACT based on proven medical expenses and loss of income."
+        statutory_basis = "Section 166 MVA; Sec 166 compensation depends on proved damages — no fixed statutory floor."
+        components = {
+            "note": "No statutory minimum for simple hurt. File MACT claim with medical bills and income loss evidence.",
+        }
+        estimated = 0.0
+
+    return {
+        "accident_type": accident_type,
+        "statutory_minimum_inr": float(statutory_minimum),
+        "estimated_compensation_inr": round(float(estimated), 2),
+        "methodology": methodology,
+        "components": components,
+        "statutory_basis": statutory_basis,
+        "disclaimer": (
+            "This estimate is based on Supreme Court guidelines and statutory floors only. "
+            "Actual MACT award depends on proved medical bills, income evidence, and judicial discretion."
+        ),
+    }

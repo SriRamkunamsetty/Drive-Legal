@@ -15,10 +15,13 @@ from fastapi.middleware.cors import CORSMiddleware
 
 import app_core
 from models import (
+    AccidentClaimGuideEntry,
+    AccidentCompensationEstimateRequest,
+    AccidentCompensationEstimateResponse,
     DLSuspensionRiskResponse,
-    TrafficStopSafeguardModel,
-    FleetAuditAnalyticsResponse,
     StateCompoundingReliefStatModel,
+    FleetAuditAnalyticsResponse,
+    TrafficStopSafeguardModel,
     VehicleRegistrationResolution,
     BatchAuditRequest,
     BatchAuditResponse,
@@ -398,3 +401,52 @@ def get_dl_risk_endpoint(violation_key: str) -> DLSuspensionRiskResponse:
         return DLSuspensionRiskResponse.model_validate(result)
     except app_core.CalculatorInputError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
+@app.get(
+    "/api/v1/accident-claim-guide",
+    response_model=list[AccidentClaimGuideEntry],
+    tags=["accident_rights"],
+    summary="Motor Accident Claim Guide — Hit-and-Run, MACT, Compensation (Sec 161-166 MVA)",
+)
+def get_accident_claim_guide_endpoint(
+    id: str | None = Query(default=None, description="Optional guide entry ID to fetch a single entry"),
+) -> list[dict]:
+    """Retrieve offline statutory guide entries covering hit-and-run compensation, MACT petitions,
+    no-fault structured compensation, own-damage insurance claims, and victim rights."""
+    guide = app_core.get_accident_claim_guide()
+    if id and id.strip():
+        entry = next((g for g in guide if g["id"] == id.strip()), None)
+        if not entry:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Accident claim guide entry '{id}' not found.",
+            )
+        return [entry]
+    return guide
+
+
+@app.post(
+    "/api/v1/accident-compensation-estimate",
+    response_model=AccidentCompensationEstimateResponse,
+    tags=["accident_rights"],
+    summary="Road Accident Compensation Estimate (Pranay Sethi / Sarla Verma Formula)",
+)
+def accident_compensation_estimate_endpoint(
+    payload: AccidentCompensationEstimateRequest,
+) -> AccidentCompensationEstimateResponse:
+    """Estimate statutory compensation for a road accident victim using the Supreme Court's
+    Pranay Sethi (2017) and Sarla Verma multiplier methodology."""
+    try:
+        result = app_core.get_accident_compensation_estimate(
+            accident_type=payload.accident_type,
+            monthly_income=payload.monthly_income,
+            age=payload.age,
+        )
+        return AccidentCompensationEstimateResponse.model_validate(result)
+    except app_core.CalculatorInputError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Compensation estimate error: {exc}",
+        ) from exc
