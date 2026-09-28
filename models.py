@@ -447,3 +447,70 @@ class OffenceRiskProfileResponse(BaseModel):
     statutory_basis: str
     recommendation: str
 
+
+# --- Camera Electronic Evidence & RTI Models (CMVR 167A & Sec 136A MVA) ---
+class CameraCriterionItem(BaseModel):
+    """Evidentiary checklist item under CMVR Rule 167A."""
+    model_config = ConfigDict(frozen=True)
+
+    criterion_id: str
+    title: str
+    statutory_basis: str
+    satisfied: bool
+    weight: int
+    description: str
+
+
+class CameraEvidenceAuditRequest(BaseModel):
+    """Challan evidence compliance audit payload."""
+    model_config = ConfigDict(extra="forbid")
+
+    challan_no: str = Field(..., min_length=2, max_length=50)
+    has_clear_plate_photo: bool = False
+    has_speed_measurement_proof: bool = False
+    has_timestamp_and_gps: bool = False
+    has_statutory_citation: bool = False
+    has_evidence_act_compliance: bool = False
+    has_annual_calibration_status: bool = False
+
+
+class CameraEvidenceAuditResponse(BaseModel):
+    """Result of CMVR Rule 167A evidentiary compliance audit."""
+    model_config = ConfigDict(frozen=True)
+
+    challan_no: str
+    compliance_score: int = Field(..., ge=0, le=100)
+    compliance_status: Literal["FULLY_COMPLIANT", "SUBSTANTIALLY_DEFECTIVE", "FATALLY_DEFECTIVE"]
+    evidentiary_standing: str
+    challenge_recommended: bool
+    passed_criteria_count: int
+    failed_criteria_count: int
+    passed_items: list[CameraCriterionItem]
+    failed_items: list[CameraCriterionItem]
+    statutory_authority: dict[str, str]
+
+
+class CalibrationRTIRequest(BaseModel):
+    """Input payload to generate Section 6(1) RTI application for speed camera calibration."""
+    model_config = ConfigDict(extra="forbid")
+
+    applicant_name: str = Field(..., min_length=2, max_length=100)
+    applicant_address: str = Field(..., min_length=5, max_length=300)
+    challan_no: str = Field(..., min_length=2, max_length=50)
+    violation_date: str = Field(..., min_length=4, max_length=50)
+    camera_location: str = Field(..., min_length=3, max_length=200)
+    authority_name: str = Field("Public Information Officer (Traffic Police)", max_length=150)
+
+
+class CalibrationRTIResponse(BaseModel):
+    """Formal generated RTI application document under RTI Act 2005."""
+    model_config = ConfigDict(frozen=True)
+
+    challan_no: str
+    applicant_name: str
+    application_text: str
+    questions_included: list[str]
+    statutory_fee: str
+    legal_recourse: str
+
+

@@ -139,6 +139,13 @@ def _validate_citizen_rights(citizen_rights: Any) -> None:
     _require(len(ids) == len(set(ids)), "citizen right IDs must be unique")
 
 
+def _validate_camera_evidence_rules(rules: Any) -> None:
+    _require(isinstance(rules, dict), "camera_evidence_rules must be an object")
+    for key in ("statutory_framework", "mandatory_evidentiary_criteria", "rti_application_template"):
+        _require(key in rules and isinstance(rules[key], (list, dict)), f"missing {key} in camera_evidence_rules")
+
+
+
 def validate_data(
     national_fines: dict[str, dict[str, Any]],
     vehicle_types: dict[str, float],
@@ -338,7 +345,10 @@ TRAFFIC_STOP_SAFEGUARDS = _read_json("traffic_stop_safeguards.json")
 _validate_traffic_stop_safeguards(TRAFFIC_STOP_SAFEGUARDS)
 RTO_DIRECTORY = _read_json("rto_directory.json")
 _validate_rto_directory(RTO_DIRECTORY)
+CAMERA_EVIDENCE_RULES = _read_json("camera_evidence_rules.json")
+_validate_camera_evidence_rules(CAMERA_EVIDENCE_RULES)
 ALL_STATES = sorted(STATE_DATA)
+
 
 
 def get_source_details(source_ids: list[str]) -> list[dict[str, str]]:
@@ -1451,3 +1461,143 @@ def get_offence_risk_profile(violation_keys: list[str]) -> dict[str, Any]:
         ),
         "recommendation": recommendation,
     }
+
+# ---------------------------------------------------------------------------
+# Camera Electronic Evidence Auditor & RTI Generator (CMVR 167A & Sec 136A MVA)
+# ---------------------------------------------------------------------------
+def audit_camera_evidence_compliance(
+    challan_no: str,
+    has_clear_plate_photo: bool,
+    has_speed_measurement_proof: bool,
+    has_timestamp_and_gps: bool,
+    has_statutory_citation: bool,
+    has_evidence_act_compliance: bool,
+    has_annual_calibration_status: bool,
+) -> dict[str, Any]:
+    """Audit whether an automated speed camera challan complies with CMVR Rule 167A evidentiary mandates."""
+    if not isinstance(challan_no, str) or not challan_no.strip():
+        raise CalculatorInputError("Challan number must be a non-empty string.")
+
+    criteria_responses = {
+        "clear_plate_photo": has_clear_plate_photo,
+        "speed_measurement_proof": has_speed_measurement_proof,
+        "timestamp_and_gps": has_timestamp_and_gps,
+        "statutory_citation": has_statutory_citation,
+        "evidence_act_compliance": has_evidence_act_compliance,
+        "annual_calibration_status": has_annual_calibration_status,
+    }
+
+    rules = CAMERA_EVIDENCE_RULES
+    checklist = rules.get("mandatory_evidentiary_criteria", [])
+
+    total_score = 0
+    passed_items = []
+    failed_items = []
+
+    for item in checklist:
+        cid = item["criterion_id"]
+        is_satisfied = bool(criteria_responses.get(cid, False))
+        weight = item["weight"]
+        entry = {
+            "criterion_id": cid,
+            "title": item["title"],
+            "statutory_basis": item["statutory_basis"],
+            "satisfied": is_satisfied,
+            "weight": weight,
+            "description": item["description"],
+        }
+        if is_satisfied:
+            total_score += weight
+            passed_items.append(entry)
+        else:
+            failed_items.append(entry)
+
+    total_score = min(max(total_score, 0), 100)
+
+    if total_score == 100:
+        compliance_status = "FULLY_COMPLIANT"
+        evidentiary_standing = "Evidence satisfies prima facie legal scrutiny under CMVR Rule 167A."
+        challenge_recommended = False
+    elif total_score >= 60:
+        compliance_status = "SUBSTANTIALLY_DEFECTIVE"
+        evidentiary_standing = "Challan possesses significant procedural evidentiary defects under CMVR Rule 167A(4)."
+        challenge_recommended = True
+    else:
+        compliance_status = "FATALLY_DEFECTIVE"
+        evidentiary_standing = "Challan lacks essential evidentiary foundation and is liable to be quashed in court."
+        challenge_recommended = True
+
+    return {
+        "challan_no": challan_no.strip(),
+        "compliance_score": total_score,
+        "compliance_status": compliance_status,
+        "evidentiary_standing": evidentiary_standing,
+        "challenge_recommended": challenge_recommended,
+        "passed_criteria_count": len(passed_items),
+        "failed_criteria_count": len(failed_items),
+        "passed_items": passed_items,
+        "failed_items": failed_items,
+        "statutory_authority": rules.get("statutory_framework", {}),
+    }
+
+
+def generate_camera_calibration_rti(
+    applicant_name: str,
+    applicant_address: str,
+    challan_no: str,
+    violation_date: str,
+    camera_location: str,
+    authority_name: str = "Public Information Officer (Traffic Police)",
+) -> dict[str, Any]:
+    """Generate a formal Section 6(1) RTI application demanding speed camera calibration records."""
+    for field, val in [
+        ("Applicant Name", applicant_name),
+        ("Applicant Address", applicant_address),
+        ("Challan Number", challan_no),
+        ("Violation Date", violation_date),
+        ("Camera Location", camera_location),
+    ]:
+        if not isinstance(val, str) or not val.strip():
+            raise CalculatorInputError(f"{field} must be a non-empty string.")
+
+    rules = CAMERA_EVIDENCE_RULES
+    tpl = rules.get("rti_application_template", {})
+    raw_questions = tpl.get("questions", [])
+
+    formatted_questions = [
+        q.format(challan_no=challan_no.strip(), violation_date=violation_date.strip())
+        for q in raw_questions
+    ]
+
+    rti_body = (
+        f"To,\n"
+        f"The Public Information Officer (Traffic),\n"
+        f"{authority_name.strip()}.\n\n"
+        f"Subject: {tpl.get('subject')}\n\n"
+        f"Respected Sir/Madam,\n\n"
+        f"I am a citizen of India residing at {applicant_address.strip()}. "
+        f"Regarding electronic traffic notice/challan no. {challan_no.strip()} issued on {violation_date.strip()} "
+        f"alleging speed violation captured by automated camera at {camera_location.strip()}, "
+        f"I hereby request the following information under Section 6(1) of the Right to Information Act, 2005:\n\n"
+    )
+
+    for i, q in enumerate(formatted_questions, 1):
+        rti_body += f"{i}. {q}\n"
+
+    rti_body += (
+        f"\nStatutory Fee: {tpl.get('standard_fee', 'Rs 10/-')}.\n"
+        f"Kindly furnish the information within 30 days as mandated by Section 7(1) of the RTI Act, 2005.\n\n"
+        f"Yours faithfully,\n"
+        f"{applicant_name.strip()}\n"
+        f"Date: Present\n"
+    )
+
+    return {
+        "challan_no": challan_no.strip(),
+        "applicant_name": applicant_name.strip(),
+        "application_text": rti_body,
+        "questions_included": formatted_questions,
+        "statutory_fee": tpl.get("standard_fee", "Rs 10/-"),
+        "legal_recourse": "Section 6(1) and Section 7(1) Right to Information Act, 2005.",
+    }
+
