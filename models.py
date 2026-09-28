@@ -447,3 +447,85 @@ class OffenceRiskProfileResponse(BaseModel):
     statutory_basis: str
     recommendation: str
 
+
+# --- School Bus Safety (AIS-063), Child Restraint & Micromobility Models ---
+class SchoolBusChecklistItem(BaseModel):
+    """Specific school bus safety checklist item."""
+    model_config = ConfigDict(frozen=True)
+
+    id: str
+    title: str
+    description: str
+    weight: int
+    satisfied: bool
+
+
+class SchoolBusSafetyAuditRequest(BaseModel):
+    """Input payload to audit school bus safety compliance."""
+    model_config = ConfigDict(extra="forbid")
+
+    bus_registration_no: str = Field(..., min_length=2, max_length=50)
+    checklist: dict[str, bool] = Field(default_factory=dict)
+
+
+class SchoolBusSafetyAuditResponse(BaseModel):
+    """School bus safety compliance audit results."""
+    model_config = ConfigDict(frozen=True)
+
+    bus_registration_no: str
+    compliance_score: int = Field(..., ge=0, le=100)
+    compliance_status: Literal["FULLY_COMPLIANT", "DEFECTIVE_NEEDS_RECTIFICATION", "FATAL_SAFETY_HAZARD"]
+    passed_items_count: int
+    failed_items_count: int
+    passed_items: list[SchoolBusChecklistItem]
+    failed_items: list[SchoolBusChecklistItem]
+    safety_advisory: str
+    statutory_authority: dict[str, str]
+
+
+class ChildRestraintAdvisoryRequest(BaseModel):
+    """Input payload to query child safety restraint requirements."""
+    model_config = ConfigDict(extra="forbid")
+
+    child_age_years: float = Field(..., ge=0, le=18)
+    vehicle_category: str = Field("Car", min_length=2, max_length=50)
+
+
+class ChildRestraintAdvisoryResponse(BaseModel):
+    """Child restraint advisory under Sec 194B(2) MVA & CMVR 138(7)."""
+    model_config = ConfigDict(frozen=True)
+
+    child_age_years: float
+    vehicle_category: str
+    is_two_wheeler: bool
+    recommended_system: str
+    statutory_mandate: str
+    instructions: list[str]
+    statutory_penalty: str
+    speed_limit_cap_kmh: int | None = None
+
+
+class MicromobilityExemptionRequest(BaseModel):
+    """Input payload to evaluate low-speed electric cycle exemption."""
+    model_config = ConfigDict(extra="forbid")
+
+    motor_power_watts: float = Field(..., ge=0)
+    max_speed_kmh: float = Field(..., ge=0)
+
+
+class MicromobilityExemptionResponse(BaseModel):
+    """Statutory exemption determination under CMVR Rule 2(u)."""
+    model_config = ConfigDict(frozen=True)
+
+    motor_power_watts: float
+    max_speed_kmh: float
+    is_power_compliant: bool
+    is_speed_compliant: bool
+    is_exempt_from_mva: bool
+    legal_status: Literal["EXEMPT_FROM_MVA", "FULL_MVA_REGULATION_APPLIES"]
+    vehicle_classification: str
+    legal_advisory: str
+    statutory_exemptions: dict[str, bool]
+    statutory_framework: dict[str, str]
+
+

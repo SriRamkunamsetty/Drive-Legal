@@ -36,7 +36,14 @@ from models import (
     MultiChallanResponse,
     SingleCalculationRequest,
     SingleCalculationResponse,
+    SchoolBusSafetyAuditRequest,
+    SchoolBusSafetyAuditResponse,
+    ChildRestraintAdvisoryRequest,
+    ChildRestraintAdvisoryResponse,
+    MicromobilityExemptionRequest,
+    MicromobilityExemptionResponse,
 )
+
 
 app = FastAPI(
     title="DriveLegal India — Traffic Law & Challan Engine API",
@@ -457,7 +464,6 @@ def accident_compensation_estimate_endpoint(
             detail=f"Compensation estimate error: {exc}",
         ) from exc
 
-
 @app.post(
     "/api/v1/offence-risk-profile",
     response_model=OffenceRiskProfileResponse,
@@ -475,3 +481,58 @@ def get_offence_risk_profile_endpoint(
         return OffenceRiskProfileResponse.model_validate(result)
     except app_core.CalculatorInputError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
+
+@app.post(
+    "/api/v1/safety/school-bus-audit",
+    response_model=SchoolBusSafetyAuditResponse,
+    tags=["child_safety"],
+    summary="Audit School Bus Safety Compliance (AIS-063 & CMVR 125C)",
+)
+def audit_school_bus_endpoint(request: SchoolBusSafetyAuditRequest) -> SchoolBusSafetyAuditResponse:
+    """Audit school bus safety compliance against Supreme Court guidelines, AIS-063, and CMVR Rule 125C."""
+    try:
+        result = app_core.audit_school_bus_safety(
+            bus_registration_no=request.bus_registration_no,
+            checklist=request.checklist,
+        )
+        return SchoolBusSafetyAuditResponse.model_validate(result)
+    except app_core.CalculatorInputError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
+
+@app.post(
+    "/api/v1/safety/child-restraint-advisory",
+    response_model=ChildRestraintAdvisoryResponse,
+    tags=["child_safety"],
+    summary="Get Child Restraint System (CRS) & Two-Wheeler Safety Advice (Sec 194B(2))",
+)
+def get_child_restraint_endpoint(request: ChildRestraintAdvisoryRequest) -> ChildRestraintAdvisoryResponse:
+    """Provide statutory child restraint seat advice and penalty details under Section 194B(2) MVA and CMVR 138(7)."""
+    try:
+        result = app_core.get_child_restraint_safety_advice(
+            child_age_years=request.child_age_years,
+            vehicle_category=request.vehicle_category,
+        )
+        return ChildRestraintAdvisoryResponse.model_validate(result)
+    except app_core.CalculatorInputError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
+
+@app.post(
+    "/api/v1/safety/micromobility-exemption",
+    response_model=MicromobilityExemptionResponse,
+    tags=["child_safety"],
+    summary="Evaluate Low-Speed Electric Vehicle Exemption (CMVR Rule 2(u))",
+)
+def evaluate_micromobility_endpoint(request: MicromobilityExemptionRequest) -> MicromobilityExemptionResponse:
+    """Evaluate whether an e-cycle/scooter (<=250W, <=25km/h) is statutorily exempt from MVA licence and registration."""
+    try:
+        result = app_core.evaluate_micromobility_exemption(
+            motor_power_watts=request.motor_power_watts,
+            max_speed_kmh=request.max_speed_kmh,
+        )
+        return MicromobilityExemptionResponse.model_validate(result)
+    except app_core.CalculatorInputError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
