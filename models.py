@@ -447,3 +447,61 @@ class OffenceRiskProfileResponse(BaseModel):
     statutory_basis: str
     recommendation: str
 
+
+# --- Virtual Courts Advisory Models (Sec 208 MVA) ---
+
+class VirtualCourtJurisdictionModel(BaseModel):
+    """Virtual Court deployment and procedural operational profile for a State/UT."""
+    model_config = ConfigDict(frozen=True)
+
+    state: str
+    virtual_court_name: str
+    is_active: bool
+    online_plea_available: bool
+    contest_transfer_court: str
+    summons_window_days: int
+    portal_domain: str
+    special_notes: str
+
+
+class VirtualCourtContestGroundModel(BaseModel):
+    """Statutory grounds to contest a traffic challan before Virtual/Regular Court."""
+    model_config = ConfigDict(frozen=True)
+
+    code: str
+    name: str
+    statutory_basis: str
+    success_likelihood: str
+    recommendation: str
+
+
+class VirtualCourtAdvisoryRequest(BaseModel):
+    """Request payload to get Virtual Court advisory."""
+    model_config = ConfigDict(extra="forbid")
+
+    state: str = Field(..., min_length=2, description="State or UT where challan was issued")
+    violation_key: str = Field(..., min_length=2, description="Key of the violation from national catalogue")
+    days_since_notice: int = Field(0, ge=0, description="Days elapsed since challan generation")
+    has_photo_evidence: bool = Field(True, description="Whether clear photographic evidence is attached")
+    contest_ground: str | None = Field(None, description="Optional ground code if contesting")
+
+
+class VirtualCourtAdvisoryResponse(BaseModel):
+    """Statutory recommendation and procedural advice for Virtual Court notice."""
+    model_config = ConfigDict(frozen=True)
+
+    state: str
+    violation_key: str
+    violation_name: str
+    virtual_court_available: bool
+    virtual_court_name: str
+    portal_url: str
+    days_since_notice: int
+    summons_window_days: int
+    is_window_active: bool
+    recommended_action: str
+    detailed_recommendation: str
+    contest_advisable: bool
+    contest_transfer_court: str
+    contest_grounds: list[dict[str, Any]]
+    statutory_basis: str
