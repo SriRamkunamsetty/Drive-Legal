@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "last_reviewed": "2026-08-24",
+  "last_reviewed": "2026-09-27",
   "sources": [
     {
       "id": "mva1988",
@@ -71,6 +71,31 @@
       "id": "erss_112",
       "title": "National Emergency Response Support System (112)",
       "url": "https://112.gov.in"
+    },
+    {
+      "id": "haryana_transport",
+      "title": "Transport Department, Government of Haryana",
+      "url": "https://hartrans.gov.in"
+    },
+    {
+      "id": "punjab_transport",
+      "title": "Transport Department, Government of Punjab",
+      "url": "https://transport.punjab.gov.in"
+    },
+    {
+      "id": "wb_transport",
+      "title": "Transport Department, Government of West Bengal",
+      "url": "https://transport.wb.gov.in"
+    },
+    {
+      "id": "odisha_transport",
+      "title": "Commerce and Transport Department, Government of Odisha",
+      "url": "https://comtrans.odisha.gov.in"
+    },
+    {
+      "id": "ap_transport",
+      "title": "Transport, Roads and Buildings Department, Government of Andhra Pradesh",
+      "url": "https://transport.ap.gov.in"
     }
   ],
   "disclaimer": "This application is an offline informational reference, not an official challan lookup or legal-advice service. Amounts may vary by effective notification, state compounding schedule, court order, and enforcement circumstances."
