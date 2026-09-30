@@ -9,6 +9,13 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, NonNegativeFloat, NonNegativeInt
 
 
+def __getattr__(name: str) -> Any:
+    """Expose models defined by drop-in ``features/`` modules as ``models.<name>``."""
+    import features
+
+    return features.lookup(name)
+
+
 class SourceModel(BaseModel):
     """Metadata for an official source or gazette notification."""
     model_config = ConfigDict(extra="forbid", frozen=True)
@@ -446,52 +453,4 @@ class OffenceRiskProfileResponse(BaseModel):
     habitual_offender_threshold: int
     statutory_basis: str
     recommendation: str
-
-
-# --- Commercial Axle-Weight Overloading Models (Sec 113, 114, 194(1) MVA) ---
-
-class AxleConfigurationModel(BaseModel):
-    """MoRTH S.O. 2822(E) statutory axle configuration and gross weight limit."""
-    model_config = ConfigDict(frozen=True)
-
-    code: str
-    name: str
-    tyres: int
-    max_permissible_gvw_tonnes: float
-    steer_axle_limit_tonnes: float
-    drive_axle_limit_tonnes: float
-    description: str
-
-
-class OverloadingCalculationRequest(BaseModel):
-    """Request payload to calculate statutory commercial vehicle overloading penalty."""
-    model_config = ConfigDict(extra="forbid")
-
-    registered_gvw_tonnes: float = Field(..., gt=0, description="Gross Vehicle Weight in tonnes as per RC")
-    actual_weight_tonnes: float = Field(..., ge=0, description="Measured laden weight in tonnes at weighbridge")
-    axle_configuration: str | None = Field(None, description="Optional MoRTH axle configuration code")
-    refused_weighment: bool = Field(False, description="Whether weighment was refused (Sec 194(2) penalty)")
-
-
-class OverloadingCalculationResponse(BaseModel):
-    """Statutory overloading financial and offloading liability assessment."""
-    model_config = ConfigDict(frozen=True)
-
-    registered_gvw_tonnes: float
-    actual_weight_tonnes: float
-    excess_weight_tonnes: float
-    chargeable_excess_tonnes: int
-    is_overloaded: bool
-    refused_weighment: bool
-    compliance_status: str
-    base_overloading_penalty: int
-    excess_tonnage_penalty: int
-    refusal_penalty: int
-    total_penalty: int
-    offloading_mandated: bool
-    axle_configuration: str | None = None
-    axle_configuration_name: str | None = None
-    config_statutory_warning: str | None = None
-    legal_summary: str
-    statutory_basis: str
 
