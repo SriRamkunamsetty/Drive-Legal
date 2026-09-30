@@ -9,6 +9,13 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, NonNegativeFloat, NonNegativeInt
 
 
+def __getattr__(name: str) -> Any:
+    """Expose models defined by drop-in ``features/`` modules as ``models.<name>``."""
+    import features
+
+    return features.lookup(name)
+
+
 class SourceModel(BaseModel):
     """Metadata for an official source or gazette notification."""
     model_config = ConfigDict(extra="forbid", frozen=True)
@@ -446,49 +453,4 @@ class OffenceRiskProfileResponse(BaseModel):
     habitual_offender_threshold: int
     statutory_basis: str
     recommendation: str
-
-
-# --- National Lok Adalat Models (Legal Services Authorities Act 1987) ---
-
-class LokAdalatScheduleModel(BaseModel):
-    """National Lok Adalat framework, quarterly dates, and state SLSA policies."""
-    model_config = ConfigDict(frozen=True)
-
-    title: str
-    statutory_basis: str
-    authority: str
-    award_finality: str
-    quarterly_calendar: list[dict[str, Any]]
-    state_policies: dict[str, Any]
-    non_compoundable_offences: list[str]
-
-
-class LokAdalatConcessionRequest(BaseModel):
-    """Request payload to estimate Lok Adalat challan settlement relief."""
-    model_config = ConfigDict(extra="forbid")
-
-    violation_keys: list[str] = Field(..., min_length=1, description="List of violation keys from national fines")
-    state: str = Field("Delhi", description="State or UT where challans were issued")
-
-
-class LokAdalatConcessionResponse(BaseModel):
-    """Estimated Lok Adalat financial relief, waiver percentage, and procedure."""
-    model_config = ConfigDict(frozen=True)
-
-    state: str
-    slsa_name: str
-    token_portal: str
-    offence_count: int
-    total_nominal_fine: float
-    compoundable_fine_sum: float
-    non_compoundable_fine_sum: float
-    estimated_lok_adalat_payable: float
-    estimated_savings: float
-    effective_concession_pct: float
-    state_standard_concession_pct: float
-    compoundable_items: list[dict[str, Any]]
-    non_compoundable_items: list[dict[str, Any]]
-    procedural_steps: list[str]
-    statutory_basis: str
-    award_finality: str
 
