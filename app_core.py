@@ -17,6 +17,13 @@ from urllib.parse import urlparse
 ROOT = Path(__file__).resolve().parent
 DATA_DIR = ROOT / "data"
 
+
+def __getattr__(name: str) -> Any:
+    """Expose names defined by drop-in ``features/`` modules as ``app_core.<name>``."""
+    import features
+
+    return features.lookup(name)
+
 EXPECTED_STATES = frozenset(
     {
         "Andhra Pradesh",
@@ -137,13 +144,6 @@ def _validate_citizen_rights(citizen_rights: Any) -> None:
         )
         ids.append(record["id"])
     _require(len(ids) == len(set(ids)), "citizen right IDs must be unique")
-
-
-def _validate_interstate_relocation_rules(data: Any) -> None:
-    _require(isinstance(data, dict), "interstate_relocation_rules must be an object")
-    _require("statutory_framework" in data and isinstance(data["statutory_framework"], dict), "missing statutory_framework")
-    _require("procedural_rules" in data and isinstance(data["procedural_rules"], dict), "missing procedural_rules")
-
 
 
 def validate_data(
@@ -345,10 +345,7 @@ TRAFFIC_STOP_SAFEGUARDS = _read_json("traffic_stop_safeguards.json")
 _validate_traffic_stop_safeguards(TRAFFIC_STOP_SAFEGUARDS)
 RTO_DIRECTORY = _read_json("rto_directory.json")
 _validate_rto_directory(RTO_DIRECTORY)
-INTERSTATE_RELOCATION_RULES = _read_json("interstate_relocation_rules.json")
-_validate_interstate_relocation_rules(INTERSTATE_RELOCATION_RULES)
 ALL_STATES = sorted(STATE_DATA)
-
 
 
 def get_source_details(source_ids: list[str]) -> list[dict[str, str]]:
@@ -1461,127 +1458,3 @@ def get_offence_risk_profile(violation_keys: list[str]) -> dict[str, Any]:
         ),
         "recommendation": recommendation,
     }
-
-
-# ---------------------------------------------------------------------------
-# Inter-State Vehicle Relocation (Sec 47/48 MVA) & Road Tax Refund Engine
-# ---------------------------------------------------------------------------
-def audit_interstate_relocation_status(
-    stay_duration_months: int,
-    has_noc: bool,
-    origin_state: str,
-    destination_state: str,
-) -> dict[str, Any]:
-    """Audit vehicle stay duration and re-registration compliance under Section 47 & 48 MVA 1988."""
-    if not isinstance(stay_duration_months, int) or stay_duration_months < 0:
-        raise CalculatorInputError("Stay duration must be a non-negative integer of months.")
-    if not isinstance(origin_state, str) or not origin_state.strip():
-        raise CalculatorInputError("Origin state must be a non-empty string.")
-    if not isinstance(destination_state, str) or not destination_state.strip():
-        raise CalculatorInputError("Destination state must be a non-empty string.")
-
-    rules = INTERSTATE_RELOCATION_RULES
-    framework = rules.get("statutory_framework", {})
-    procedural = rules.get("procedural_rules", {})
-    grace_period = procedural.get("interstate_grace_period_months", 12)
-
-    is_same_state = origin_state.strip().lower() == destination_state.strip().lower()
-
-    if is_same_state:
-        status_code = "INTRA_STATE_OPERATION"
-        re_registration_required = False
-        advisory = f"Both origin and destination are {origin_state.strip()}. No Section 47 inter-state re-registration is required."
-    elif stay_duration_months <= grace_period:
-        status_code = "WITHIN_STATUTORY_GRACE_PERIOD"
-        re_registration_required = False
-        advisory = (
-            f"Under Section 47 MVA 1988, your vehicle can lawfully operate in {destination_state.strip()} "
-            f"for up to {grace_period} months without local re-registration or paying destination road tax. "
-            "Retain documentary proof of entry (FASTag logs, toll receipts, or packers-and-movers consignment)."
-        )
-    else:
-        status_code = "RE_REGISTRATION_MANDATORY"
-        re_registration_required = True
-        advisory = (
-            f"Stay duration ({stay_duration_months} months) exceeds the statutory {grace_period}-month limit. "
-            f"Under Section 47 MVA 1988, you are statutorily required to obtain a new registration mark from "
-            f"{destination_state.strip()} RTO and pay local road tax."
-        )
-
-    noc_advisory = ""
-    if not is_same_state and re_registration_required:
-        if has_noc:
-            noc_advisory = "Form 28 NOC is available. Submit Form 27 along with NOC and vehicle fitness to destination RTO."
-        else:
-            noc_advisory = (
-                f"Form 28 NOC from {origin_state.strip()} RTO is mandatory. Under Section 48(3) MVA, if the origin RTO "
-                "fails to refuse the NOC within 30 days of application, it is legally deemed to be granted."
-            )
-
-    return {
-        "origin_state": origin_state.strip(),
-        "destination_state": destination_state.strip(),
-        "stay_duration_months": stay_duration_months,
-        "grace_period_months": grace_period,
-        "is_within_grace_period": stay_duration_months <= grace_period and not is_same_state,
-        "re_registration_required": re_registration_required,
-        "status_code": status_code,
-        "legal_advisory": advisory,
-        "noc_status_advisory": noc_advisory,
-        "required_documents": procedural.get("required_documents", []),
-        "statutory_provisions": {
-            "section_47": framework.get("section_47", ""),
-            "section_48": framework.get("section_48", ""),
-        },
-    }
-
-
-def calculate_road_tax_refund(
-    original_road_tax_paid: float,
-    vehicle_age_months: int,
-    origin_state: str,
-    destination_state: str,
-) -> dict[str, Any]:
-    """Calculate pro-rata road tax refund from parent state upon re-registration."""
-    if not isinstance(original_road_tax_paid, (int, float)) or original_road_tax_paid <= 0:
-        raise CalculatorInputError("Original road tax paid must be a positive number.")
-    if not isinstance(vehicle_age_months, int) or vehicle_age_months < 0:
-        raise CalculatorInputError("Vehicle age in months must be a non-negative integer.")
-
-    rules = INTERSTATE_RELOCATION_RULES
-    statutory_lifespan = rules.get("statutory_framework", {}).get("statutory_lifespan_months", 180)
-
-    if vehicle_age_months >= statutory_lifespan:
-        refund_amount = 0.0
-        refund_pct = 0.0
-        unused_months = 0
-        advisory = (
-            f"Vehicle age ({vehicle_age_months} months) has reached or exceeded the 15-year statutory lifespan "
-            f"({statutory_lifespan} months). No pro-rata road tax refund is payable under state taxation rules."
-        )
-    else:
-        unused_months = statutory_lifespan - vehicle_age_months
-        refund_fraction = unused_months / float(statutory_lifespan)
-        refund_amount = round(original_road_tax_paid * refund_fraction, 2)
-        refund_pct = round(refund_fraction * 100.0, 1)
-        advisory = (
-            f"Statutorily eligible to claim ₹{refund_amount:,.2f} ({refund_pct}% of original tax) from {origin_state.strip()} "
-            f"RTO for {unused_months} remaining months of vehicle lifespan upon submitting proof of re-registration in {destination_state.strip()}."
-        )
-
-    return {
-        "origin_state": origin_state.strip(),
-        "destination_state": destination_state.strip(),
-        "original_road_tax_paid": float(original_road_tax_paid),
-        "vehicle_age_months": vehicle_age_months,
-        "statutory_lifespan_months": statutory_lifespan,
-        "unused_lifespan_months": unused_months,
-        "refund_percentage": refund_pct,
-        "eligible_refund_amount": refund_amount,
-        "advisory": advisory,
-        "claim_procedure": (
-            f"Apply to {origin_state.strip()} RTO using Form DT / Tax Refund Application attaching original RC surrender receipt, "
-            f"Form 28 NOC, and receipt of road tax paid in {destination_state.strip()}."
-        ),
-    }
-

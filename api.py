@@ -14,6 +14,7 @@ from fastapi import FastAPI, HTTPException, Query, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 
 import app_core
+import features
 from models import (
     AccidentClaimGuideEntry,
     AccidentCompensationEstimateRequest,
@@ -36,12 +37,7 @@ from models import (
     MultiChallanResponse,
     SingleCalculationRequest,
     SingleCalculationResponse,
-    InterstateRelocationAuditRequest,
-    InterstateRelocationAuditResponse,
-    RoadTaxRefundRequest,
-    RoadTaxRefundResponse,
 )
-
 
 app = FastAPI(
     title="DriveLegal India — Traffic Law & Challan Engine API",
@@ -62,6 +58,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Drop-in feature routers (features/*.py). New endpoints never edit this file.
+for _feature_router in features.routers():
+    app.include_router(_feature_router)
 
 
 @app.middleware("http")
@@ -462,6 +462,7 @@ def accident_compensation_estimate_endpoint(
             detail=f"Compensation estimate error: {exc}",
         ) from exc
 
+
 @app.post(
     "/api/v1/offence-risk-profile",
     response_model=OffenceRiskProfileResponse,
@@ -479,44 +480,3 @@ def get_offence_risk_profile_endpoint(
         return OffenceRiskProfileResponse.model_validate(result)
     except app_core.CalculatorInputError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
-
-
-@app.post(
-    "/api/v1/relocation/audit-stay",
-    response_model=InterstateRelocationAuditResponse,
-    tags=["relocation"],
-    summary="Audit Inter-State Vehicle Relocation Compliance (Sec 47 & 48 MVA)",
-)
-def audit_relocation_endpoint(request: InterstateRelocationAuditRequest) -> InterstateRelocationAuditResponse:
-    """Audit 12-month legal operational grace period and Form 28 NOC requirements for inter-state vehicles."""
-    try:
-        result = app_core.audit_interstate_relocation_status(
-            stay_duration_months=request.stay_duration_months,
-            has_noc=request.has_noc,
-            origin_state=request.origin_state,
-            destination_state=request.destination_state,
-        )
-        return InterstateRelocationAuditResponse.model_validate(result)
-    except app_core.CalculatorInputError as exc:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
-
-
-@app.post(
-    "/api/v1/relocation/calculate-tax-refund",
-    response_model=RoadTaxRefundResponse,
-    tags=["relocation"],
-    summary="Calculate Pro-Rata Road Tax Refund from Parent State",
-)
-def calculate_tax_refund_endpoint(request: RoadTaxRefundRequest) -> RoadTaxRefundResponse:
-    """Calculate pro-rata refund of lifetime road tax paid in origin state for remaining 15-year vehicle life."""
-    try:
-        result = app_core.calculate_road_tax_refund(
-            original_road_tax_paid=request.original_road_tax_paid,
-            vehicle_age_months=request.vehicle_age_months,
-            origin_state=request.origin_state,
-            destination_state=request.destination_state,
-        )
-        return RoadTaxRefundResponse.model_validate(result)
-    except app_core.CalculatorInputError as exc:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
-
