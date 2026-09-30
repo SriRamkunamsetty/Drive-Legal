@@ -9,6 +9,13 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, NonNegativeFloat, NonNegativeInt
 
 
+def __getattr__(name: str) -> Any:
+    """Expose models defined by drop-in ``features/`` modules as ``models.<name>``."""
+    import features
+
+    return features.lookup(name)
+
+
 class SourceModel(BaseModel):
     """Metadata for an official source or gazette notification."""
     model_config = ConfigDict(extra="forbid", frozen=True)
@@ -446,93 +453,4 @@ class OffenceRiskProfileResponse(BaseModel):
     habitual_offender_threshold: int
     statutory_basis: str
     recommendation: str
-
-
-# --- Divyangjan Adapted Vehicle, Lemon Law Notice & State Leniency Models ---
-class DivyangjanBenefitsRequest(BaseModel):
-    """Parameters to evaluate Divyangjan adapted vehicle statutory benefits and concessions."""
-    model_config = ConfigDict(extra="forbid")
-
-    vehicle_ex_showroom: float = Field(..., gt=0, description="Ex-showroom vehicle price in INR")
-    engine_cc: int = Field(..., ge=0, description="Engine displacement in cubic centimeters")
-    fuel_type: Literal["petrol", "diesel", "cng", "electric"] = Field(..., description="Vehicle fuel type")
-    length_mm: int = Field(..., gt=0, description="Overall vehicle length in millimeters")
-    state: str = Field(..., min_length=1, description="Registration State or Union Territory")
-    disability_pct: float = Field(..., ge=0.0, le=100.0, description="Benchmark physical disability percentage")
-
-
-class DivyangjanBenefitsResponse(BaseModel):
-    """Statutory rights, tax waivers, and concessions for Divyangjan adapted vehicle."""
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    benchmark_disability_satisfied: bool
-    gst_concession_eligible: bool
-    estimated_gst_savings: float
-    road_tax_exemption_pct: float
-    estimated_road_tax_savings: float
-    total_estimated_concession: float
-    toll_exemption_eligible: bool
-    alteration_immunity_statute: str
-    disqualification_reasons: list[str]
-    required_checklist: list[str]
-
-
-class LemonNoticeRequest(BaseModel):
-    """Parameters to generate a formal statutory legal notice under CPA 2019 for defective vehicles."""
-    model_config = ConfigDict(extra="forbid")
-
-    owner_name: str = Field(..., min_length=1)
-    owner_address: str = Field(..., min_length=1)
-    manufacturer_name: str = Field(..., min_length=1)
-    dealer_name: str = Field(..., min_length=1)
-    dealer_address: str = Field(..., min_length=1)
-    vehicle_make_model: str = Field(..., min_length=1)
-    vin_or_chassis: str = Field(..., min_length=1)
-    purchase_date: str = Field(..., min_length=1)
-    purchase_price: float = Field(..., gt=0)
-    defect_category: str = Field(..., min_length=1)
-    repair_attempts_count: int = Field(..., ge=0)
-    days_out_of_service: int = Field(..., ge=0)
-    defect_description: str = Field(..., min_length=1)
-    remedy_sought: str = Field(..., min_length=1)
-
-
-class LemonNoticeResponse(BaseModel):
-    """Statutory lemon law legal notice and Consumer Commission jurisdiction details."""
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    notice_text: str
-    pecuniary_forum: str
-    claim_amount: float
-    is_lemon_threshold_met: bool
-    statutory_citations: list[str]
-    cure_period_days: int
-
-
-class StateLeniencyRankItem(BaseModel):
-    """Individual state ranking and score within the Section 200 compounding leniency index."""
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    rank: int
-    state: str
-    jurisdiction: str | None = None
-    notification_id: str | None = None
-    effective_date: str | None = None
-    compoundable_violations_count: int
-    central_total: float
-    state_compounded_total: float
-    relief_pct: float
-    leniency_score: float
-
-
-class StateLeniencyIndexResponse(BaseModel):
-    """Pan-India State Compounding Leniency Index and Ranking."""
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    total_notified_states: int
-    average_leniency_score: float
-    most_lenient_state: str
-    strictest_state: str
-    rankings: list[StateLeniencyRankItem]
-
 

@@ -14,6 +14,7 @@ from fastapi import FastAPI, HTTPException, Query, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 
 import app_core
+import features
 from models import (
     AccidentClaimGuideEntry,
     AccidentCompensationEstimateRequest,
@@ -36,12 +37,6 @@ from models import (
     MultiChallanResponse,
     SingleCalculationRequest,
     SingleCalculationResponse,
-    DivyangjanBenefitsRequest,
-    DivyangjanBenefitsResponse,
-    LemonNoticeRequest,
-    LemonNoticeResponse,
-    StateLeniencyRankItem,
-    StateLeniencyIndexResponse,
 )
 
 app = FastAPI(
@@ -63,6 +58,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Drop-in feature routers (features/*.py). New endpoints never edit this file.
+for _feature_router in features.routers():
+    app.include_router(_feature_router)
 
 
 @app.middleware("http")
@@ -463,6 +462,7 @@ def accident_compensation_estimate_endpoint(
             detail=f"Compensation estimate error: {exc}",
         ) from exc
 
+
 @app.post(
     "/api/v1/offence-risk-profile",
     response_model=OffenceRiskProfileResponse,
@@ -480,68 +480,3 @@ def get_offence_risk_profile_endpoint(
         return OffenceRiskProfileResponse.model_validate(result)
     except app_core.CalculatorInputError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
-
-
-@app.post(
-    "/api/v1/consumer/divyangjan-benefits",
-    response_model=DivyangjanBenefitsResponse,
-    tags=["consumer_protection"],
-    summary="Evaluate Divyangjan Adapted Vehicle GST Concession & Road Tax Exemptions",
-)
-def evaluate_divyangjan_benefits_endpoint(payload: DivyangjanBenefitsRequest) -> DivyangjanBenefitsResponse:
-    """Evaluate 18% concessional GST, 100% road tax waiver, toll exemption, and Sec 52 alteration immunity."""
-    try:
-        res = app_core.calculate_divyangjan_concessions(
-            vehicle_ex_showroom=payload.vehicle_ex_showroom,
-            engine_cc=payload.engine_cc,
-            fuel_type=payload.fuel_type,
-            length_mm=payload.length_mm,
-            state=payload.state,
-            disability_pct=payload.disability_pct,
-        )
-        return DivyangjanBenefitsResponse.model_validate(res)
-    except app_core.CalculatorInputError as exc:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
-
-
-@app.post(
-    "/api/v1/consumer/generate-lemon-notice",
-    response_model=LemonNoticeResponse,
-    tags=["consumer_protection"],
-    summary="Generate Statutory Lemon Law Legal Notice under CPA 2019",
-)
-def generate_lemon_notice_endpoint(payload: LemonNoticeRequest) -> LemonNoticeResponse:
-    """Generate formal 15-day statutory legal notice to OEM/dealer under Sections 84 & 35 CPA 2019."""
-    try:
-        res = app_core.generate_lemon_law_notice(
-            owner_name=payload.owner_name,
-            owner_address=payload.owner_address,
-            manufacturer_name=payload.manufacturer_name,
-            dealer_name=payload.dealer_name,
-            dealer_address=payload.dealer_address,
-            vehicle_make_model=payload.vehicle_make_model,
-            vin_or_chassis=payload.vin_or_chassis,
-            purchase_date=payload.purchase_date,
-            purchase_price=payload.purchase_price,
-            defect_category=payload.defect_category,
-            repair_attempts_count=payload.repair_attempts_count,
-            days_out_of_service=payload.days_out_of_service,
-            defect_description=payload.defect_description,
-            remedy_sought=payload.remedy_sought,
-        )
-        return LemonNoticeResponse.model_validate(res)
-    except app_core.CalculatorInputError as exc:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
-
-
-@app.get(
-    "/api/v1/consumer/state-leniency-index",
-    response_model=StateLeniencyIndexResponse,
-    tags=["consumer_protection"],
-    summary="Pan-India State Compounding Leniency Index and Rankings",
-)
-def get_state_leniency_index_endpoint() -> StateLeniencyIndexResponse:
-    """Retrieve Pan-India State Compounding Leniency Index, rankings, and concession metrics under Section 200 MVA."""
-    res = app_core.get_state_compounding_leniency_index()
-    return StateLeniencyIndexResponse.model_validate(res)
-
