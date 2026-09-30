@@ -14,6 +14,7 @@ from fastapi import FastAPI, HTTPException, Query, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 
 import app_core
+import features
 from models import (
     AccidentClaimGuideEntry,
     AccidentCompensationEstimateRequest,
@@ -36,12 +37,7 @@ from models import (
     MultiChallanResponse,
     SingleCalculationRequest,
     SingleCalculationResponse,
-    CameraEvidenceAuditRequest,
-    CameraEvidenceAuditResponse,
-    CalibrationRTIRequest,
-    CalibrationRTIResponse,
 )
-
 
 app = FastAPI(
     title="DriveLegal India — Traffic Law & Challan Engine API",
@@ -62,6 +58,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Drop-in feature routers (features/*.py). New endpoints never edit this file.
+for _feature_router in features.routers():
+    app.include_router(_feature_router)
 
 
 @app.middleware("http")
@@ -413,7 +413,6 @@ def get_dl_risk_endpoint(violation_key: str) -> DLSuspensionRiskResponse:
     except app_core.CalculatorInputError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
-
 @app.get(
     "/api/v1/accident-claim-guide",
     response_model=list[AccidentClaimGuideEntry],
@@ -481,49 +480,3 @@ def get_offence_risk_profile_endpoint(
         return OffenceRiskProfileResponse.model_validate(result)
     except app_core.CalculatorInputError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
-
-
-@app.post(
-    "/api/v1/evidence/audit-camera-challan",
-    response_model=CameraEvidenceAuditResponse,
-    tags=["evidence_audit"],
-    summary="Audit Speed Camera Challan Evidentiary Compliance (CMVR Rule 167A)",
-)
-def audit_camera_evidence_endpoint(request: CameraEvidenceAuditRequest) -> CameraEvidenceAuditResponse:
-    """Audit whether an automated camera challan complies with statutory evidentiary mandates under CMVR 167A."""
-    try:
-        result = app_core.audit_camera_evidence_compliance(
-            challan_no=request.challan_no,
-            has_clear_plate_photo=request.has_clear_plate_photo,
-            has_speed_measurement_proof=request.has_speed_measurement_proof,
-            has_timestamp_and_gps=request.has_timestamp_and_gps,
-            has_statutory_citation=request.has_statutory_citation,
-            has_evidence_act_compliance=request.has_evidence_act_compliance,
-            has_annual_calibration_status=request.has_annual_calibration_status,
-        )
-        return CameraEvidenceAuditResponse.model_validate(result)
-    except app_core.CalculatorInputError as exc:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
-
-
-@app.post(
-    "/api/v1/evidence/generate-calibration-rti",
-    response_model=CalibrationRTIResponse,
-    tags=["evidence_audit"],
-    summary="Generate Section 6(1) RTI Application for Speed Camera Calibration",
-)
-def generate_calibration_rti_endpoint(request: CalibrationRTIRequest) -> CalibrationRTIResponse:
-    """Generate a formal, ready-to-file RTI application under Section 6(1) RTI Act demanding camera calibration."""
-    try:
-        result = app_core.generate_camera_calibration_rti(
-            applicant_name=request.applicant_name,
-            applicant_address=request.applicant_address,
-            challan_no=request.challan_no,
-            violation_date=request.violation_date,
-            camera_location=request.camera_location,
-            authority_name=request.authority_name,
-        )
-        return CalibrationRTIResponse.model_validate(result)
-    except app_core.CalculatorInputError as exc:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
-
