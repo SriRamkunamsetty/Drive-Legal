@@ -17,6 +17,13 @@ from urllib.parse import urlparse
 ROOT = Path(__file__).resolve().parent
 DATA_DIR = ROOT / "data"
 
+
+def __getattr__(name: str) -> Any:
+    """Expose names defined by drop-in ``features/`` modules as ``app_core.<name>``."""
+    import features
+
+    return features.lookup(name)
+
 EXPECTED_STATES = frozenset(
     {
         "Andhra Pradesh",
@@ -1450,138 +1457,4 @@ def get_offence_risk_profile(violation_keys: list[str]) -> dict[str, Any]:
             "Sec 24 MVA (court-ordered disqualification)."
         ),
         "recommendation": recommendation,
-    }
-
-
-# ---------------------------------------------------------------------------
-# Virtual Courts (vcourts.gov.in) Challan Resolution & Contest Advisory (Sec 208 MVA)
-# ---------------------------------------------------------------------------
-
-VIRTUAL_COURT_RULES: dict[str, Any] = _read_json("virtual_court_rules.json")
-
-
-def get_virtual_court_jurisdictions() -> list[dict[str, Any]]:
-    """Return all states and UTs with operational Virtual Traffic Courts under Sec 208 MVA."""
-    jurisdictions = VIRTUAL_COURT_RULES.get("jurisdictions", {})
-    return [
-        {
-            "state": state,
-            "virtual_court_name": info["virtual_court_name"],
-            "is_active": info["is_active"],
-            "online_plea_available": info["online_plea_available"],
-            "contest_transfer_court": info["contest_transfer_court"],
-            "summons_window_days": info["summons_window_days"],
-            "portal_domain": info["portal_domain"],
-            "special_notes": info["special_notes"],
-        }
-        for state, info in sorted(jurisdictions.items())
-    ]
-
-
-def get_virtual_court_advisory(
-    state: str,
-    violation_key: str,
-    days_since_notice: int,
-    has_photo_evidence: bool = True,
-    contest_ground: str | None = None,
-) -> dict[str, Any]:
-    """Provide statutory Virtual Court (vcourts.gov.in) advisory for an e-challan notice.
-
-    Advises whether the citizen should plead guilty online, contest before a regular
-    magistrate under CMVR Rule 167A / Sec 136A, or attend physically.
-
-    Args:
-        state: State or Union Territory name (e.g. 'Delhi', 'Maharashtra').
-        violation_key: Offence key from NATIONAL_FINES.
-        days_since_notice: Days elapsed since e-challan generation date.
-        has_photo_evidence: Whether photographic evidence was supplied with the challan.
-        contest_ground: Optional contest ground code (e.g. 'missing_or_blurred_plate').
-
-    Returns:
-        dict with recommended course of action, statutory rights, timeline status, and procedures.
-    """
-    if violation_key not in NATIONAL_FINES:
-        raise CalculatorInputError(f"Unknown violation key: {violation_key!r}")
-    if days_since_notice < 0:
-        raise CalculatorInputError(f"days_since_notice cannot be negative: {days_since_notice}")
-
-    state_norm = state.strip()
-    jurisdictions = VIRTUAL_COURT_RULES.get("jurisdictions", {})
-    is_vcourt_active = state_norm in jurisdictions
-    vc_info = jurisdictions.get(state_norm, {})
-
-    window_days = vc_info.get("summons_window_days", 90)
-    is_window_active = days_since_notice <= window_days
-
-    # Check violation risk
-    rec = NATIONAL_FINES[violation_key]
-    dl_risk = rec.get("dl_suspension_risk", "none")
-
-    # Evaluate contest grounds if specified
-    contest_details = None
-    if contest_ground:
-        for g in VIRTUAL_COURT_RULES.get("grounds_to_contest", []):
-            if g["code"] == contest_ground:
-                contest_details = g
-                break
-
-    # Decision Matrix
-    if dl_risk == "automatic":
-        action = "Mandatory Physical Court Appearance (DL Revocation Risk)"
-        recommendation = (
-            f"This offence ({rec['description']}) carries mandatory DL disqualification or imprisonment. "
-            "It cannot be settled via summary online plea on vcourts.gov.in. "
-            "Engage a traffic advocate immediately and prepare for hearing before the Metropolitan Magistrate."
-        )
-        contest_advisable = True
-    elif not has_photo_evidence:
-        action = "Contest Notice Before Magistrate (Defective Evidence)"
-        recommendation = (
-            "CMVR Rule 167A(4) mandates that electronic monitoring records must contain clear "
-            "photographic proof showing the vehicle registration mark, location coordinates, and date/time. "
-            "Because photographic proof is missing or defective, this notice lacks sustainable legal proof under "
-            "Section 136A MVA. Choose 'Contest' on vcourts.gov.in to transfer to regular court."
-        )
-        contest_advisable = True
-    elif contest_details:
-        action = f"Contest on Grounds: {contest_details['name']}"
-        recommendation = (
-            f"{contest_details['recommendation']} "
-            f"Statutory Authority: {contest_details['statutory_basis']} "
-            f"(Likelihood of Success: {contest_details['success_likelihood']})."
-        )
-        contest_advisable = True
-    elif not is_window_active:
-        action = "Physical Summons Escalation / Regular Court Appearance"
-        recommendation = (
-            f"The notice was received {days_since_notice} days ago, exceeding the {window_days}-day "
-            "Virtual Court settlement window. The file has likely been transferred to the concerned "
-            f"Metropolitan Magistrate / CJM Court for issuing physical summons or bailable warrants under Sec 208 MVA."
-        )
-        contest_advisable = True
-    else:
-        action = "Plead Guilty & Settle Online via vcourts.gov.in"
-        recommendation = (
-            "The photographic proof is on record and the offence is compoundable. "
-            "Pleading guilty online through the Virtual Court portal (vcourts.gov.in) allows you to "
-            "settle the fine digitally without visiting a court premises, saving judicial time and legal fees."
-        )
-        contest_advisable = False
-
-    return {
-        "state": state_norm,
-        "violation_key": violation_key,
-        "violation_name": rec["description"],
-        "virtual_court_available": is_vcourt_active,
-        "virtual_court_name": vc_info.get("virtual_court_name", "Regular Magistrate Court (No Virtual Court in State)"),
-        "portal_url": VIRTUAL_COURT_RULES["portal_url"] if is_vcourt_active else "https://echallan.parivahan.gov.in",
-        "days_since_notice": days_since_notice,
-        "summons_window_days": window_days,
-        "is_window_active": is_window_active,
-        "recommended_action": action,
-        "detailed_recommendation": recommendation,
-        "contest_advisable": contest_advisable,
-        "contest_transfer_court": vc_info.get("contest_transfer_court", "Jurisdictional CJM / Judicial Magistrate Court"),
-        "contest_grounds": VIRTUAL_COURT_RULES.get("grounds_to_contest", []),
-        "statutory_basis": VIRTUAL_COURT_RULES["statutory_basis"],
     }

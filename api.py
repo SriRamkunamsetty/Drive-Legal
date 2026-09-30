@@ -14,13 +14,11 @@ from fastapi import FastAPI, HTTPException, Query, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 
 import app_core
+import features
 from models import (
     AccidentClaimGuideEntry,
     AccidentCompensationEstimateRequest,
     AccidentCompensationEstimateResponse,
-    VirtualCourtJurisdictionModel,
-    VirtualCourtAdvisoryRequest,
-    VirtualCourtAdvisoryResponse,
     DLSuspensionRiskResponse,
     OffenceRiskProfileRequest,
     OffenceRiskProfileResponse,
@@ -60,6 +58,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Drop-in feature routers (features/*.py). New endpoints never edit this file.
+for _feature_router in features.routers():
+    app.include_router(_feature_router)
 
 
 @app.middleware("http")
@@ -411,7 +413,6 @@ def get_dl_risk_endpoint(violation_key: str) -> DLSuspensionRiskResponse:
     except app_core.CalculatorInputError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
-
 @app.get(
     "/api/v1/accident-claim-guide",
     response_model=list[AccidentClaimGuideEntry],
@@ -479,44 +480,3 @@ def get_offence_risk_profile_endpoint(
         return OffenceRiskProfileResponse.model_validate(result)
     except app_core.CalculatorInputError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
-
-
-@app.get(
-    "/api/v1/virtual-court/jurisdictions",
-    response_model=list[VirtualCourtJurisdictionModel],
-    tags=["virtual_court"],
-    summary="Active Virtual Court Jurisdictions and Operational Rules (Sec 208 MVA)",
-)
-def get_virtual_court_jurisdictions_endpoint() -> list[VirtualCourtJurisdictionModel]:
-    """List all States/UTs with deployed Virtual Traffic Courts, summons windows, and transfer courts."""
-    jurisdictions = app_core.get_virtual_court_jurisdictions()
-    return [VirtualCourtJurisdictionModel.model_validate(j) for j in jurisdictions]
-
-
-@app.post(
-    "/api/v1/virtual-court/advisory",
-    response_model=VirtualCourtAdvisoryResponse,
-    tags=["virtual_court"],
-    summary="Virtual Court (vcourts.gov.in) Challan Resolution & Contest Advisory",
-)
-def get_virtual_court_advisory_endpoint(
-    payload: VirtualCourtAdvisoryRequest,
-) -> VirtualCourtAdvisoryResponse:
-    """Analyze a traffic challan notice and return statutory advice on whether to plead guilty online
-    via vcourts.gov.in, contest under CMVR Rule 167A before a regular magistrate, or prepare for summons."""
-    try:
-        advisory = app_core.get_virtual_court_advisory(
-            state=payload.state,
-            violation_key=payload.violation_key,
-            days_since_notice=payload.days_since_notice,
-            has_photo_evidence=payload.has_photo_evidence,
-            contest_ground=payload.contest_ground,
-        )
-        return VirtualCourtAdvisoryResponse.model_validate(advisory)
-    except app_core.CalculatorInputError as exc:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
-    except Exception as exc:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Virtual Court advisory error: {exc}",
-        ) from exc
