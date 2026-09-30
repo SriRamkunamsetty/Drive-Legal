@@ -14,6 +14,7 @@ from fastapi import FastAPI, HTTPException, Query, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 
 import app_core
+import features
 from models import (
     AccidentClaimGuideEntry,
     AccidentCompensationEstimateRequest,
@@ -36,12 +37,7 @@ from models import (
     MultiChallanResponse,
     SingleCalculationRequest,
     SingleCalculationResponse,
-    DriverFatigueAuditRequest,
-    DriverFatigueAuditResponse,
-    HazchemCarriageAuditRequest,
-    HazchemCarriageAuditResponse,
 )
-
 
 app = FastAPI(
     title="DriveLegal India — Traffic Law & Challan Engine API",
@@ -62,6 +58,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Drop-in feature routers (features/*.py). New endpoints never edit this file.
+for _feature_router in features.routers():
+    app.include_router(_feature_router)
 
 
 @app.middleware("http")
@@ -462,6 +462,7 @@ def accident_compensation_estimate_endpoint(
             detail=f"Compensation estimate error: {exc}",
         ) from exc
 
+
 @app.post(
     "/api/v1/offence-risk-profile",
     response_model=OffenceRiskProfileResponse,
@@ -479,47 +480,3 @@ def get_offence_risk_profile_endpoint(
         return OffenceRiskProfileResponse.model_validate(result)
     except app_core.CalculatorInputError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
-
-
-@app.post(
-    "/api/v1/commercial/audit-driver-hours",
-    response_model=DriverFatigueAuditResponse,
-    tags=["commercial_compliance"],
-    summary="Audit Commercial Driver Rest Hours & Fatigue (MTWA 1961)",
-)
-def audit_driver_hours_endpoint(request: DriverFatigueAuditRequest) -> DriverFatigueAuditResponse:
-    """Audit driver continuous hours and rest intervals against Motor Transport Workers Act statutory limits."""
-    try:
-        result = app_core.audit_driver_fatigue_hours(
-            continuous_driving_hours=request.continuous_driving_hours,
-            daily_working_hours=request.daily_working_hours,
-            weekly_working_hours=request.weekly_working_hours,
-            rest_interval_minutes=request.rest_interval_minutes,
-            is_long_distance=request.is_long_distance,
-        )
-        return DriverFatigueAuditResponse.model_validate(result)
-    except app_core.CalculatorInputError as exc:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
-
-
-@app.post(
-    "/api/v1/commercial/audit-hazchem-carriage",
-    response_model=HazchemCarriageAuditResponse,
-    tags=["commercial_compliance"],
-    summary="Audit HAZCHEM Carriage Safety Equipment (CMVR Rules 129-137)",
-)
-def audit_hazchem_endpoint(request: HazchemCarriageAuditRequest) -> HazchemCarriageAuditResponse:
-    """Audit hazardous materials transport against UN Classes 1-9, EIP, TREMCARD, and Rule 9 endorsements."""
-    try:
-        result = app_core.audit_hazchem_carriage_compliance(
-            un_class_id=request.un_class_id,
-            has_eip_display=request.has_eip_display,
-            has_tremcard=request.has_tremcard,
-            has_hazardous_dl_endorsement=request.has_hazardous_dl_endorsement,
-            has_spark_arrester=request.has_spark_arrester,
-            has_fire_extinguisher=request.has_fire_extinguisher,
-        )
-        return HazchemCarriageAuditResponse.model_validate(result)
-    except app_core.CalculatorInputError as exc:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
-
