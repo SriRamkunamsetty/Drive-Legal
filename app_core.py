@@ -17,6 +17,13 @@ from urllib.parse import urlparse
 ROOT = Path(__file__).resolve().parent
 DATA_DIR = ROOT / "data"
 
+
+def __getattr__(name: str) -> Any:
+    """Expose names defined by drop-in ``features/`` modules as ``app_core.<name>``."""
+    import features
+
+    return features.lookup(name)
+
 EXPECTED_STATES = frozenset(
     {
         "Andhra Pradesh",
@@ -137,19 +144,6 @@ def _validate_citizen_rights(citizen_rights: Any) -> None:
         )
         ids.append(record["id"])
     _require(len(ids) == len(set(ids)), "citizen right IDs must be unique")
-
-
-def _validate_scrappage_rates(data: Any) -> None:
-    _require(isinstance(data, dict), "scrappage_rates must be an object")
-    _require("scrappage_parameters" in data and isinstance(data["scrappage_parameters"], dict), "missing scrappage_parameters")
-    _require("registration_fee_benchmarks" in data and isinstance(data["registration_fee_benchmarks"], dict), "missing registration_fee_benchmarks")
-
-
-def _validate_ev_state_incentives(data: Any) -> None:
-    _require(isinstance(data, dict), "ev_state_incentives must be an object")
-    _require("statutory_framework" in data and isinstance(data["statutory_framework"], dict), "missing statutory_framework")
-    _require("state_incentives" in data and isinstance(data["state_incentives"], dict), "missing state_incentives")
-
 
 
 def validate_data(
@@ -351,12 +345,7 @@ TRAFFIC_STOP_SAFEGUARDS = _read_json("traffic_stop_safeguards.json")
 _validate_traffic_stop_safeguards(TRAFFIC_STOP_SAFEGUARDS)
 RTO_DIRECTORY = _read_json("rto_directory.json")
 _validate_rto_directory(RTO_DIRECTORY)
-SCRAPPAGE_RATES = _read_json("scrappage_rates.json")
-_validate_scrappage_rates(SCRAPPAGE_RATES)
-EV_STATE_INCENTIVES = _read_json("ev_state_incentives.json")
-_validate_ev_state_incentives(EV_STATE_INCENTIVES)
 ALL_STATES = sorted(STATE_DATA)
-
 
 
 def get_source_details(source_ids: list[str]) -> list[dict[str, str]]:
@@ -1469,102 +1458,3 @@ def get_offence_risk_profile(violation_keys: list[str]) -> dict[str, Any]:
         ),
         "recommendation": recommendation,
     }
-
-
-# ---------------------------------------------------------------------------
-# National Vehicle Scrappage Policy (V-VCSF) & EV Green Plate Engine
-# ---------------------------------------------------------------------------
-def calculate_scrappage_incentives(
-    vehicle_type: str,
-    new_vehicle_ex_showroom: float,
-    state: str,
-    vehicle_age_years: int,
-    is_transport: bool = False,
-) -> dict[str, Any]:
-    """Calculate Certificate of Deposit (CoD) financial incentives under National Vehicle Scrappage Policy."""
-    if not isinstance(new_vehicle_ex_showroom, (int, float)) or new_vehicle_ex_showroom <= 0:
-        raise CalculatorInputError("New vehicle ex-showroom price must be a positive number.")
-    if not isinstance(vehicle_age_years, int) or vehicle_age_years < 0:
-        raise CalculatorInputError("Vehicle age must be a non-negative integer.")
-    if not isinstance(vehicle_type, str) or not vehicle_type.strip():
-        raise CalculatorInputError("Vehicle type must be a non-empty string.")
-
-    rules = SCRAPPAGE_RATES
-    params = rules.get("scrappage_parameters", {})
-    benchmarks = rules.get("registration_fee_benchmarks", {})
-    tax_rates = rules.get("estimated_road_tax_rates_pct", {})
-
-    min_age = params.get("min_age_years_transport", 10) if is_transport else params.get("min_age_years_non_transport", 15)
-    is_eligible = vehicle_age_years >= min_age
-
-    scrap_rate = params.get("scrap_value_rate_pct", 5.0) / 100.0
-    oem_rate = params.get("oem_discount_rate_pct", 5.0) / 100.0
-    road_tax_rebate_pct = params.get("road_tax_rebate_transport_pct", 15.0) if is_transport else params.get("road_tax_rebate_non_transport_pct", 25.0)
-
-    scrap_value = round(new_vehicle_ex_showroom * scrap_rate, 2)
-    oem_discount = round(new_vehicle_ex_showroom * oem_rate, 2)
-
-    st_tax_rate = tax_rates.get(state, tax_rates.get("default", 10.0)) / 100.0
-    estimated_road_tax = round(new_vehicle_ex_showroom * st_tax_rate, 2)
-    road_tax_rebate = round(estimated_road_tax * (road_tax_rebate_pct / 100.0), 2)
-
-    reg_fee_waiver = float(benchmarks.get(vehicle_type, benchmarks.get("Light Motor Vehicle (Car)", 1000)))
-
-    total_benefits = round(scrap_value + oem_discount + road_tax_rebate + reg_fee_waiver, 2)
-
-    if not is_eligible:
-        advisory = (
-            f"Vehicle age ({vehicle_age_years} years) does not meet the minimum statutory threshold "
-            f"({min_age} years) for voluntary scrappage incentives under MoRTH G.S.R. 653(E)."
-        )
-    else:
-        advisory = (
-            f"Eligible for Certificate of Deposit (CoD). You can avail ₹{total_benefits:,.2f} in total financial "
-            f"rebates against the purchase of a new vehicle across scrap value, OEM discount, road tax concession, "
-            f"and registration fee waiver (CMVR Rule 52)."
-        )
-
-    return {
-        "vehicle_type": vehicle_type,
-        "new_vehicle_ex_showroom": float(new_vehicle_ex_showroom),
-        "state": state,
-        "vehicle_age_years": vehicle_age_years,
-        "is_transport": is_transport,
-        "is_eligible": is_eligible,
-        "minimum_scrappage_age": min_age,
-        "scrap_value_estimate": scrap_value,
-        "oem_discount_estimate": oem_discount,
-        "estimated_road_tax": estimated_road_tax,
-        "road_tax_rebate": road_tax_rebate,
-        "road_tax_rebate_pct": road_tax_rebate_pct,
-        "registration_fee_waiver": reg_fee_waiver,
-        "total_financial_benefits": total_benefits,
-        "statutory_advisory": advisory,
-        "statutory_authority": rules.get("statutory_framework", {}),
-    }
-
-
-def get_ev_privileges_and_concessions(state: str, vehicle_category: str = "Two-Wheeler") -> dict[str, Any]:
-    """Retrieve statutory privileges and tax concessions for Electric Vehicles (Green Plate)."""
-    rules = EV_STATE_INCENTIVES
-    framework = rules.get("statutory_framework", {})
-    states = rules.get("state_incentives", {})
-
-    st_info = states.get(state, states.get("default", {}))
-
-    return {
-        "state": state,
-        "vehicle_category": vehicle_category,
-        "policy_name": st_info.get("policy_name", "National EV Guidelines"),
-        "road_tax_concession_pct": float(st_info.get("road_tax_concession_pct", 100.0)),
-        "registration_fee_concession_pct": float(st_info.get("registration_fee_concession_pct", 100.0)),
-        "permit_exemption_active": bool(st_info.get("permit_exemption_active", True)),
-        "zero_emission_urban_delivery": bool(st_info.get("zero_emission_urban_delivery", True)),
-        "green_plate_specification": framework.get("green_plate_specification", ""),
-        "statutory_permit_exemption_basis": framework.get("permit_exemption_provision", ""),
-        "legal_advisory": (
-            "Electric Vehicles bearing green registration plates are exempt from commercial permit mandates "
-            "under Section 66(1) MVA per MoRTH S.O. 3064(E), and enjoy preferential road tax and city entry concessions."
-        ),
-    }
-

@@ -14,6 +14,7 @@ from fastapi import FastAPI, HTTPException, Query, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 
 import app_core
+import features
 from models import (
     AccidentClaimGuideEntry,
     AccidentCompensationEstimateRequest,
@@ -36,11 +37,7 @@ from models import (
     MultiChallanResponse,
     SingleCalculationRequest,
     SingleCalculationResponse,
-    ScrappageIncentiveRequest,
-    ScrappageIncentiveResponse,
-    EVConcessionsResponse,
 )
-
 
 app = FastAPI(
     title="DriveLegal India — Traffic Law & Challan Engine API",
@@ -61,6 +58,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Drop-in feature routers (features/*.py). New endpoints never edit this file.
+for _feature_router in features.routers():
+    app.include_router(_feature_router)
 
 
 @app.middleware("http")
@@ -461,6 +462,7 @@ def accident_compensation_estimate_endpoint(
             detail=f"Compensation estimate error: {exc}",
         ) from exc
 
+
 @app.post(
     "/api/v1/offence-risk-profile",
     response_model=OffenceRiskProfileResponse,
@@ -478,40 +480,3 @@ def get_offence_risk_profile_endpoint(
         return OffenceRiskProfileResponse.model_validate(result)
     except app_core.CalculatorInputError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
-
-
-@app.post(
-    "/api/v1/green/scrappage-incentives",
-    response_model=ScrappageIncentiveResponse,
-    tags=["green_mobility"],
-    summary="Compute National Scrappage Policy (V-VCSF) Rebates and CoD Benefits",
-)
-def compute_scrappage_endpoint(request: ScrappageIncentiveRequest) -> ScrappageIncentiveResponse:
-    """Calculate scrap value, OEM discount, road tax concession, and registration fee waivers under MoRTH G.S.R. 653(E)."""
-    try:
-        result = app_core.calculate_scrappage_incentives(
-            vehicle_type=request.vehicle_type,
-            new_vehicle_ex_showroom=request.new_vehicle_ex_showroom,
-            state=request.state,
-            vehicle_age_years=request.vehicle_age_years,
-            is_transport=request.is_transport,
-        )
-        return ScrappageIncentiveResponse.model_validate(result)
-    except app_core.CalculatorInputError as exc:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
-
-
-@app.get(
-    "/api/v1/green/ev-privileges",
-    response_model=EVConcessionsResponse,
-    tags=["green_mobility"],
-    summary="Get EV Green Number Plate Statutory Privileges and State Tax Concessions",
-)
-def get_ev_privileges_endpoint(
-    state: str = Query("Delhi", description="State name for EV policy lookup"),
-    vehicle_category: str = Query("Two-Wheeler", description="Vehicle category"),
-) -> EVConcessionsResponse:
-    """Retrieve road tax waivers, Section 66 permit exemptions, and green plate rights."""
-    result = app_core.get_ev_privileges_and_concessions(state=state, vehicle_category=vehicle_category)
-    return EVConcessionsResponse.model_validate(result)
-
